@@ -1,43 +1,45 @@
-import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
+import { neon } from "@neondatabase/serverless"
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+  const sessionToken = request.cookies.get("session_token")?.value
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
-        },
-      },
-    },
-  )
+  // Protect dashboard routes
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    if (!sessionToken) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/login"
+      return NextResponse.redirect(url)
+    }
 
-  // Refresh session if expired
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    // Verify session is valid
+    try {
+      const sql = neon(process.env.DATABASE_URL!)
+      const result = await sql`
+        SELECT user_id
+        FROM sessions
+        WHERE token = ${sessionToken}
+          AND expires_at > NOW()
+      `
 
-  // Protect routes that require authentication
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/login"
-    return NextResponse.redirect(url)
+      if (result.length === 0) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/login"
+        const response = NextResponse.redirect(url)
+        response.cookies.delete("session_token")
+        return response
+      }
+    } catch (error) {
+      console.error("[v0] Middleware error:", error)
+      const url = request.nextUrl.clone()
+      url.pathname = "/login"
+      return NextResponse.redirect(url)
+    }
   }
 
-  return supabaseResponse
+  // Additional middleware logic can be added here
+
+  return NextResponse.next()
 }
 
 export const config = {

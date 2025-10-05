@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FolderTree, Grid3x3, Briefcase, CheckCircle } from "lucide-react"
@@ -11,18 +11,13 @@ import { FolderTree, Grid3x3, Briefcase, CheckCircle } from "lucide-react"
 export default function AdminPage() {
   const { t } = useLanguage()
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  const { user, loading } = useAuth()
 
   useEffect(() => {
-    const supabase = getSupabaseClient()
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login")
-      }
-      setLoading(false)
-    })
-  }, [router])
+    if (!loading && !user) {
+      router.push("/login")
+    }
+  }, [user, loading, router])
 
   if (loading) {
     return (

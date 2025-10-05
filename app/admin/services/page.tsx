@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { adminApi } from "@/lib/api/admin"
 import type { Service, Category } from "@/lib/types/admin"
@@ -36,16 +35,7 @@ export default function ServicesPage() {
   const [formData, setFormData] = useState({ name: "", description: "", categoryId: "" })
 
   useEffect(() => {
-    const supabase = getSupabaseClient()
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login")
-      } else {
-        loadData()
-      }
-      setLoading(false)
-    })
+    loadData()
   }, [router])
 
   const loadData = async () => {
@@ -54,11 +44,17 @@ export default function ServicesPage() {
       setServices(servicesData)
       setCategories(categoriesData)
     } catch (error) {
+      if (error instanceof Error && error.message.includes("Unauthorized")) {
+        router.push("/login")
+        return
+      }
       toast({
         title: t("admin.error"),
         description: "Failed to load data",
         variant: "destructive",
       })
+    } finally {
+      setLoading(false)
     }
   }
 

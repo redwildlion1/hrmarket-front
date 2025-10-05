@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { adminApi } from "@/lib/api/admin"
 import type { Category, Cluster } from "@/lib/types/admin"
@@ -29,6 +29,7 @@ export default function CategoriesPage() {
   const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
+  const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
   const [clusters, setClusters] = useState<Cluster[]>([])
@@ -36,17 +37,15 @@ export default function CategoriesPage() {
   const [formData, setFormData] = useState({ name: "", description: "", clusterId: "" })
 
   useEffect(() => {
-    const supabase = getSupabaseClient()
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    if (!authLoading) {
       if (!user) {
         router.push("/login")
       } else {
         loadData()
       }
       setLoading(false)
-    })
-  }, [router])
+    }
+  }, [user, authLoading, router])
 
   const loadData = async () => {
     try {
@@ -98,7 +97,7 @@ export default function CategoriesPage() {
     }
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
         <p>{t("common.loading")}</p>

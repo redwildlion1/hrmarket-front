@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,25 +12,16 @@ import { Building2, Plus } from "lucide-react"
 export default function DashboardPage() {
   const { t } = useLanguage()
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading, logout } = useAuth()
 
   useEffect(() => {
-    const supabase = getSupabaseClient()
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login")
-      } else {
-        setUser(user)
-      }
-      setLoading(false)
-    })
-  }, [router])
+    if (!loading && !user) {
+      router.push("/login")
+    }
+  }, [user, loading, router])
 
   const handleLogout = async () => {
-    const supabase = getSupabaseClient()
-    await supabase.auth.signOut()
+    await logout()
     router.push("/")
   }
 

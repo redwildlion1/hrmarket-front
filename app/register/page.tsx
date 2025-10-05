@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
+  const { register: registerUser } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -37,23 +38,14 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const supabase = getSupabaseClient()
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
-        },
-      })
-
-      if (error) throw error
+      await registerUser(email, password)
 
       toast({
         title: t("auth.success"),
-        description: t("auth.checkEmail"),
+        description: "Account created successfully!",
       })
 
-      router.push("/login")
+      router.push("/dashboard")
     } catch (error: any) {
       toast({
         title: t("auth.error"),

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
@@ -56,17 +55,7 @@ export default function CompanyCategoriesPage() {
     setSaving(true)
 
     try {
-      const supabase = getSupabaseClient()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
-        router.push("/login")
-        return
-      }
-
-      await updateCompanyCategories(companyId, selectedCategories, session.access_token)
+      await updateCompanyCategories(companyId, selectedCategories)
 
       toast({
         title: t("auth.success"),
@@ -76,6 +65,10 @@ export default function CompanyCategoriesPage() {
       router.push(`/dashboard/company/${companyId}/subscription`)
     } catch (error: any) {
       console.error("[v0] Categories update error:", error)
+      if (error.message?.includes("Unauthorized")) {
+        router.push("/login")
+        return
+      }
       toast({
         title: t("auth.error"),
         description: error.message || "Failed to update categories",

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
@@ -34,24 +33,14 @@ export default function CompanyMediaPage() {
     setUploading(true)
 
     try {
-      const supabase = getSupabaseClient()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
-        router.push("/login")
-        return
-      }
-
       const uploadPromises = []
 
       if (logo) {
-        uploadPromises.push(uploadCompanyMedia(companyId, "logo", logo, session.access_token))
+        uploadPromises.push(uploadCompanyMedia(companyId, "logo", logo))
       }
 
       if (cover) {
-        uploadPromises.push(uploadCompanyMedia(companyId, "cover", cover, session.access_token))
+        uploadPromises.push(uploadCompanyMedia(companyId, "cover", cover))
       }
 
       await Promise.all(uploadPromises)
@@ -64,6 +53,10 @@ export default function CompanyMediaPage() {
       router.push(`/dashboard/company/${companyId}/categories`)
     } catch (error: any) {
       console.error("[v0] Media upload error:", error)
+      if (error.message?.includes("Unauthorized")) {
+        router.push("/login")
+        return
+      }
       toast({
         title: t("auth.error"),
         description: error.message || "Failed to upload media",

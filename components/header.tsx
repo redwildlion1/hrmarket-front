@@ -5,26 +5,13 @@ import { useLanguage } from "@/lib/i18n/language-context"
 import { LanguageSwitcher } from "./language-switcher"
 import { Button } from "./ui/button"
 import { Menu } from "lucide-react"
-import { useState, useEffect } from "react"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useState } from "react"
+import { useAuth } from "@/lib/auth/client"
 
 export function Header() {
   const { t } = useLanguage()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
-
-  useEffect(() => {
-    const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const { user } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

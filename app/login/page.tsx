@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,6 +17,7 @@ export default function LoginPage() {
   const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -26,13 +27,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const supabase = getSupabaseClient()
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) throw error
+      await login(email, password)
 
       toast({
         title: t("auth.success"),

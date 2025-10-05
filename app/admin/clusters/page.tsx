@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { adminApi } from "@/lib/api/admin"
 import type { Cluster } from "@/lib/types/admin"
@@ -34,16 +33,7 @@ export default function ClustersPage() {
   const [formData, setFormData] = useState({ name: "", description: "" })
 
   useEffect(() => {
-    const supabase = getSupabaseClient()
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login")
-      } else {
-        loadClusters()
-      }
-      setLoading(false)
-    })
+    loadClusters()
   }, [router])
 
   const loadClusters = async () => {
@@ -51,11 +41,17 @@ export default function ClustersPage() {
       const data = await adminApi.getClusters()
       setClusters(data)
     } catch (error) {
+      if (error instanceof Error && error.message.includes("Unauthorized")) {
+        router.push("/login")
+        return
+      }
       toast({
         title: t("admin.error"),
         description: "Failed to load clusters",
         variant: "destructive",
       })
+    } finally {
+      setLoading(false)
     }
   }
 

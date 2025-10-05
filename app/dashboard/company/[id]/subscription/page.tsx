@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { PlanCard } from "@/components/subscription/plan-card"
 import { getSubscriptionPlans, createCheckoutSession } from "@/lib/api/subscription"
@@ -43,18 +42,8 @@ export default function CompanySubscriptionPage() {
     setProcessingPlanId(plan.id)
 
     try {
-      const supabase = getSupabaseClient()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
-        router.push("/login")
-        return
-      }
-
       const priceId = isYearly ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly
-      const { sessionId } = await createCheckoutSession(companyId, priceId, session.access_token)
+      const { sessionId } = await createCheckoutSession(companyId, priceId)
 
       const stripe = await stripePromise
       if (stripe) {
@@ -65,6 +54,10 @@ export default function CompanySubscriptionPage() {
       }
     } catch (error: any) {
       console.error("[v0] Checkout error:", error)
+      if (error.message?.includes("Unauthorized")) {
+        router.push("/login")
+        return
+      }
       toast({
         title: t("auth.error"),
         description: error.message || "Failed to start checkout",

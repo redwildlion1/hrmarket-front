@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { adminApi } from "@/lib/api/admin"
 import type { FirmVerification } from "@/lib/types/admin"
@@ -35,16 +34,7 @@ export default function VerifyFirmsPage() {
   const [notes, setNotes] = useState("")
 
   useEffect(() => {
-    const supabase = getSupabaseClient()
-
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login")
-      } else {
-        loadFirms()
-      }
-      setLoading(false)
-    })
+    loadFirms()
   }, [router])
 
   const loadFirms = async () => {
@@ -52,11 +42,17 @@ export default function VerifyFirmsPage() {
       const data = await adminApi.getPendingFirms()
       setFirms(data)
     } catch (error) {
+      if (error instanceof Error && error.message.includes("Unauthorized")) {
+        router.push("/login")
+        return
+      }
       toast({
         title: t("admin.error"),
         description: "Failed to load firms",
         variant: "destructive",
       })
+    } finally {
+      setLoading(false)
     }
   }
 

@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
@@ -24,6 +24,7 @@ export default function CompanyRegisterPage() {
   const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
+  const { user, loading: authLoading } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState<Partial<CompanyFormData>>({})
   const [companyTypes, setCompanyTypes] = useState<CompanyType[]>([])
@@ -106,24 +107,18 @@ export default function CompanyRegisterPage() {
     setLoading(true)
 
     try {
-      const supabase = getSupabaseClient()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
+      if (!user) {
         router.push("/login")
         return
       }
 
-      const company = await createCompany(formData as CompanyFormData, session.access_token)
+      const company = await createCompany(formData as CompanyFormData)
 
       toast({
         title: t("auth.success"),
         description: "Company registered successfully!",
       })
 
-      // Redirect to media upload
       router.push(`/dashboard/company/${company.id}/media`)
     } catch (error: any) {
       console.error("[v0] Company registration error:", error)
@@ -137,7 +132,7 @@ export default function CompanyRegisterPage() {
     }
   }
 
-  if (initialLoading) {
+  if (initialLoading || authLoading) {
     return (
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
         <p>{t("common.loading")}</p>
