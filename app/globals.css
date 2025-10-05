@@ -4,82 +4,79 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  /* Updated to red and white color scheme for HRMarket branding */
+  --background: oklch(1 0 0); /* Pure white */
+  --foreground: oklch(0.2 0 0); /* Near black for text */
+  --card: oklch(1 0 0); /* White cards */
+  --card-foreground: oklch(0.2 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-
-  /* HRMarket brand colors - sophisticated red and white palette */
-  --primary: oklch(0.55 0.22 25); /* Professional red */
-  --primary-foreground: oklch(1 0 0); /* White */
-  --secondary: oklch(0.97 0 0); /* Light gray */
-  --secondary-foreground: oklch(0.145 0 0); /* Dark text */
-
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.55 0.22 25); /* Accent red */
+  --popover-foreground: oklch(0.2 0 0);
+  --primary: oklch(0.55 0.22 25); /* Rich red - main brand color */
+  --primary-foreground: oklch(1 0 0); /* White text on red */
+  --secondary: oklch(0.96 0 0); /* Light gray for secondary elements */
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.65 0.2 25); /* Lighter red for accents */
   --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.55 0.25 27);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.55 0.22 25);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.55 0.22 25); /* Red focus ring */
   --chart-1: oklch(0.55 0.22 25);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-2: oklch(0.65 0.2 25);
+  --chart-3: oklch(0.45 0.24 25);
+  --chart-4: oklch(0.75 0.18 25);
+  --chart-5: oklch(0.35 0.26 25);
   --radius: 0.5rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.2 0 0);
   --sidebar-primary: oklch(0.55 0.22 25);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.145 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.2 0 0);
+  --sidebar-border: oklch(0.9 0 0);
+  --sidebar-ring: oklch(0.55 0.22 25);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.65 0.22 25);
+  /* Dark mode with red accents on dark background */
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.65 0.2 25); /* Brighter red for dark mode */
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.65 0.22 25);
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.25 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.55 0.22 25);
   --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.65 0.22 25);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.65 0.22 25);
+  --destructive: oklch(0.5 0.25 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0 0);
+  --input: oklch(0.25 0 0);
+  --ring: oklch(0.65 0.2 25);
+  --chart-1: oklch(0.65 0.2 25);
+  --chart-2: oklch(0.75 0.18 25);
+  --chart-3: oklch(0.55 0.22 25);
+  --chart-4: oklch(0.85 0.16 25);
+  --chart-5: oklch(0.45 0.24 25);
+  --sidebar: oklch(0.18 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.65 0.2 25);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --sidebar-accent: oklch(0.25 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-ring: oklch(0.65 0.2 25);
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -123,6 +120,366 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+  /* Added mobile-friendly base styles */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-in {
+    animation-name: enter;
+    animation-duration: 150ms;
+    animation-timing-function: ease-out;
+  }
+
+  .animate-out {
+    animation-name: exit;
+    animation-duration: 150ms;
+    animation-timing-function: ease-in;
+  }
+
+  .fade-in-0 {
+    animation-name: fadeIn;
+  }
+
+  .fade-out-0 {
+    animation-name: fadeOut;
+  }
+
+  .fade-out-80 {
+    animation-name: fadeOut80;
+  }
+
+  .zoom-in-90 {
+    animation-name: zoomIn90;
+  }
+
+  .zoom-in-95 {
+    animation-name: zoomIn95;
+  }
+
+  .zoom-out-95 {
+    animation-name: zoomOut95;
+  }
+
+  .slide-in-from-top {
+    animation-name: slideInFromTop;
+  }
+
+  .slide-in-from-top-2 {
+    animation-name: slideInFromTop2;
+  }
+
+  .slide-in-from-top-full {
+    animation-name: slideInFromTopFull;
+  }
+
+  .slide-in-from-bottom-2 {
+    animation-name: slideInFromBottom2;
+  }
+
+  .slide-in-from-bottom-full {
+    animation-name: slideInFromBottomFull;
+  }
+
+  .slide-in-from-left {
+    animation-name: slideInFromLeft;
+  }
+
+  .slide-in-from-left-2 {
+    animation-name: slideInFromLeft2;
+  }
+
+  .slide-in-from-left-52 {
+    animation-name: slideInFromLeft52;
+  }
+
+  .slide-in-from-right {
+    animation-name: slideInFromRight;
+  }
+
+  .slide-in-from-right-2 {
+    animation-name: slideInFromRight2;
+  }
+
+  .slide-in-from-right-52 {
+    animation-name: slideInFromRight52;
+  }
+
+  .slide-out-to-top {
+    animation-name: slideOutToTop;
+  }
+
+  .slide-out-to-bottom {
+    animation-name: slideOutToBottom;
+  }
+
+  .slide-out-to-left {
+    animation-name: slideOutToLeft;
+  }
+
+  .slide-out-to-left-52 {
+    animation-name: slideOutToLeft52;
+  }
+
+  .slide-out-to-right {
+    animation-name: slideOutToRight;
+  }
+
+  .slide-out-to-right-52 {
+    animation-name: slideOutToRight52;
+  }
+
+  .slide-out-to-right-full {
+    animation-name: slideOutToRightFull;
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut80 {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.8;
+  }
+}
+
+@keyframes zoomIn90 {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoomIn95 {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoomOut95 {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop2 {
+  from {
+    transform: translateY(-0.5rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTopFull {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom2 {
+  from {
+    transform: translateY(0.5rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottomFull {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft2 {
+  from {
+    transform: translateX(-0.5rem);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft52 {
+  from {
+    transform: translateX(-13rem);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight2 {
+  from {
+    transform: translateX(0.5rem);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight52 {
+  from {
+    transform: translateX(13rem);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slideOutToBottom {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slideOutToLeft52 {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-13rem);
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideOutToRight52 {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(13rem);
+  }
+}
+
+@keyframes slideOutToRightFull {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
   }
 }
