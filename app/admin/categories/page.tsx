@@ -68,7 +68,7 @@ export default function CategoriesPage() {
         description: formData.description,
         clusterId: Number.parseInt(formData.clusterId),
       })
-      toast({ title: t("admin.createSuccess") })
+      toast({ title: t("admin.createSuccess")})
       setIsDialogOpen(false)
       setFormData({ name: "", description: "", clusterId: "" })
       loadData()
@@ -86,7 +86,7 @@ export default function CategoriesPage() {
 
     try {
       await adminApi.deleteCategory(id)
-      toast({ title: t("admin.deleteSuccess") })
+      toast({ title: t("admin.deleteSuccess")})
       loadData()
     } catch (error) {
       toast({

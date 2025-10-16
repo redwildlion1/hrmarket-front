@@ -1,35 +1,59 @@
-import type { CompanyFormData, CompanyType, Country, County } from "@/lib/types/company"
+import { apiClient } from './client';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+export interface CompanyType {
+    id: string;
+    name: string;
+}
+
+export interface Country {
+    id: number;
+    name: string;
+}
+
+export interface County {
+    id: number;
+    name: string;
+}
+
+export interface CompanyFormData {
+    cui: string;
+    name: string;
+    typeId: number;
+    description: string;
+    contactEmail: string;
+    contactPhone?: string;
+    linksWebsite?: string;
+    linksLinkedIn?: string;
+    linksFacebook?: string;
+    linksTwitter?: string;
+    linksInstagram?: string;
+    locationAddress?: string;
+    locationCountryId: number;
+    locationCountyId: number;
+    locationCity: string;
+    locationPostalCode?: string;
+}
 
 export async function getCompanyTypes(): Promise<CompanyType[]> {
-  const response = await fetch(`${API_BASE_URL}/company-types`)
-  if (!response.ok) throw new Error("Failed to fetch company types")
-  return response.json()
+    // For now, return static data. You can create an endpoint for this later
+    return [
+        { id: 'Srl', name: 'SRL' },
+        { id: 'Sa', name: 'SA' },
+        { id: 'Pfa', name: 'PFA' },
+        { id: 'Ii', name: 'II' },
+        { id: 'Ong', name: 'ONG' },
+        { id: 'Other', name: 'Other' },
+    ];
 }
 
 export async function getCountries(): Promise<Country[]> {
-  const response = await fetch(`${API_BASE_URL}/countries`)
-  if (!response.ok) throw new Error("Failed to fetch countries")
-  return response.json()
+    return apiClient.location.getCountries();
 }
 
 export async function getCounties(countryId: number): Promise<County[]> {
-  const response = await fetch(`${API_BASE_URL}/counties?countryId=${countryId}`)
-  if (!response.ok) throw new Error("Failed to fetch counties")
-  return response.json()
+    return apiClient.location.getCounties(countryId);
 }
 
-export async function createCompany(data: CompanyFormData, token: string): Promise<{ id: string }> {
-  const response = await fetch(`${API_BASE_URL}/companies`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
-
-  if (!response.ok) throw new Error("Failed to create company")
-  return response.json()
+export async function createCompany(data: CompanyFormData) {
+    return apiClient.firms.create(data);
 }

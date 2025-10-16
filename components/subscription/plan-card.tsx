@@ -19,7 +19,7 @@ export function PlanCard({ plan, isYearly, onSelect, loading }: PlanCardProps) {
 
   const price = isYearly ? plan.priceYearly : plan.priceMonthly
   const period = isYearly ? t("subscription.perYear") : t("subscription.perMonth")
-  const savings = isYearly
+    const savings = isYearly
     ? Math.round(((plan.priceMonthly * 12 - plan.priceYearly) / (plan.priceMonthly * 12)) * 100)
     : 0
 

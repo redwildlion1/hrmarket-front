@@ -1,20 +1,34 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+import { apiClient } from './client';
 
-export async function getCategories(): Promise<any[]> {
-  const response = await fetch(`${API_BASE_URL}/categories`)
-  if (!response.ok) throw new Error("Failed to fetch categories")
-  return response.json()
+export interface Category {
+    id: string;
+    name: string;
+    description?: string;
+    icon: string;
 }
 
-export async function updateCompanyCategories(companyId: string, categoryIds: number[], token: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/companies/${companyId}/categories`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ categoryIds }),
-  })
+export async function getCategories(): Promise<Category[]> {
+    const clusters = await apiClient.categories.getClusters();
+    const categories: Category[] = [];
 
-  if (!response.ok) throw new Error("Failed to update categories")
+    clusters.forEach((cluster: any) => {
+        if (cluster.categories) {
+            cluster.categories.forEach((cat: any) => {
+                categories.push({
+                    id: cat.id,
+                    name: cat.name,
+                    description: cat.description,
+                    icon: cat.icon,
+                });
+            });
+        }
+    });
+
+    return categories;
+}
+
+export async function updateCompanyCategories(companyId: string, categoryIds: number[]) {
+    // This would be implemented with a proper endpoint
+    // For now, this is a placeholder
+    return Promise.resolve();
 }

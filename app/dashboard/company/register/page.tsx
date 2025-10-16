@@ -147,7 +147,7 @@ export default function CompanyRegisterPage() {
           <CardTitle>{t("company.register.title")}</CardTitle>
           <CardDescription>
             {t("company.register.progress")
-              .replace("{current}", currentStep.toString())
+                .replace("{current}", currentStep.toString())
               .replace("{total}", TOTAL_STEPS.toString())}
           </CardDescription>
         </CardHeader>

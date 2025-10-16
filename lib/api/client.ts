@@ -1,98 +1,272 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type AxiosError } from "axios"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5027/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+class ApiError extends Error {
+    constructor(
+        public status: number,
+        public title: string,
+        public errors: string[] = []
+    ) {
+        super(title);
+        this.name = 'ApiError';
+    }
+}
 
-// Create axios instance with default config
-const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 30000,
-  headers: {
-    "Content-Type": "application/json",
-  },
-})
+async function fetchWithAuth<T>(
+    endpoint: string,
+    options: RequestInit = {}
+): Promise<T> {
+    const token = localStorage.getItem('accessToken');
 
-// Request interceptor to add auth token
-apiClient.interceptors.request.use(
-  (config) => {
-    // Token will be added per request when needed
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  },
-)
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
 
-// Response interceptor for error handling
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response) {
-      // Server responded with error status
-      const status = error.response.status
-      const message = (error.response.data as any)?.message || error.message
-
-      switch (status) {
-        case 401:
-          console.error("[v0] Unauthorized:", message)
-          // Could redirect to login here
-          break
-        case 403:
-          console.error("[v0] Forbidden:", message)
-          break
-        case 404:
-          console.error("[v0] Not found:", message)
-          break
-        case 500:
-          console.error("[v0] Server error:", message)
-          break
-        default:
-          console.error("[v0] API error:", message)
-      }
-    } else if (error.request) {
-      // Request made but no response
-      console.error("[v0] No response from server")
-    } else {
-      // Error in request setup
-      console.error("[v0] Request error:", error.message)
+    // Merge existing headers if any
+    if (options.headers) {
+        const existingHeaders = new Headers(options.headers);
+        existingHeaders.forEach((value, key) => {
+            headers[key] = value;
+        });
     }
 
-    return Promise.reject(error)
-  },
-)
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
 
-// Helper to add auth token to config
-export const withAuth = (token: string, config?: AxiosRequestConfig): AxiosRequestConfig => {
-  return {
-    ...config,
-    headers: {
-      ...config?.headers,
-      Authorization: `Bearer ${token}`,
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch {
+            throw new ApiError(response.status, response.statusText);
+        }
+
+        throw new ApiError(
+            response.status,
+            errorData.title || 'An error occurred',
+            errorData.errors || []
+        );
+    }
+
+    if (response.status === 204) {
+        return null as T;
+    }
+
+    return response.json();
+}
+
+export const apiClient = {
+    // Auth endpoints
+    auth: {
+        register: async (data: { email: string; password: string; newsletter: boolean }) => {
+            return fetchWithAuth('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        login: async (data: { email: string; password: string }) => {
+            const result = await fetchWithAuth<{
+                token: string;
+                refreshToken: string;
+                tokenExpires: string;
+                refreshTokenExpires: string;
+            }>('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+
+            localStorage.setItem('accessToken', result.token);
+            localStorage.setItem('refreshToken', result.refreshToken);
+            return result;
+        },
+
+        refreshToken: async () => {
+            const token = localStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            const result = await fetchWithAuth<{
+                token: string;
+                refreshToken: string;
+                tokenExpires: string;
+                refreshTokenExpires: string;
+            }>('/auth/refresh-token', {
+                method: 'POST',
+                body: JSON.stringify({ token, refreshToken }),
+            });
+
+            localStorage.setItem('accessToken', result.token);
+            localStorage.setItem('refreshToken', result.refreshToken);
+            return result;
+        },
+
+        confirmEmail: async (userId: string, token: string) => {
+            return fetchWithAuth(`/auth/confirm-email?userId=${userId}&token=${encodeURIComponent(token)}`, {
+                method: 'GET',
+            });
+        },
     },
-  }
-}
 
-// Generic request methods
-export const api = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.get<T>(url, config)
-  },
+    // Company/Firm endpoints
+    firms: {
+        create: async (data: any) => {
+            return fetchWithAuth<{ id: string }>('/firm/create', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
 
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.post<T>(url, data, config)
-  },
+        uploadMedia: async (firmId: string, file: File, type: 'logo' | 'cover') => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', type);
 
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.put<T>(url, data, config)
-  },
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/media/firms/${firmId}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
 
-  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.patch<T>(url, data, config)
-  },
+            if (!response.ok) {
+                const error = await response.json();
+                throw new ApiError(response.status, error.title, error.errors);
+            }
 
-  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.delete<T>(url, config)
-  },
-}
+            return response.json();
+        },
+    },
 
-export { apiClient }
-export default apiClient
+    // Categories endpoints
+    categories: {
+        getAll: async () => {
+            return fetchWithAuth<any[]>('/categories/clusters');
+        },
+
+        getClusters: async () => {
+            return fetchWithAuth<any[]>('/categories/clusters');
+        },
+
+        getCategories: async () => {
+            return fetchWithAuth<any[]>('/categories/categories');
+        },
+
+        getServices: async () => {
+            return fetchWithAuth<any[]>('/categories/services');
+        },
+
+        createCluster: async (data: { name: string; icon: string }) => {
+            return fetchWithAuth('/categories/clusters', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        createCategory: async (data: { name: string; icon: string; orderCluster?: number; clusterId?: string }) => {
+            return fetchWithAuth('/categories/categories', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        createService: async (data: { name: string; orderInCategory: number; categoryId: string }) => {
+            return fetchWithAuth('/categories/services', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        deleteCluster: async (id: string) => {
+            return fetchWithAuth(`/categories/clusters/${id}`, {
+                method: 'DELETE',
+            });
+        },
+
+        deleteCategory: async (id: string) => {
+            return fetchWithAuth(`/categories/categories/${id}`, {
+                method: 'DELETE',
+            });
+        },
+
+        deleteService: async (id: string) => {
+            return fetchWithAuth(`/categories/services/${id}`, {
+                method: 'DELETE',
+            });
+        },
+    },
+
+    // Location endpoints
+    location: {
+        getCountries: async () => {
+            return fetchWithAuth<Array<{ id: number; name: string }>>('/location-elements/countries');
+        },
+
+        getCounties: async (countryId: number) => {
+            return fetchWithAuth<Array<{ id: number; name: string }>>(`/location-elements/${countryId}/counties`);
+        },
+    },
+
+    // Subscription endpoints
+    subscriptions: {
+        getPlans: async () => {
+            return fetchWithAuth<Array<{
+                id: string;
+                name: string;
+                description: string;
+                priceMonthly: number;
+                priceYearly: number;
+                stripePriceIdMonthly: string;
+                stripePriceIdYearly: string;
+                isPopular: boolean;
+                features: string[];
+            }>>('/subscriptions/plans');
+        },
+
+        createPlan: async (data: {
+            name: string;
+            description: string;
+            priceMonthly: number;
+            priceYearly: number;
+            features: string[];
+            isPopular?: boolean;
+        }) => {
+            return fetchWithAuth('/subscriptions/plans', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        createCheckoutSession: async (data: {
+            firmId: string;
+            priceId: string;
+            isYearly: boolean;
+        }) => {
+            return fetchWithAuth<{
+                sessionId: string;
+                publishableKey: string;
+            }>('/subscriptions/checkout', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        getSubscriptionStatus: async (firmId: string) => {
+            return fetchWithAuth<{
+                subscriptionId: string;
+                status: string;
+                currentPeriodEnd: string;
+                isYearly: boolean;
+                plan: any;
+            }>(`/subscriptions/firms/${firmId}/status`);
+        },
+    },
+};
+
+export { ApiError };

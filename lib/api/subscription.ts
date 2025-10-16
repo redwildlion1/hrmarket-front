@@ -1,27 +1,33 @@
-import type { SubscriptionPlan } from "@/lib/types/subscription"
+import { apiClient } from './client';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+export interface SubscriptionPlan {
+    id: string;
+    name: string;
+    description: string;
+    priceMonthly: number;
+    priceYearly: number;
+    stripePriceIdMonthly: string;
+    stripePriceIdYearly: string;
+    isPopular: boolean;
+    features: string[];
+}
 
 export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
-  const response = await fetch(`${API_BASE_URL}/subscription-plans`)
-  if (!response.ok) throw new Error("Failed to fetch subscription plans")
-  return response.json()
+    return apiClient.subscriptions.getPlans();
 }
 
 export async function createCheckoutSession(
-  companyId: string,
-  priceId: string,
-  token: string,
-): Promise<{ sessionId: string }> {
-  const response = await fetch(`${API_BASE_URL}/companies/${companyId}/checkout`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ priceId }),
-  })
+    companyId: string,
+    priceId: string,
+    isYearly: boolean = false
+) {
+    return apiClient.subscriptions.createCheckoutSession({
+        firmId: companyId,
+        priceId,
+        isYearly,
+    });
+}
 
-  if (!response.ok) throw new Error("Failed to create checkout session")
-  return response.json()
+export async function getSubscriptionStatus(firmId: string) {
+    return apiClient.subscriptions.getSubscriptionStatus(firmId);
 }

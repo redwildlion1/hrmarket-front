@@ -72,7 +72,7 @@ export default function VerifyFirmsPage() {
         status: verificationStatus,
         notes,
       })
-      toast({ title: t("admin.verifySuccess") })
+      toast({ title: t("admin.verifySuccess")})
       setIsDialogOpen(false)
       setSelectedFirm(null)
       setNotes("")

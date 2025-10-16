@@ -58,7 +58,7 @@ export default function ClustersPage() {
   const handleCreate = async () => {
     try {
       await adminApi.createCluster(formData)
-      toast({ title: t("admin.createSuccess") })
+      toast({ title: t("admin.createSuccess")})
       setIsDialogOpen(false)
       setFormData({ name: "", description: "" })
       loadClusters()
@@ -76,7 +76,7 @@ export default function ClustersPage() {
 
     try {
       await adminApi.deleteCluster(id)
-      toast({ title: t("admin.deleteSuccess") })
+      toast({ title: t("admin.deleteSuccess")})
       loadClusters()
     } catch (error) {
       toast({

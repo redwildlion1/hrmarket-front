@@ -65,7 +65,7 @@ export default function ServicesPage() {
         description: formData.description,
         categoryId: Number.parseInt(formData.categoryId),
       })
-      toast({ title: t("admin.createSuccess") })
+      toast({ title: t("admin.createSuccess")})
       setIsDialogOpen(false)
       setFormData({ name: "", description: "", categoryId: "" })
       loadData()
@@ -83,7 +83,7 @@ export default function ServicesPage() {
 
     try {
       await adminApi.deleteService(id)
-      toast({ title: t("admin.deleteSuccess") })
+      toast({ title: t("admin.deleteSuccess")})
       loadData()
     } catch (error) {
       toast({
