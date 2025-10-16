@@ -8,10 +8,11 @@ import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { useAuth } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { FormInput } from "@/lib/errors/form-input"
+import { ErrorAlert } from "@/components/errors/error-alert"
+import { parseApiError } from "@/lib/errors/types"
 
 export default function LoginPage() {
   const { t } = useLanguage()
@@ -21,10 +22,12 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [apiError, setApiError] = useState<ReturnType<typeof parseApiError> | null>(null)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setApiError(null) // Clear previous errors
 
     try {
       await login(email, password)
@@ -36,13 +39,38 @@ export default function LoginPage() {
 
       router.push("/dashboard")
     } catch (error: any) {
-      toast({
-        title: t("auth.error"),
-        description: error.message,
-        variant: "destructive",
-      })
+      const parsedError = parseApiError(error)
+      setApiError(parsedError)
+
+      // Show toast for general errors
+      if (!parsedError.isValidationError) {
+        toast({
+          title: t("auth.error"),
+          description: parsedError.problemDetails.detail || parsedError.problemDetails.title,
+          variant: "destructive",
+        })
+      }
     } finally {
       setLoading(false)
+    }
+  }
+
+  const clearFieldError = (fieldName: string) => {
+    if (!apiError?.problemDetails.validationErrors) return
+
+    const newValidationErrors = { ...apiError.problemDetails.validationErrors }
+    delete newValidationErrors[fieldName]
+
+    if (Object.keys(newValidationErrors).length === 0) {
+      setApiError(null)
+    } else {
+      setApiError({
+        ...apiError,
+        problemDetails: {
+          ...apiError.problemDetails,
+          validationErrors: newValidationErrors,
+        },
+      })
     }
   }
 
@@ -55,29 +83,34 @@ export default function LoginPage() {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("auth.email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("auth.password")}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
+            {apiError && !apiError.isValidationError && (
+              <ErrorAlert apiError={apiError} onClose={() => setApiError(null)} />
+            )}
+
+            <FormInput
+              label={t("auth.email")}
+              name="email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              apiError={apiError?.problemDetails as any}
+              onErrorClear={clearFieldError}
+            />
+
+            <FormInput
+              label={t("auth.password")}
+              name="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              apiError={apiError?.problemDetails as any}
+              onErrorClear={clearFieldError}
+            />
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-2">
             <Button type="submit" className="w-full" disabled={loading}>
