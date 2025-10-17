@@ -292,4 +292,8 @@ export const apiClient = {
   },
 }
 
+export const api = apiClient
+
+export const withAuth = fetchWithAuth
+
 export { ApiError }

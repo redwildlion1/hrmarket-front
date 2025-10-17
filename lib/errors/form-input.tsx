@@ -3,59 +3,67 @@
 import type React from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import type { ApiError } from "@/lib/api/client"
+import { useFormErrors } from "./form-error-context"
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string
-  name: string
-  apiError?: ApiError | null
   helperText?: string
-  onErrorClear?: (fieldName: string) => void
 }
 
 /**
- * Form input component that displays validation errors from the API
+ * Form input component that automatically displays validation errors
+ * based on the input's id prop. Errors are managed by FormErrorProvider.
+ *
+ * Usage:
+ * <FormErrorProvider>
+ *   <FormInput id="email" label="Email" type="email" />
+ *   <FormInput id="password" label="Password" type="password" />
+ * </FormErrorProvider>
  */
 export const FormInput: React.FC<FormInputProps> = ({
   label,
-  name,
-  apiError,
   helperText,
-  onErrorClear,
   className = "",
+  id,
+  onChange,
   ...inputProps
 }) => {
-  const errors = apiError?.validationErrors?.[name] || []
+  const { getFieldErrors, clearFieldError } = useFormErrors()
+
+  if (!id) {
+    throw new Error("FormInput requires an id prop to match backend validation errors")
+  }
+
+  const errors = getFieldErrors(id)
   const hasError = errors.length > 0
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Clear field error when user starts typing
-    if (hasError && onErrorClear) {
-      onErrorClear(name)
+    if (hasError) {
+      clearFieldError(id)
     }
 
-    inputProps.onChange?.(e)
+    onChange?.(e)
   }
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={name}>
+      <Label htmlFor={id}>
         {label}
         {inputProps.required && <span className="text-destructive ml-1">*</span>}
       </Label>
 
       <Input
-        id={name}
-        name={name}
+        id={id}
+        name={id}
         className={hasError ? "border-destructive focus-visible:ring-destructive" : ""}
         aria-invalid={hasError}
-        aria-describedby={hasError ? `${name}-error` : helperText ? `${name}-helper` : undefined}
+        aria-describedby={hasError ? `${id}-error` : helperText ? `${id}-helper` : undefined}
         {...inputProps}
         onChange={handleChange}
       />
 
       {hasError && (
-        <div id={`${name}-error`} className="space-y-1" role="alert">
+        <div id={`${id}-error`} className="space-y-1" role="alert">
           {errors.map((error, index) => (
             <p key={index} className="text-sm text-destructive">
               {error}
@@ -65,7 +73,7 @@ export const FormInput: React.FC<FormInputProps> = ({
       )}
 
       {!hasError && helperText && (
-        <p id={`${name}-helper`} className="text-sm text-muted-foreground">
+        <p id={`${id}-helper`} className="text-sm text-muted-foreground">
           {helperText}
         </p>
       )}

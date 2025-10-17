@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { type ApiError, parseApiError } from "./errorTypes"
+import { type ApiError, parseApiError } from "./types"
 
 /**
  * Hook for managing API errors in components
