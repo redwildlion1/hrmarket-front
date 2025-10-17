@@ -84,6 +84,15 @@ export const translations = {
       "Datele tale sunt protejate cu cele mai înalte standarde de securitate și confidențialitate.",
     "home.whyChoose.global": "Conectat Global",
     "home.whyChoose.globalDesc": "Accesează o rețea globală de profesioniști HR și companii din întreaga lume.",
+    "home.whyChoose.network": "Rețea Puternică",
+    "home.whyChoose.networkDesc":
+      "Conectează-te cu mii de profesioniști HR și companii de top din România și din întreaga lume.",
+    "home.whyChoose.growth": "Creștere Continuă",
+    "home.whyChoose.growthDesc":
+      "Accesează resurse, evenimente și oportunități care te ajută să îți dezvolți cariera în HR.",
+    "home.whyChoose.recognition": "Recunoaștere & Vizibilitate",
+    "home.whyChoose.recognitionDesc":
+      "Construiește-ți reputația și fii descoperit de cele mai bune companii din industrie.",
     "home.cta.title": "Be HRMARKable!",
     "home.cta.subtitle":
       "Alătură-te celui mai important marketplace HR și du-ți cariera sau afacerea la următorul nivel",
@@ -302,6 +311,13 @@ export const translations = {
     "home.whyChoose.secureDesc": "Your data is protected with the highest security and privacy standards.",
     "home.whyChoose.global": "Globally Connected",
     "home.whyChoose.globalDesc": "Access a global network of HR professionals and companies from around the world.",
+    "home.whyChoose.network": "Strong Network",
+    "home.whyChoose.networkDesc":
+      "Connect with thousands of HR professionals and top companies from Romania and around the world.",
+    "home.whyChoose.growth": "Continuous Growth",
+    "home.whyChoose.growthDesc": "Access resources, events, and opportunities that help you develop your HR career.",
+    "home.whyChoose.recognition": "Recognition & Visibility",
+    "home.whyChoose.recognitionDesc": "Build your reputation and be discovered by the best companies in the industry.",
     "home.cta.title": "Be HRMARKable!",
     "home.cta.subtitle": "Join the leading HR marketplace and take your career or business to the next level",
     "home.about.title": "About HRMarket",
