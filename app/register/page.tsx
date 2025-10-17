@@ -32,8 +32,6 @@ function RegisterForm() {
     e.preventDefault()
     clearError()
 
-    console.log("[v0] Registration started")
-
     if (password !== confirmPassword) {
       setError({
         response: {
@@ -69,10 +67,7 @@ function RegisterForm() {
     setLoading(true)
 
     try {
-      console.log("[v0] Calling registerUser with email:", email)
       await registerUser(email, password)
-      console.log("[v0] Registration successful, setting success state")
-
       setRegistrationSuccess(true)
 
       toast({
@@ -80,7 +75,6 @@ function RegisterForm() {
         description: t("auth.checkEmail"),
       })
     } catch (error: any) {
-      console.log("[v0] Registration error:", error)
       setError(error)
 
       if (error.response?.data && !error.response.data.validationErrors) {
@@ -92,11 +86,8 @@ function RegisterForm() {
       }
     } finally {
       setLoading(false)
-      console.log("[v0] Registration complete, loading:", false, "success:", registrationSuccess)
     }
   }
-
-  console.log("[v0] Render - registrationSuccess:", registrationSuccess)
 
   if (registrationSuccess) {
     return (

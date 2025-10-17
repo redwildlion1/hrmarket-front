@@ -71,7 +71,27 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     return null as T
   }
 
-  return response.json()
+  // Check if response has content before parsing JSON
+  const contentType = response.headers.get("content-type")
+  const contentLength = response.headers.get("content-length")
+
+  // If no content-type or content-length is 0, return null
+  if (!contentType || contentLength === "0") {
+    return null as T
+  }
+
+  // Only parse JSON if content-type indicates JSON
+  if (contentType.includes("application/json")) {
+    const text = await response.text()
+    // If response body is empty, return null
+    if (!text || text.trim() === "") {
+      return null as T
+    }
+    return JSON.parse(text)
+  }
+
+  // For non-JSON responses, return null
+  return null as T
 }
 
 export const apiClient = {
