@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { FormInput } from "@/lib/errors/form-input"
 import { ErrorAlert } from "@/components/errors/error-alert"
 import { FormErrorProvider, useFormErrors } from "@/lib/errors/form-error-context"
-import { Users, TrendingUp, Award, ArrowRight } from "lucide-react"
+import { Users, TrendingUp, Award, ArrowRight, Mail, CheckCircle2 } from "lucide-react"
 
 function RegisterForm() {
   const { t } = useLanguage()
@@ -24,6 +24,7 @@ function RegisterForm() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [registrationSuccess, setRegistrationSuccess] = useState(false)
 
   const { setError, clearError, apiError } = useFormErrors()
 
@@ -68,12 +69,12 @@ function RegisterForm() {
     try {
       await registerUser(email, password)
 
+      setRegistrationSuccess(true)
+
       toast({
         title: t("auth.success"),
-        description: "Account created successfully!",
+        description: t("auth.checkEmail"),
       })
-
-      router.push("/dashboard")
     } catch (error: any) {
       setError(error)
 
@@ -87,6 +88,48 @@ function RegisterForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (registrationSuccess) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="w-full max-w-md border-0 shadow-2xl backdrop-blur-sm bg-white/95">
+          <CardHeader className="space-y-4 pb-6 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70"
+            >
+              <CheckCircle2 className="h-10 w-10 text-white" />
+            </motion.div>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              {t("auth.success")}
+            </CardTitle>
+            <CardDescription className="text-base">{t("auth.checkEmail")}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 space-y-3">
+              <div className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-primary" />
+                <p className="text-sm font-medium text-foreground">{email}</p>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t("auth.checkEmail")}</p>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4 pt-2">
+            <Button onClick={() => router.push("/login")} className="w-full group">
+              {t("auth.loginHere")}
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    )
   }
 
   return (
