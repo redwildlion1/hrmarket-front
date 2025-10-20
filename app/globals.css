@@ -150,7 +150,8 @@
     animation: scroll 30s linear infinite;
   }
 
-  .animate-scroll:hover {
+  /* Removed hover pause behavior and added explicit paused class */
+  .animate-scroll.paused {
     animation-play-state: paused;
   }
 
@@ -202,6 +203,16 @@
   .bg-dot-pattern {
     background-image: radial-gradient(circle, rgba(220, 38, 38, 0.08) 1px, transparent 1px);
     background-size: 20px 20px;
+  }
+
+  /* Added scrollbar-hide utility for logo carousel */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
