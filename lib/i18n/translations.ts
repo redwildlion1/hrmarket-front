@@ -34,6 +34,12 @@ export const translations = {
     "auth.accountType": "Tip Cont",
     "auth.userAccount": "Cont Utilizator",
     "auth.companyAccount": "Cont Companie",
+    "auth.personalAccount": "Cont Personal",
+    "auth.firmAccount": "Cont Firmă",
+    "auth.newsletter": "Abonează-te la newsletter",
+    "auth.newsletterDesc": "Primește cele mai recente știri și oportunități HR",
+    "auth.firmEmailSuggestion":
+      "Recomandăm folosirea unui email de companie pentru o aprobare mai rapidă de către administratori.",
     "auth.selectAccountType": "Selectează tipul de cont",
 
     // Footer
@@ -262,7 +268,12 @@ export const translations = {
     "auth.accountType": "Account Type",
     "auth.userAccount": "User Account",
     "auth.companyAccount": "Company Account",
-    "auth.selectAccountType": "Select Account Type",
+    "auth.personalAccount": "Personal Account",
+    "auth.firmAccount": "Firm Account",
+    "auth.newsletter": "Subscribe to newsletter",
+    "auth.newsletterDesc": "Receive the latest HR news and opportunities",
+    "auth.firmEmailSuggestion": "We recommend using a company email for faster approval by administrators.",
+    "auth.selectAccountType": "Select account type",
 
     // Footer
     "footer.tagline": "Be HRMARKable!",

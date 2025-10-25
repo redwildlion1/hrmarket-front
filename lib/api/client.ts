@@ -27,9 +27,11 @@ class ApiError extends Error {
 
 async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem("accessToken")
+  const language = localStorage.getItem("language") || "ro"
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "Accept-Language": language === "en" ? "en" : "ro",
   }
 
   // Merge existing headers if any
@@ -97,7 +99,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
 export const apiClient = {
   // Auth endpoints
   auth: {
-    register: async (data: { email: string; password: string; newsletter: boolean }) => {
+    register: async (data: { email: string; password: string; newsletter: boolean; isFirm?: boolean }) => {
       return fetchWithAuth("/auth/register", {
         method: "POST",
         body: JSON.stringify(data),

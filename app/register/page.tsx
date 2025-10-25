@@ -13,7 +13,12 @@ import { useToast } from "@/hooks/use-toast"
 import { FormInput } from "@/lib/errors/form-input"
 import { ErrorAlert } from "@/components/errors/error-alert"
 import { FormErrorProvider, useFormErrors } from "@/lib/errors/form-error-context"
-import { Users, TrendingUp, Award, ArrowRight, Mail, CheckCircle2 } from "lucide-react"
+import { Users, TrendingUp, Award, ArrowRight, Mail, CheckCircle2, Building2, User } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Info } from "lucide-react"
 
 function RegisterForm() {
   const { t } = useLanguage()
@@ -23,6 +28,8 @@ function RegisterForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [newsletter, setNewsletter] = useState(true)
+  const [isFirm, setIsFirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
 
@@ -67,7 +74,7 @@ function RegisterForm() {
     setLoading(true)
 
     try {
-      await registerUser(email, password)
+      await registerUser(email, password, newsletter, isFirm)
       setRegistrationSuccess(true)
 
       toast({
@@ -144,6 +151,44 @@ function RegisterForm() {
           <CardContent className="space-y-6">
             {apiError && !apiError.isValidationError && <ErrorAlert />}
 
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">{t("auth.accountType")}</Label>
+              <div className="flex items-center gap-4 p-4 rounded-lg border-2 border-muted bg-muted/30 transition-colors">
+                <div className="flex items-center gap-3 flex-1">
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${!isFirm ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                  >
+                    <User className="h-5 w-5" />
+                  </div>
+                  <span
+                    className={`text-sm font-medium transition-colors ${!isFirm ? "text-foreground" : "text-muted-foreground"}`}
+                  >
+                    {t("auth.personalAccount")}
+                  </span>
+                </div>
+                <Switch checked={isFirm} onCheckedChange={setIsFirm} disabled={loading} />
+                <div className="flex items-center gap-3 flex-1">
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${isFirm ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                  >
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <span
+                    className={`text-sm font-medium transition-colors ${isFirm ? "text-foreground" : "text-muted-foreground"}`}
+                  >
+                    {t("auth.firmAccount")}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {isFirm && (
+              <Alert className="border-primary/20 bg-primary/5">
+                <Info className="h-4 w-4 text-primary" />
+                <AlertDescription className="text-sm text-foreground">{t("auth.firmEmailSuggestion")}</AlertDescription>
+              </Alert>
+            )}
+
             <FormInput
               id="email"
               label={t("auth.email")}
@@ -175,6 +220,22 @@ function RegisterForm() {
               required
               disabled={loading}
             />
+
+            <div className="flex items-start space-x-3 p-4 rounded-lg border border-muted bg-muted/30">
+              <Checkbox
+                id="newsletter"
+                checked={newsletter}
+                onCheckedChange={(checked) => setNewsletter(checked as boolean)}
+                disabled={loading}
+                className="mt-0.5"
+              />
+              <div className="space-y-1">
+                <Label htmlFor="newsletter" className="text-sm font-medium leading-none cursor-pointer">
+                  {t("auth.newsletter")}
+                </Label>
+                <p className="text-xs text-muted-foreground">{t("auth.newsletterDesc")}</p>
+              </div>
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-2">
             <Button type="submit" className="w-full group" disabled={loading}>
