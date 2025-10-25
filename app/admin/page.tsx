@@ -14,8 +14,18 @@ export default function AdminPage() {
   const { userInfo, loading } = useAuth()
 
   useEffect(() => {
-    if (!loading && (!userInfo || !userInfo.isAdmin)) {
-      router.push("/login")
+    console.log("[v0] Admin page - loading:", loading, "userInfo:", userInfo)
+
+    if (!loading) {
+      if (!userInfo) {
+        console.log("[v0] No userInfo, redirecting to login")
+        router.push("/login")
+      } else if (!userInfo.isAdmin) {
+        console.log("[v0] User is not admin, redirecting to login")
+        router.push("/login")
+      } else {
+        console.log("[v0] User is admin, showing admin page")
+      }
     }
   }, [userInfo, loading, router])
 
