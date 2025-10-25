@@ -4,15 +4,33 @@ import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { LanguageSwitcher } from "./language-switcher"
 import { Button } from "./ui/button"
-import { Menu, X, Sparkles, User, Shield, Building2 } from "lucide-react"
+import { Menu, X, Sparkles, User, Shield, Building2, LogOut } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "@/lib/auth/client"
 import { motion, AnimatePresence } from "framer-motion"
+import { useToast } from "@/hooks/use-toast"
 
 export function Header() {
   const { t } = useLanguage()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { userInfo } = useAuth()
+  const { userInfo, logout } = useAuth()
+  const { toast } = useToast()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast({
+        title: t("common.success"),
+        description: t("nav.logout"),
+      })
+    } catch (error) {
+      toast({
+        title: t("common.error"),
+        description: "Failed to logout",
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
@@ -97,6 +115,14 @@ export function Header() {
                     </Link>
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className="h-10 w-10 rounded-full p-0 hover:bg-destructive/10 transition-all"
+                >
+                  <LogOut className="h-5 w-5 text-destructive" />
+                </Button>
               </>
             ) : (
               <>
@@ -200,6 +226,15 @@ export function Header() {
                         </Link>
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleLogout}
+                      className="flex-1 h-12 border-destructive/50 text-destructive hover:bg-destructive hover:text-white bg-transparent"
+                    >
+                      <LogOut className="h-5 w-5 mr-2" />
+                      {t("nav.logout")}
+                    </Button>
                   </>
                 ) : (
                   <>

@@ -13,13 +13,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast"
 import { FormInput } from "@/lib/errors/form-input"
 import { FormErrorProvider, useFormErrors } from "@/lib/errors/form-error-context"
-import { User, Mail, Building2, ArrowRight, LogOut } from "lucide-react"
+import { User, Mail, Building2, ArrowRight } from "lucide-react"
 
 function ProfileContent() {
   const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
-  const { userInfo, loading: authLoading, logout } = useAuth()
+  const { userInfo, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [profile, setProfile] = useState<any>(null)
@@ -89,22 +89,6 @@ function ProfileContent() {
       })
     } finally {
       setSaving(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await logout()
-      toast({
-        title: t("common.success"),
-        description: t("nav.logout"),
-      })
-    } catch (error) {
-      toast({
-        title: t("common.error"),
-        description: "Failed to logout",
-        variant: "destructive",
-      })
     }
   }
 
@@ -205,14 +189,6 @@ function ProfileContent() {
                 <p className="text-sm text-muted-foreground mb-1">{t("profile.accountType")}</p>
                 <p className="font-medium">{t("profile.personalAccount")}</p>
               </div>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-white group bg-transparent"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                {t("nav.logout")}
-              </Button>
             </CardContent>
           </Card>
 
