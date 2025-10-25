@@ -19,7 +19,7 @@ function LoginForm() {
   const { t } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
-  const { login } = useAuth()
+  const { login, userInfo } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -39,7 +39,25 @@ function LoginForm() {
         description: t("auth.welcomeBack"),
       })
 
-      router.push("/dashboard")
+      // Get the latest userInfo from localStorage since state might not be updated yet
+      const storedUserInfo = localStorage.getItem("userInfo")
+      if (storedUserInfo) {
+        const parsedUserInfo = JSON.parse(storedUserInfo)
+
+        if (parsedUserInfo.hasFirm && !parsedUserInfo.firmId) {
+          router.push("/firm/create")
+        }
+        // Redirect based on user status
+        else if (parsedUserInfo.isAdmin) {
+          router.push("/admin")
+        } else if (parsedUserInfo.hasFirm) {
+          router.push("/firm/manage")
+        } else {
+          router.push("/profile")
+        }
+      } else {
+        router.push("/dashboard")
+      }
     } catch (error: any) {
       setError(error)
 

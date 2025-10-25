@@ -4,14 +4,18 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { apiClient } from "@/lib/api/client"
 import { useRouter } from "next/navigation"
 
-interface User {
+interface UserInfo {
+  userId: string
   email: string
-  firmId?: string
-  firmName?: string
+  isAdmin: boolean
+  hasFirm: boolean
+  firmId: string | null
+  firmName: string | null
+  roles: string[]
 }
 
 interface AuthContextType {
-  user: User | null
+  userInfo: UserInfo | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, newsletter?: boolean, isFirm?: boolean) => Promise<void>
@@ -21,7 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -32,24 +36,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem("accessToken")
-      if (!token) {
+      const storedUserInfo = localStorage.getItem("userInfo")
+
+      if (!token || !storedUserInfo) {
         setLoading(false)
         return
       }
 
-      // Decode JWT to get user info (simple base64 decode)
-      const payload = JSON.parse(atob(token.split(".")[1]))
-      const userData: User = {
-        email: payload.email || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
-        firmId: payload.FirmId,
-        firmName: payload.FirmName,
-      }
-
-      setUser(userData)
+      const parsedUserInfo = JSON.parse(storedUserInfo)
+      setUserInfo(parsedUserInfo)
     } catch (error) {
       console.error("Auth check failed:", error)
       localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
+      localStorage.removeItem("userInfo")
     } finally {
       setLoading(false)
     }
@@ -57,8 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      await apiClient.auth.login({ email, password })
-      await checkAuth()
+      const result = await apiClient.auth.login({ email, password })
+      setUserInfo(result.userInfo)
     } catch (error) {
       throw error
     }
@@ -75,11 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
-    setUser(null)
+    localStorage.removeItem("userInfo")
+    setUserInfo(null)
     router.push("/")
   }
 
-  return <AuthContext.Provider value={{ user, loading, login, register, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ userInfo, loading, login, register, logout }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

@@ -112,6 +112,15 @@ export const apiClient = {
         refreshToken: string
         tokenExpires: string
         refreshTokenExpires: string
+        userInfo: {
+          userId: string
+          email: string
+          isAdmin: boolean
+          hasFirm: boolean
+          firmId: string | null
+          firmName: string | null
+          roles: string[]
+        }
       }>("/auth/login", {
         method: "POST",
         body: JSON.stringify(data),
@@ -119,6 +128,7 @@ export const apiClient = {
 
       localStorage.setItem("accessToken", result.token)
       localStorage.setItem("refreshToken", result.refreshToken)
+      localStorage.setItem("userInfo", JSON.stringify(result.userInfo))
       return result
     },
 
@@ -143,6 +153,12 @@ export const apiClient = {
 
     confirmEmail: async (userId: string, token: string) => {
       return fetchWithAuth(`/auth/confirm-email?userId=${userId}&token=${encodeURIComponent(token)}`, {
+        method: "GET",
+      })
+    },
+
+    checkAdmin: async () => {
+      return fetchWithAuth<{ isAdmin: boolean }>("/auth/check-admin", {
         method: "GET",
       })
     },
@@ -310,6 +326,99 @@ export const apiClient = {
         isYearly: boolean
         plan: any
       }>(`/subscriptions/firms/${firmId}/status`)
+    },
+  },
+
+  // User profile endpoints
+  user: {
+    getProfile: async () => {
+      return fetchWithAuth<{
+        userId: string
+        email: string
+        firstName: string | null
+        lastName: string | null
+        phone: string | null
+        hasFirm: boolean
+        firmId: string | null
+        firmName: string | null
+      }>("/user/profile", {
+        method: "GET",
+      })
+    },
+
+    updateProfile: async (data: {
+      firstName?: string
+      lastName?: string
+      phone?: string
+    }) => {
+      return fetchWithAuth("/user/profile", {
+        method: "PUT",
+        body: JSON.stringify(data),
+      })
+    },
+  },
+
+  // Firm management endpoints
+  firm: {
+    getDetails: async (firmId: string) => {
+      return fetchWithAuth<{
+        firmId: string
+        name: string
+        email: string
+        phone: string | null
+        website: string | null
+        description: string | null
+        logo: string | null
+        coverImage: string | null
+        address: string | null
+        city: string | null
+        country: string | null
+      }>(`/firm/${firmId}`, {
+        method: "GET",
+      })
+    },
+
+    updateDetails: async (
+      firmId: string,
+      data: {
+        name?: string
+        email?: string
+        phone?: string
+        website?: string
+        description?: string
+        address?: string
+        city?: string
+        country?: string
+      },
+    ) => {
+      return fetchWithAuth(`/firm/${firmId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      })
+    },
+
+    create: async (data: {
+      cui: string
+      name: string
+      type: string
+      description?: string
+      contactEmail: string
+      contactPhone?: string
+      linksWebsite?: string
+      linksLinkedIn?: string
+      linksFacebook?: string
+      linksTwitter?: string
+      linksInstagram?: string
+      locationAddress?: string
+      locationCountryId: number
+      locationCountyId: number
+      locationCity: string
+      locationPostalCode?: string
+    }) => {
+      return fetchWithAuth<{ firmId: string }>("/firm", {
+        method: "POST",
+        body: JSON.stringify(data),
+      })
     },
   },
 }
