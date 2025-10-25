@@ -13,6 +13,8 @@ export const translations = {
     "nav.login": "Autentificare",
     "nav.register": "Înregistrare",
     "nav.logout": "Deconectare",
+    "nav.profile": "Profil",
+    "nav.admin": "Admin",
 
     // Auth
     "auth.email": "Email",
@@ -314,6 +316,8 @@ export const translations = {
     "nav.login": "Login",
     "nav.register": "Register",
     "nav.logout": "Logout",
+    "nav.profile": "Profile",
+    "nav.admin": "Admin",
 
     // Auth
     "auth.email": "Email",

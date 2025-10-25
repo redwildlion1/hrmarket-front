@@ -39,24 +39,24 @@ function LoginForm() {
         description: t("auth.welcomeBack"),
       })
 
-      // Get the latest userInfo from localStorage since state might not be updated yet
       const storedUserInfo = localStorage.getItem("userInfo")
       if (storedUserInfo) {
         const parsedUserInfo = JSON.parse(storedUserInfo)
 
+        // Check if user needs to create firm profile
         if (parsedUserInfo.hasFirm && !parsedUserInfo.firmId) {
           router.push("/firm/create")
         }
-        // Redirect based on user status
+        // Redirect admins to admin dashboard
         else if (parsedUserInfo.isAdmin) {
           router.push("/admin")
-        } else if (parsedUserInfo.hasFirm) {
-          router.push("/firm/manage")
-        } else {
-          router.push("/profile")
+        }
+        // All other users go to homepage
+        else {
+          router.push("/")
         }
       } else {
-        router.push("/dashboard")
+        router.push("/")
       }
     } catch (error: any) {
       setError(error)

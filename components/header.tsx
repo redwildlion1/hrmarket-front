@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { LanguageSwitcher } from "./language-switcher"
 import { Button } from "./ui/button"
-import { Menu, X, Sparkles } from "lucide-react"
+import { Menu, X, Sparkles, User, Shield } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "@/lib/auth/client"
 import { motion, AnimatePresence } from "framer-motion"
@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion"
 export function Header() {
   const { t } = useLanguage()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { user } = useAuth()
+  const { userInfo } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
@@ -71,14 +71,31 @@ export function Header() {
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
           <div className="hidden items-center gap-3 md:flex">
-            {user ? (
-              <Button
-                size="sm"
-                asChild
-                className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
-              >
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
+            {userInfo ? (
+              <>
+                {userInfo.isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    asChild
+                    className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
+                  >
+                    <Link href="/admin">
+                      <Shield className="h-5 w-5 text-primary" />
+                    </Link>
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  asChild
+                  className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
+                >
+                  <Link href="/profile">
+                    <User className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="ghost" size="sm" asChild className="font-semibold">
@@ -154,10 +171,23 @@ export function Header() {
                 {t("nav.contact")}
               </Link>
               <div className="flex gap-3 pt-4 mt-2 border-t border-border">
-                {user ? (
-                  <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
-                    <Link href="/dashboard">Dashboard</Link>
-                  </Button>
+                {userInfo ? (
+                  <>
+                    {userInfo.isAdmin && (
+                      <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
+                        <Link href="/admin">
+                          <Shield className="h-5 w-5 mr-2" />
+                          {t("nav.admin")}
+                        </Link>
+                      </Button>
+                    )}
+                    <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
+                      <Link href="/profile">
+                        <User className="h-5 w-5 mr-2" />
+                        {t("nav.profile")}
+                      </Link>
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <Button variant="outline" size="sm" asChild className="flex-1 h-12 bg-transparent border-2">
