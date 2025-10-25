@@ -44,31 +44,31 @@ export default function AdminPage() {
   const adminCards = [
     {
       title: t("admin.clusters"),
-      description: "Manage organization clusters",
+      description: t("admin.clustersDesc"),
       icon: FolderTree,
       href: "/admin/clusters",
     },
     {
       title: t("admin.categories"),
-      description: "Manage categories within clusters",
+      description: t("admin.categoriesDesc"),
       icon: Grid3x3,
       href: "/admin/categories",
     },
     {
       title: t("admin.services"),
-      description: "Manage services within categories",
+      description: t("admin.servicesDesc"),
       icon: Briefcase,
       href: "/admin/services",
     },
     {
-      title: "Subscription Plans",
-      description: "Manage subscription plans and pricing",
+      title: t("admin.subscriptions"),
+      description: t("admin.subscriptionsDesc"),
       icon: CreditCard,
       href: "/admin/subscriptions",
     },
     {
       title: t("admin.verifyFirms"),
-      description: "Verify pending company registrations",
+      description: t("admin.verifyFirmsDesc"),
       icon: CheckCircle,
       href: "/admin/verify-firms",
     },
@@ -78,9 +78,7 @@ export default function AdminPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="mb-8">
         <h1 className="text-3xl font-bold md:text-4xl">{t("admin.dashboard")}</h1>
-        <p className="mt-2 text-muted-foreground">
-          Manage clusters, categories, services, subscriptions, and verify firms
-        </p>
+        <p className="mt-2 text-muted-foreground">{t("admin.manageAll")}</p>
       </div>
 
       <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">

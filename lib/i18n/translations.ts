@@ -304,6 +304,20 @@ export const translations = {
     "firm.step4Desc": "Verifică toate informațiile înainte de trimitere",
     "firm.reviewNote":
       "Te rugăm să verifici toate informațiile. După trimitere, firma ta va fi revizuită de administratori.",
+
+    // Admin
+    "admin.dashboard": "Panou Administrare",
+    "admin.clusters": "Clustere",
+    "admin.clustersDesc": "Gestionează clusterele organizației",
+    "admin.categories": "Categorii",
+    "admin.categoriesDesc": "Gestionează categoriile din clustere",
+    "admin.services": "Servicii",
+    "admin.servicesDesc": "Gestionează serviciile din categorii",
+    "admin.subscriptions": "Planuri de Abonament",
+    "admin.subscriptionsDesc": "Gestionează planurile de abonament și prețurile",
+    "admin.verifyFirms": "Verifică Firme",
+    "admin.verifyFirmsDesc": "Verifică înregistrările de companii în așteptare",
+    "admin.manageAll": "Gestionează clustere, categorii, servicii, abonamente și verifică firme",
   },
   en: {
     // Navigation
@@ -603,6 +617,20 @@ export const translations = {
     "firm.step4Title": "Review",
     "firm.step4Desc": "Review all information before submitting",
     "firm.reviewNote": "Please review all information. After submission, your firm will be reviewed by administrators.",
+
+    // Admin
+    "admin.dashboard": "Admin Dashboard",
+    "admin.clusters": "Clusters",
+    "admin.clustersDesc": "Manage organization clusters",
+    "admin.categories": "Categories",
+    "admin.categoriesDesc": "Manage categories within clusters",
+    "admin.services": "Services",
+    "admin.servicesDesc": "Manage services within categories",
+    "admin.subscriptions": "Subscription Plans",
+    "admin.subscriptionsDesc": "Manage subscription plans and pricing",
+    "admin.verifyFirms": "Verify Firms",
+    "admin.verifyFirmsDesc": "Verify pending company registrations",
+    "admin.manageAll": "Manage clusters, categories, services, subscriptions, and verify firms",
   },
 } as const
 

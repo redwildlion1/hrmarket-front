@@ -85,16 +85,18 @@ export function Header() {
                     </Link>
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  asChild
-                  className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
-                >
-                  <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
-                    {userInfo.hasFirm ? <Building2 className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                  </Link>
-                </Button>
+                {!userInfo.isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    asChild
+                    className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
+                  >
+                    <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
+                      {userInfo.hasFirm ? <Building2 className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                    </Link>
+                  </Button>
+                )}
               </>
             ) : (
               <>
@@ -181,21 +183,23 @@ export function Header() {
                         </Link>
                       </Button>
                     )}
-                    <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
-                      <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
-                        {userInfo.hasFirm ? (
-                          <>
-                            <Building2 className="h-5 w-5 mr-2" />
-                            {t("nav.firm")}
-                          </>
-                        ) : (
-                          <>
-                            <User className="h-5 w-5 mr-2" />
-                            {t("nav.profile")}
-                          </>
-                        )}
-                      </Link>
-                    </Button>
+                    {!userInfo.isAdmin && (
+                      <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
+                        <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
+                          {userInfo.hasFirm ? (
+                            <>
+                              <Building2 className="h-5 w-5 mr-2" />
+                              {t("nav.firm")}
+                            </>
+                          ) : (
+                            <>
+                              <User className="h-5 w-5 mr-2" />
+                              {t("nav.profile")}
+                            </>
+                          )}
+                        </Link>
+                      </Button>
+                    )}
                   </>
                 ) : (
                   <>
