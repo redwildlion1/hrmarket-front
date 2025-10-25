@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { LanguageSwitcher } from "./language-switcher"
 import { Button } from "./ui/button"
-import { Menu, X, Sparkles, User, Shield } from "lucide-react"
+import { Menu, X, Sparkles, User, Shield, Building2 } from "lucide-react"
 import { useState } from "react"
 import { useAuth } from "@/lib/auth/client"
 import { motion, AnimatePresence } from "framer-motion"
@@ -91,8 +91,8 @@ export function Header() {
                   asChild
                   className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
                 >
-                  <Link href="/profile">
-                    <User className="h-5 w-5" />
+                  <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
+                    {userInfo.hasFirm ? <Building2 className="h-5 w-5" /> : <User className="h-5 w-5" />}
                   </Link>
                 </Button>
               </>
@@ -182,9 +182,18 @@ export function Header() {
                       </Button>
                     )}
                     <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
-                      <Link href="/profile">
-                        <User className="h-5 w-5 mr-2" />
-                        {t("nav.profile")}
+                      <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
+                        {userInfo.hasFirm ? (
+                          <>
+                            <Building2 className="h-5 w-5 mr-2" />
+                            {t("nav.firm")}
+                          </>
+                        ) : (
+                          <>
+                            <User className="h-5 w-5 mr-2" />
+                            {t("nav.profile")}
+                          </>
+                        )}
                       </Link>
                     </Button>
                   </>

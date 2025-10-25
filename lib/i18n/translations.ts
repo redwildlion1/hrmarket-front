@@ -15,6 +15,7 @@ export const translations = {
     "nav.logout": "Deconectare",
     "nav.profile": "Profil",
     "nav.admin": "Admin",
+    "nav.firm": "Firmă",
 
     // Auth
     "auth.email": "Email",
@@ -318,6 +319,7 @@ export const translations = {
     "nav.logout": "Logout",
     "nav.profile": "Profile",
     "nav.admin": "Admin",
+    "nav.firm": "Firm",
 
     // Auth
     "auth.email": "Email",
