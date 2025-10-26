@@ -21,7 +21,7 @@ export function ClustersSection() {
 
   useEffect(() => {
     loadClusters()
-  }, [language]) // Added language dependency to reload when language changes
+  }, []) // Fetch once on mount, translations are selected client-side
 
   const loadClusters = async () => {
     try {
