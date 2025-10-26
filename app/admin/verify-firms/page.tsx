@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/i18n/language-context"
+import { useAdminCheck } from "@/lib/hooks/use-admin-check"
 import { adminApi } from "@/lib/api/admin"
 import type { FirmVerification } from "@/lib/types/admin"
 import { Button } from "@/components/ui/button"
@@ -32,6 +33,8 @@ export default function VerifyFirmsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [verificationStatus, setVerificationStatus] = useState<"verified" | "rejected">("verified")
   const [notes, setNotes] = useState("")
+
+  useAdminCheck(30000)
 
   useEffect(() => {
     loadFirms()
@@ -72,7 +75,7 @@ export default function VerifyFirmsPage() {
         status: verificationStatus,
         notes,
       })
-      toast({ title: t("admin.verifySuccess")})
+      toast({ title: t("admin.verifySuccess") })
       setIsDialogOpen(false)
       setSelectedFirm(null)
       setNotes("")

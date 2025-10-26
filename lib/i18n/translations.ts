@@ -354,6 +354,11 @@ export const translations = {
     "admin.editService": "Editează Serviciu",
     "admin.serviceName": "Nume Serviciu",
     "admin.selectCategory": "Selectează Categorie",
+    "admin.contentManagement": "Gestionarea Conținutului",
+    "admin.contentManagementDesc": "Gestionează clusterele, categoriile și serviciile",
+    "admin.manageClusters": "Gestionează Clusterele",
+    "admin.manageCategories": "Gestionează Categoriile",
+    "admin.manageServices": "Gestionează Serviciile",
   },
   en: {
     // Navigation
@@ -703,6 +708,11 @@ export const translations = {
     "admin.editService": "Edit Service",
     "admin.serviceName": "Service Name",
     "admin.selectCategory": "Select Category",
+    "admin.contentManagement": "Content Management",
+    "admin.contentManagementDesc": "Manage clusters, categories, and services",
+    "admin.manageClusters": "Manage Clusters",
+    "admin.manageCategories": "Manage Categories",
+    "admin.manageServices": "Manage Services",
   },
 } as const
 

@@ -5,27 +5,20 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
+import { useAdminCheck } from "@/lib/hooks/use-admin-check"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FolderTree, Grid3x3, Briefcase, CheckCircle, CreditCard } from "lucide-react"
+import { FolderTree, CheckCircle, CreditCard } from "lucide-react"
 
 export default function AdminPage() {
   const { t } = useLanguage()
   const router = useRouter()
   const { userInfo, loading } = useAuth()
 
-  useEffect(() => {
-    console.log("[v0] Admin page - loading:", loading, "userInfo:", userInfo)
+  useAdminCheck(30000)
 
-    if (!loading) {
-      if (!userInfo) {
-        console.log("[v0] No userInfo, redirecting to login")
-        router.push("/login")
-      } else if (!userInfo.isAdmin) {
-        console.log("[v0] User is not admin, redirecting to login")
-        router.push("/login")
-      } else {
-        console.log("[v0] User is admin, showing admin page")
-      }
+  useEffect(() => {
+    if (!loading && (!userInfo || !userInfo.isAdmin)) {
+      router.push("/login")
     }
   }, [userInfo, loading, router])
 
@@ -43,22 +36,10 @@ export default function AdminPage() {
 
   const adminCards = [
     {
-      title: t("admin.clusters"),
-      description: t("admin.clustersDesc"),
+      title: t("admin.contentManagement"),
+      description: t("admin.contentManagementDesc"),
       icon: FolderTree,
-      href: "/admin/clusters",
-    },
-    {
-      title: t("admin.categories"),
-      description: t("admin.categoriesDesc"),
-      icon: Grid3x3,
-      href: "/admin/categories",
-    },
-    {
-      title: t("admin.services"),
-      description: t("admin.servicesDesc"),
-      icon: Briefcase,
-      href: "/admin/services",
+      href: "/admin/content-management",
     },
     {
       title: t("admin.subscriptions"),
