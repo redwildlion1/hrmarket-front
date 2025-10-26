@@ -174,12 +174,23 @@ export function ClusterManager() {
 
   const openEditDialog = (cluster: ClusterDto) => {
     setEditingCluster(cluster)
+
+    // Extract translations from the cluster
+    const enTranslation = cluster.translations.find((t) => t.languageCode === "en")
+    const roTranslation = cluster.translations.find((t) => t.languageCode === "ro")
+
     setFormData({
       icon: cluster.icon,
       isActive: cluster.isActive,
       translations: {
-        en: { name: cluster.name, description: cluster.description || "" },
-        ro: { name: cluster.name, description: cluster.description || "" },
+        en: {
+          name: enTranslation?.name || "",
+          description: enTranslation?.description || "",
+        },
+        ro: {
+          name: roTranslation?.name || "",
+          description: roTranslation?.description || "",
+        },
       },
     })
     setDialogOpen(true)

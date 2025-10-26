@@ -49,6 +49,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
+    credentials: "include",
   })
 
   if (!response.ok) {

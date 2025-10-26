@@ -22,6 +22,7 @@ import LogoCarousel from "@/components/logo-carousel"
 import { AnimatedCounter } from "@/components/animated-counter"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
+import { ClustersSection } from "@/components/home/clusters-section"
 
 export default function HomePage() {
   const { t } = useLanguage()
@@ -179,6 +180,9 @@ export default function HomePage() {
 
       {/* Partner Logo Carousel */}
       <LogoCarousel />
+
+      {/* Clusters Section */}
+      <ClustersSection />
 
       {/* Features Section */}
       <section className="bg-gradient-to-b from-muted/30 to-background py-24 md:py-32">

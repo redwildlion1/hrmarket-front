@@ -17,6 +17,7 @@ export interface ClusterDto {
   orderInList: number
   icon: string
   isActive: boolean
+  translations: Translation[]
   categories: CategoryDto[]
 }
 
@@ -27,6 +28,7 @@ export interface CategoryDto {
   icon: string
   orderInCluster: number
   clusterId: string | null
+  translations: Translation[]
   services: ServiceDto[]
 }
 
@@ -36,6 +38,7 @@ export interface ServiceDto {
   description?: string
   orderInCategory: number
   categoryId: string
+  translations: Translation[]
 }
 
 // Complete Categories Management API Service
