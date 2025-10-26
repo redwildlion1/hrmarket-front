@@ -19,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Plus, Edit, Trash2, GripVertical, FolderTree } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { IconPicker } from "@/components/admin/icon-picker"
+import { renderIcon } from "@/lib/utils/icons"
 import {
   DndContext,
   closestCenter,
@@ -66,7 +68,7 @@ function SortableClusterItem({
       </button>
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{cluster.icon}</span>
+          {renderIcon(cluster.icon, { className: "h-5 w-5" })}
           <h3 className="font-semibold">{cluster.name}</h3>
           {!cluster.isActive && <span className="text-xs text-muted-foreground">({t("admin.inactive")})</span>}
         </div>
@@ -95,7 +97,7 @@ export function ClusterManager() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCluster, setEditingCluster] = useState<ClusterDto | null>(null)
   const [formData, setFormData] = useState<ClusterFormData>({
-    icon: "📁",
+    icon: "FolderTree",
     isActive: true,
     translations: {
       en: { name: "", description: "" },
@@ -160,7 +162,7 @@ export function ClusterManager() {
   const openCreateDialog = () => {
     setEditingCluster(null)
     setFormData({
-      icon: "📁",
+      icon: "FolderTree",
       isActive: true,
       translations: {
         en: { name: "", description: "" },
@@ -172,7 +174,6 @@ export function ClusterManager() {
 
   const openEditDialog = (cluster: ClusterDto) => {
     setEditingCluster(cluster)
-    // Parse existing translations (simplified - in real app would fetch from backend)
     setFormData({
       icon: cluster.icon,
       isActive: cluster.isActive,
@@ -300,13 +301,7 @@ export function ClusterManager() {
           <div className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="icon">{t("admin.icon")}</Label>
-              <Input
-                id="icon"
-                value={formData.icon}
-                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                placeholder="📁"
-                maxLength={2}
-              />
+              <IconPicker value={formData.icon} onChange={(icon) => setFormData({ ...formData, icon })} />
             </div>
 
             {editingCluster && (

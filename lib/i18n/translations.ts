@@ -378,6 +378,9 @@ export const translations = {
     "admin.romanianTranslation": "Traducere Română",
     "admin.name": "Nume",
     "admin.inactive": "Inactiv",
+    "admin.selectIcon": "Selectează Icon",
+    "admin.searchIcon": "Caută icon...",
+    "admin.noIconFound": "Niciun icon găsit",
   },
   en: {
     // Navigation
@@ -752,6 +755,9 @@ export const translations = {
     "admin.romanianTranslation": "Romanian Translation",
     "admin.name": "Name",
     "admin.inactive": "Inactive",
+    "admin.selectIcon": "Select Icon",
+    "admin.searchIcon": "Search icon...",
+    "admin.noIconFound": "No icon found",
   },
 } as const
 
