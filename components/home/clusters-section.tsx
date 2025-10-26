@@ -169,8 +169,8 @@ export function ClustersSection() {
                         }}
                         style={{ overflow: "hidden" }}
                       >
-                        <CardContent className="border-t">
-                          <div className="pt-4 space-y-2">
+                        <CardContent className="pt-4">
+                          <div className="space-y-2">
                             {cluster.categories.map((category) => {
                               const categoryTranslation = getTranslation(category.translations, language)
                               const isCategoryExpanded = expandedCategories.has(category.id)

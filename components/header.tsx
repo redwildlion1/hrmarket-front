@@ -48,39 +48,39 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
           <Link href="/" className="text-sm font-semibold transition-colors hover:text-primary relative group py-2">
-            {t("nav.home")}
+            <span suppressHydrationWarning>{t("nav.home")}</span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gradient-red transition-all group-hover:w-full rounded-full" />
           </Link>
           <Link
             href="/companies"
             className="text-sm font-semibold transition-colors hover:text-primary relative group py-2"
           >
-            {t("nav.companies")}
+            <span suppressHydrationWarning>{t("nav.companies")}</span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gradient-red transition-all group-hover:w-full rounded-full" />
           </Link>
           <Link
             href="/talks"
             className="text-sm font-semibold transition-colors hover:text-primary relative group py-2"
           >
-            {t("nav.talks")}
+            <span suppressHydrationWarning>{t("nav.talks")}</span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gradient-red transition-all group-hover:w-full rounded-full" />
           </Link>
           <Link
             href="/events"
             className="text-sm font-semibold transition-colors hover:text-primary relative group py-2"
           >
-            {t("nav.events")}
+            <span suppressHydrationWarning>{t("nav.events")}</span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gradient-red transition-all group-hover:w-full rounded-full" />
           </Link>
           <Link href="/jobs" className="text-sm font-semibold transition-colors hover:text-primary relative group py-2">
-            {t("nav.jobs")}
+            <span suppressHydrationWarning>{t("nav.jobs")}</span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gradient-red transition-all group-hover:w-full rounded-full" />
           </Link>
           <Link
             href="/contact"
             className="text-sm font-semibold transition-colors hover:text-primary relative group py-2"
           >
-            {t("nav.contact")}
+            <span suppressHydrationWarning>{t("nav.contact")}</span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gradient-red transition-all group-hover:w-full rounded-full" />
           </Link>
         </nav>
@@ -127,14 +127,18 @@ export function Header() {
             ) : (
               <>
                 <Button variant="ghost" size="sm" asChild className="font-semibold">
-                  <Link href="/login">{t("nav.login")}</Link>
+                  <Link href="/login">
+                    <span suppressHydrationWarning>{t("nav.login")}</span>
+                  </Link>
                 </Button>
                 <Button
                   size="sm"
                   asChild
                   className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
                 >
-                  <Link href="/register">{t("nav.register")}</Link>
+                  <Link href="/register">
+                    <span suppressHydrationWarning>{t("nav.register")}</span>
+                  </Link>
                 </Button>
               </>
             )}
@@ -161,42 +165,42 @@ export function Header() {
                 className="text-base font-semibold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("nav.home")}
+                <span suppressHydrationWarning>{t("nav.home")}</span>
               </Link>
               <Link
                 href="/companies"
                 className="text-base font-semibold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("nav.companies")}
+                <span suppressHydrationWarning>{t("nav.companies")}</span>
               </Link>
               <Link
                 href="/talks"
                 className="text-base font-semibold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("nav.talks")}
+                <span suppressHydrationWarning>{t("nav.talks")}</span>
               </Link>
               <Link
                 href="/events"
                 className="text-base font-semibold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("nav.events")}
+                <span suppressHydrationWarning>{t("nav.events")}</span>
               </Link>
               <Link
                 href="/jobs"
                 className="text-base font-semibold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("nav.jobs")}
+                <span suppressHydrationWarning>{t("nav.jobs")}</span>
               </Link>
               <Link
                 href="/contact"
                 className="text-base font-semibold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("nav.contact")}
+                <span suppressHydrationWarning>{t("nav.contact")}</span>
               </Link>
               <div className="flex gap-3 pt-4 mt-2 border-t border-border">
                 {userInfo ? (
@@ -205,7 +209,7 @@ export function Header() {
                       <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
                         <Link href="/admin">
                           <Shield className="h-5 w-5 mr-2" />
-                          {t("nav.admin")}
+                          <span suppressHydrationWarning>{t("nav.admin")}</span>
                         </Link>
                       </Button>
                     )}
@@ -215,12 +219,12 @@ export function Header() {
                           {userInfo.hasFirm ? (
                             <>
                               <Building2 className="h-5 w-5 mr-2" />
-                              {t("nav.firm")}
+                              <span suppressHydrationWarning>{t("nav.firm")}</span>
                             </>
                           ) : (
                             <>
                               <User className="h-5 w-5 mr-2" />
-                              {t("nav.profile")}
+                              <span suppressHydrationWarning>{t("nav.profile")}</span>
                             </>
                           )}
                         </Link>
@@ -233,16 +237,20 @@ export function Header() {
                       className="flex-1 h-12 border-destructive/50 text-destructive hover:bg-destructive hover:text-white bg-transparent"
                     >
                       <LogOut className="h-5 w-5 mr-2" />
-                      {t("nav.logout")}
+                      <span suppressHydrationWarning>{t("nav.logout")}</span>
                     </Button>
                   </>
                 ) : (
                   <>
                     <Button variant="outline" size="sm" asChild className="flex-1 h-12 bg-transparent border-2">
-                      <Link href="/login">{t("nav.login")}</Link>
+                      <Link href="/login">
+                        <span suppressHydrationWarning>{t("nav.login")}</span>
+                      </Link>
                     </Button>
                     <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
-                      <Link href="/register">{t("nav.register")}</Link>
+                      <Link href="/register">
+                        <span suppressHydrationWarning>{t("nav.register")}</span>
+                      </Link>
                     </Button>
                   </>
                 )}
