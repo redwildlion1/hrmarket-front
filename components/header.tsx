@@ -5,7 +5,7 @@ import { useLanguage } from "@/lib/i18n/language-context"
 import { LanguageSwitcher } from "./language-switcher"
 import { Button } from "./ui/button"
 import { Menu, X, Sparkles, User, Shield, Building2, LogOut } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth/client"
 import { motion, AnimatePresence } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
@@ -15,6 +15,11 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { userInfo, logout } = useAuth()
   const { toast } = useToast()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -89,7 +94,17 @@ export function Header() {
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
           <div className="hidden items-center gap-3 md:flex">
-            {userInfo ? (
+            {!mounted ? (
+              // Placeholder during SSR
+              <>
+                <Button variant="ghost" size="sm" className="font-semibold" disabled>
+                  Login
+                </Button>
+                <Button size="sm" className="shadow-lg shadow-primary/20" disabled>
+                  Register
+                </Button>
+              </>
+            ) : userInfo ? (
               <>
                 {userInfo.isAdmin && (
                   <Button
@@ -203,7 +218,16 @@ export function Header() {
                 <span suppressHydrationWarning>{t("nav.contact")}</span>
               </Link>
               <div className="flex gap-3 pt-4 mt-2 border-t border-border">
-                {userInfo ? (
+                {!mounted ? (
+                  <>
+                    <Button variant="outline" size="sm" className="flex-1 h-12 bg-transparent border-2" disabled>
+                      Login
+                    </Button>
+                    <Button size="sm" className="flex-1 h-12 shadow-lg" disabled>
+                      Register
+                    </Button>
+                  </>
+                ) : userInfo ? (
                   <>
                     {userInfo.isAdmin && (
                       <Button size="sm" asChild className="flex-1 h-12 shadow-lg">
