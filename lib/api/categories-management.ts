@@ -40,14 +40,12 @@ export interface ServiceDto {
 
 // Complete Categories Management API Service
 class CategoriesManagementApi {
-  private baseUrl = `${API_BASE_URL}/categories`
-
   // ========================================================================
   // CREATE
   // ========================================================================
 
   async createCluster(data: { icon: string; translations: Translation[] }): Promise<void> {
-    return withAuth(`${this.baseUrl}/clusters`, {
+    return withAuth(`/categories/clusters`, {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -59,7 +57,7 @@ class CategoriesManagementApi {
     clusterId?: string
     translations: Translation[]
   }): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories`, {
+    return withAuth(`/categories/categories`, {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -70,7 +68,7 @@ class CategoriesManagementApi {
     categoryId: string
     translations: Translation[]
   }): Promise<void> {
-    return withAuth(`${this.baseUrl}/services`, {
+    return withAuth(`/categories/services`, {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -81,15 +79,15 @@ class CategoriesManagementApi {
   // ========================================================================
 
   async getClusters(): Promise<ClusterDto[]> {
-    return withAuth<ClusterDto[]>(`${this.baseUrl}/clusters`)
+    return withAuth<ClusterDto[]>(`/categories/clusters`)
   }
 
   async getUnassignedCategories(): Promise<CategoryDto[]> {
-    return withAuth<CategoryDto[]>(`${this.baseUrl}/categories/unassigned`)
+    return withAuth<CategoryDto[]>(`/categories/categories/unassigned`)
   }
 
   async getSoftDeletedCategories(): Promise<CategoryDto[]> {
-    return withAuth<CategoryDto[]>(`${this.baseUrl}/categories/deleted`)
+    return withAuth<CategoryDto[]>(`/categories/categories/deleted`)
   }
 
   // ========================================================================
@@ -104,7 +102,7 @@ class CategoriesManagementApi {
       translations: Translation[]
     },
   ): Promise<void> {
-    return withAuth(`${this.baseUrl}/clusters/${id}`, {
+    return withAuth(`/categories/clusters/${id}`, {
       method: "PUT",
       body: JSON.stringify({ id, ...data }),
     })
@@ -117,7 +115,7 @@ class CategoriesManagementApi {
       translations: Translation[]
     },
   ): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories/${id}`, {
+    return withAuth(`/categories/categories/${id}`, {
       method: "PUT",
       body: JSON.stringify({ id, ...data }),
     })
@@ -129,7 +127,7 @@ class CategoriesManagementApi {
       translations: Translation[]
     },
   ): Promise<void> {
-    return withAuth(`${this.baseUrl}/services/${id}`, {
+    return withAuth(`/categories/services/${id}`, {
       method: "PUT",
       body: JSON.stringify({ id, ...data }),
     })
@@ -149,7 +147,7 @@ class CategoriesManagementApi {
     }[]
     removeCategoryIds: string[]
   }): Promise<void> {
-    return withAuth(`${this.baseUrl}/clusters/${data.clusterId}/categories/bulk`, {
+    return withAuth(`/categories/clusters/${data.clusterId}/categories/bulk`, {
       method: "PUT",
       body: JSON.stringify(data),
     })
@@ -164,7 +162,7 @@ class CategoriesManagementApi {
     }[]
     deleteServiceIds: string[]
   }): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories/${data.categoryId}/services/bulk`, {
+    return withAuth(`/categories/categories/${data.categoryId}/services/bulk`, {
       method: "PUT",
       body: JSON.stringify(data),
     })
@@ -175,25 +173,25 @@ class CategoriesManagementApi {
   // ========================================================================
 
   async deleteCluster(id: string): Promise<void> {
-    return withAuth(`${this.baseUrl}/clusters/${id}`, {
+    return withAuth(`/categories/clusters/${id}`, {
       method: "DELETE",
     })
   }
 
   async softDeleteCategory(id: string): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories/${id}`, {
+    return withAuth(`/categories/categories/${id}`, {
       method: "DELETE",
     })
   }
 
   async restoreCategory(id: string): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories/${id}/restore`, {
+    return withAuth(`/categories/categories/${id}/restore`, {
       method: "POST",
     })
   }
 
   async deleteService(id: string): Promise<void> {
-    return withAuth(`${this.baseUrl}/services/${id}`, {
+    return withAuth(`/categories/services/${id}`, {
       method: "DELETE",
     })
   }
@@ -207,7 +205,7 @@ class CategoriesManagementApi {
     newClusterId?: string
     orderInCluster?: number
   }): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories/${data.categoryId}/reassign`, {
+    return withAuth(`/categories/categories/${data.categoryId}/reassign`, {
       method: "PUT",
       body: JSON.stringify(data),
     })
@@ -218,21 +216,21 @@ class CategoriesManagementApi {
   // ========================================================================
 
   async reorderClusters(clusterIds: string[]): Promise<void> {
-    return withAuth(`${this.baseUrl}/clusters/reorder`, {
+    return withAuth(`/categories/clusters/reorder`, {
       method: "PUT",
       body: JSON.stringify({ clusterIds }),
     })
   }
 
   async reorderCategoriesInCluster(clusterId: string, categoryIds: string[]): Promise<void> {
-    return withAuth(`${this.baseUrl}/clusters/${clusterId}/categories/reorder`, {
+    return withAuth(`/categories/clusters/${clusterId}/categories/reorder`, {
       method: "PUT",
       body: JSON.stringify({ clusterId, categoryIds }),
     })
   }
 
   async reorderServicesInCategory(categoryId: string, serviceIds: string[]): Promise<void> {
-    return withAuth(`${this.baseUrl}/categories/${categoryId}/services/reorder`, {
+    return withAuth(`/categories/categories/${categoryId}/services/reorder`, {
       method: "PUT",
       body: JSON.stringify({ categoryId, serviceIds }),
     })
