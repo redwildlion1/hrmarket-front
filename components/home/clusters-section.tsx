@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { categoriesManagementApi, type ClusterDto } from "@/lib/api/categories-management"
@@ -17,6 +19,7 @@ export function ClustersSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedClusters, setExpandedClusters] = useState<Set<string>>(new Set())
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
 
   useEffect(() => {
@@ -52,6 +55,19 @@ export function ClustersSection() {
         newSet.delete(clusterId)
       } else {
         newSet.add(clusterId)
+      }
+      return newSet
+    })
+  }
+
+  const toggleCategory = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent cluster toggle when clicking category
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId)
+      } else {
+        newSet.add(categoryId)
       }
       return newSet
     })
@@ -134,7 +150,7 @@ export function ClustersSection() {
           </motion.p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
           {clusters.map((cluster) => {
             const clusterTranslation = getTranslation(cluster.translations, language)
 
@@ -174,23 +190,66 @@ export function ClustersSection() {
                       <div className="space-y-2">
                         {cluster.categories.map((category) => {
                           const categoryTranslation = getTranslation(category.translations, language)
+                          const isCategoryExpanded = expandedCategories.has(category.id)
 
                           return (
-                            <div
-                              key={category.id}
-                              className="flex items-center gap-2 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
-                            >
-                              {renderIcon(category.icon, { className: "h-4 w-4 text-primary" })}
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{categoryTranslation.name}</p>
-                                {categoryTranslation.description && (
-                                  <p className="text-xs text-muted-foreground">{categoryTranslation.description}</p>
-                                )}
+                            <div key={category.id} className="rounded-lg border bg-card overflow-hidden">
+                              <div
+                                className="flex items-center gap-2 p-3 cursor-pointer transition-colors hover:bg-accent"
+                                onClick={(e) => toggleCategory(category.id, e)}
+                              >
+                                {renderIcon(category.icon, { className: "h-4 w-4 text-primary flex-shrink-0" })}
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm">{categoryTranslation.name}</p>
+                                  {categoryTranslation.description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-1">
+                                      {categoryTranslation.description}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  {category.services.length > 0 && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {category.services.length} {t("home.clusters.services")}
+                                    </span>
+                                  )}
+                                  {category.services.length > 0 && (
+                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                      {isCategoryExpanded ? (
+                                        <ChevronUp className="h-3 w-3" />
+                                      ) : (
+                                        <ChevronDown className="h-3 w-3" />
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
-                              {category.services.length > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  {category.services.length} {t("home.clusters.services")}
-                                </span>
+
+                              {isCategoryExpanded && category.services.length > 0 && (
+                                <div className="border-t bg-muted/30 p-3 space-y-1">
+                                  {category.services.map((service) => {
+                                    const serviceTranslation = getTranslation(service.translations, language)
+
+                                    return (
+                                      <div
+                                        key={service.id}
+                                        className="flex items-start gap-2 rounded-md bg-background p-2 text-sm"
+                                      >
+                                        {renderIcon(service.icon, {
+                                          className: "h-3 w-3 text-primary mt-0.5 flex-shrink-0",
+                                        })}
+                                        <div className="flex-1 min-w-0">
+                                          <p className="font-medium text-xs">{serviceTranslation.name}</p>
+                                          {serviceTranslation.description && (
+                                            <p className="text-xs text-muted-foreground line-clamp-2">
+                                              {serviceTranslation.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
                               )}
                             </div>
                           )
