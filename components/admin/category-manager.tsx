@@ -65,7 +65,7 @@ function SortableCategoryItem({
         </div>
         {category.description && <p className="text-sm text-muted-foreground">{category.description}</p>}
         <p className="text-xs text-muted-foreground">
-          {category.services.length} {t("admin.services")}
+          {category.services?.length || 0} {t("admin.services")}
         </p>
       </div>
       <div className="flex gap-2">
