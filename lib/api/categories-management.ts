@@ -1,4 +1,4 @@
-import { withAuth } from "./client"
+import { withAuth, withoutAuth } from "./client"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5027/api"
 
@@ -80,6 +80,10 @@ class CategoriesManagementApi {
   // ========================================================================
   // READ
   // ========================================================================
+
+  async getClustersPublic(): Promise<ClusterDto[]> {
+    return withoutAuth<ClusterDto[]>(`/categories/clusters`)
+  }
 
   async getClusters(): Promise<ClusterDto[]> {
     return withAuth<ClusterDto[]>(`/categories/clusters`)

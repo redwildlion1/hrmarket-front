@@ -14,6 +14,7 @@ export function ClustersSection() {
   const { t } = useLanguage()
   const [clusters, setClusters] = useState<ClusterDto[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [expandedClusters, setExpandedClusters] = useState<Set<string>>(new Set())
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
 
@@ -23,11 +24,21 @@ export function ClustersSection() {
 
   const loadClusters = async () => {
     try {
-      const data = await categoriesManagementApi.getClusters()
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5027/api"
+      console.log("[v0] API URL:", apiUrl)
+      console.log("[v0] Loading clusters from API...")
+
+      const data = await categoriesManagementApi.getClustersPublic()
+      console.log("[v0] Clusters loaded successfully:", data)
+
       // Only show active clusters for users
       setClusters(data.filter((c) => c.isActive))
-    } catch (error) {
-      console.error("Error loading clusters:", error)
+      setError(null)
+    } catch (err) {
+      console.error("[v0] Error loading clusters:", err)
+      setError(err instanceof Error ? err.message : "Failed to load clusters")
+      // Don't show the section if there's an error
+      setClusters([])
     } finally {
       setLoading(false)
     }
@@ -78,8 +89,30 @@ export function ClustersSection() {
     )
   }
 
-  if (clusters.length === 0) {
+  if (error || clusters.length === 0) {
+    // Silently hide the section for production
+    // In development, you can uncomment the Alert below to see the error
     return null
+
+    /* Development error display:
+    return (
+      <section className="py-24 md:py-32">
+        <div className="container mx-auto px-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Unable to load services</AlertTitle>
+            <AlertDescription>
+              {error || "No services available at the moment."}
+              <br />
+              <span className="text-xs mt-2 block">
+                Make sure your backend is running on {process.env.NEXT_PUBLIC_API_URL || "http://localhost:5027/api"}
+              </span>
+            </AlertDescription>
+          </Alert>
+        </div>
+      </section>
+    )
+    */
   }
 
   return (

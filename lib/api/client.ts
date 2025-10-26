@@ -97,6 +97,68 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
   return null as T
 }
 
+async function fetchPublic<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const language = localStorage.getItem("language") || "ro"
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept-Language": language === "en" ? "en" : "ro",
+  }
+
+  // Merge existing headers if any
+  if (options.headers) {
+    const existingHeaders = new Headers(options.headers)
+    existingHeaders.forEach((value, key) => {
+      headers[key] = value
+    })
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+    credentials: "include",
+  })
+
+  if (!response.ok) {
+    let errorData: ProblemDetails
+    try {
+      errorData = await response.json()
+    } catch {
+      throw new ApiError(response.status, response.statusText, "An unexpected error occurred")
+    }
+
+    throw new ApiError(
+      errorData.status || response.status,
+      errorData.title || "An error occurred",
+      errorData.detail,
+      errorData.validationErrors,
+      errorData.errors || [],
+      errorData.traceId,
+    )
+  }
+
+  if (response.status === 204) {
+    return null as T
+  }
+
+  const contentType = response.headers.get("content-type")
+  const contentLength = response.headers.get("content-length")
+
+  if (!contentType || contentLength === "0") {
+    return null as T
+  }
+
+  if (contentType.includes("application/json")) {
+    const text = await response.text()
+    if (!text || text.trim() === "") {
+      return null as T
+    }
+    return JSON.parse(text)
+  }
+
+  return null as T
+}
+
 export const apiClient = {
   // Auth endpoints
   auth: {
@@ -427,5 +489,6 @@ export const apiClient = {
 export const api = apiClient
 
 export const withAuth = fetchWithAuth
+export const withoutAuth = fetchPublic
 
 export { ApiError }
