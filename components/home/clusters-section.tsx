@@ -169,13 +169,8 @@ export function ClustersSection() {
                         }}
                         style={{ overflow: "hidden" }}
                       >
-                        <CardContent className="border-t pt-4">
-                          <motion.div
-                            initial={{ y: -10 }}
-                            animate={{ y: 0 }}
-                            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                            className="space-y-2"
-                          >
+                        <CardContent className="border-t">
+                          <div className="pt-4 space-y-2">
                             {cluster.categories.map((category) => {
                               const categoryTranslation = getTranslation(category.translations, language)
                               const isCategoryExpanded = expandedCategories.has(category.id)
@@ -259,7 +254,7 @@ export function ClustersSection() {
                                 </div>
                               )
                             })}
-                          </motion.div>
+                          </div>
                         </CardContent>
                       </motion.div>
                     )}
