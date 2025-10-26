@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FolderTree, Grid3x3, Briefcase } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { ClusterManager } from "@/components/admin/cluster-manager"
 
 export default function ContentManagementPage() {
   const { t } = useLanguage()
@@ -59,11 +60,7 @@ export default function ContentManagementPage() {
         </TabsList>
 
         <TabsContent value="clusters" className="mt-6">
-          <div className="rounded-lg border bg-card p-6">
-            <h2 className="mb-4 text-2xl font-semibold">{t("admin.manageClusters")}</h2>
-            <p className="text-muted-foreground">{t("admin.clustersDesc")}</p>
-            {/* Cluster management UI will go here */}
-          </div>
+          <ClusterManager />
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6">

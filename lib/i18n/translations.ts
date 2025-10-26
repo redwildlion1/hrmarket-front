@@ -66,6 +66,8 @@ export const translations = {
     "common.saving": "Se salvează...",
     "common.saveChanges": "Salvează Modificările",
     "common.back": "Înapoi",
+    "common.update": "Actualizează",
+    "common.create": "Creează",
 
     // Home Page
     "home.hero.title": "Bine ai venit la HRMarket",
@@ -359,6 +361,23 @@ export const translations = {
     "admin.manageClusters": "Gestionează Clusterele",
     "admin.manageCategories": "Gestionează Categoriile",
     "admin.manageServices": "Gestionează Serviciile",
+    "admin.createCluster": "Creează Cluster",
+    "admin.clusterCreated": "Cluster creat cu succes",
+    "admin.clusterUpdated": "Cluster actualizat cu succes",
+    "admin.clusterDeleted": "Cluster șters cu succes",
+    "admin.clustersReordered": "Clustere reordonate cu succes",
+    "admin.errorLoadingClusters": "Eroare la încărcarea clusterelor",
+    "admin.errorCreatingCluster": "Eroare la crearea clusterului",
+    "admin.errorUpdatingCluster": "Eroare la actualizarea clusterului",
+    "admin.errorDeletingCluster": "Eroare la ștergerea clusterului",
+    "admin.errorReorderingClusters": "Eroare la reordonarea clusterelor",
+    "admin.confirmDeleteCluster": "Ești sigur că vrei să ștergi acest cluster? Categoriile vor fi mutate în nealocate.",
+    "admin.noClusters": "Nu există clustere. Creează primul cluster!",
+    "admin.clusterFormDesc": "Completează informațiile în ambele limbi pentru a crea un cluster",
+    "admin.englishTranslation": "Traducere Engleză",
+    "admin.romanianTranslation": "Traducere Română",
+    "admin.name": "Nume",
+    "admin.inactive": "Inactiv",
   },
   en: {
     // Navigation
@@ -424,6 +443,8 @@ export const translations = {
     "common.saving": "Saving...",
     "common.saveChanges": "Save Changes",
     "common.back": "Back",
+    "common.update": "Update",
+    "common.create": "Create",
 
     // Home Page
     "home.hero.title": "Welcome to HRMarket",
@@ -713,6 +734,24 @@ export const translations = {
     "admin.manageClusters": "Manage Clusters",
     "admin.manageCategories": "Manage Categories",
     "admin.manageServices": "Manage Services",
+    "admin.createCluster": "Create Cluster",
+    "admin.clusterCreated": "Cluster created successfully",
+    "admin.clusterUpdated": "Cluster updated successfully",
+    "admin.clusterDeleted": "Cluster deleted successfully",
+    "admin.clustersReordered": "Clusters reordered successfully",
+    "admin.errorLoadingClusters": "Error loading clusters",
+    "admin.errorCreatingCluster": "Error creating cluster",
+    "admin.errorUpdatingCluster": "Error updating cluster",
+    "admin.errorDeletingCluster": "Error deleting cluster",
+    "admin.errorReorderingClusters": "Error reordering clusters",
+    "admin.confirmDeleteCluster":
+      "Are you sure you want to delete this cluster? Categories will be moved to unassigned.",
+    "admin.noClusters": "No clusters yet. Create your first cluster!",
+    "admin.clusterFormDesc": "Fill in the information in both languages to create a cluster",
+    "admin.englishTranslation": "English Translation",
+    "admin.romanianTranslation": "Romanian Translation",
+    "admin.name": "Name",
+    "admin.inactive": "Inactive",
   },
 } as const
 
