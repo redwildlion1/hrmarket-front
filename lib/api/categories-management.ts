@@ -12,8 +12,6 @@ export interface Translation {
 // DTOs matching backend structure
 export interface ClusterDto {
   id: string
-  name: string
-  description?: string
   orderInList: number
   icon: string
   isActive: boolean
@@ -23,10 +21,8 @@ export interface ClusterDto {
 
 export interface CategoryDto {
   id: string
-  name: string
-  description?: string
   icon: string
-  orderInCluster: number
+  orderInCluster: number | null
   clusterId: string | null
   translations: Translation[]
   services: ServiceDto[]
@@ -34,8 +30,6 @@ export interface CategoryDto {
 
 export interface ServiceDto {
   id: string
-  name: string
-  description?: string
   orderInCategory: number
   categoryId: string
   translations: Translation[]

@@ -22,6 +22,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { getTranslation } from "@/lib/utils/translations"
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core"
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 
 interface ServiceFormData {
   categoryId: string
@@ -41,6 +44,9 @@ function SortableServiceItem({
   onDelete: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: service.id })
+  const { language } = useLanguage()
+
+  const translation = getTranslation(service.translations, language)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -53,8 +59,8 @@ function SortableServiceItem({
         <GripVertical className="h-5 w-5 text-muted-foreground" />
       </button>
       <div className="flex-1">
-        <h3 className="font-semibold">{service.name}</h3>
-        {service.description && <p className="text-sm text-muted-foreground">{service.description}</p>}
+        <h3 className="font-semibold">{translation.name}</h3>
+        {translation.description && <p className="text-sm text-muted-foreground">{translation.description}</p>}
       </div>
       <div className="flex gap-2">
         <Button variant="outline" size="sm" onClick={onEdit}>
@@ -69,7 +75,7 @@ function SortableServiceItem({
 }
 
 export function ServiceManager() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { toast } = useToast()
   const [clusters, setClusters] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -213,6 +219,49 @@ export function ServiceManager() {
     }
   }
 
+  const handleServiceDragEnd = async (event: DragEndEvent, categoryId: string) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const category = clusters.flatMap((c) => c.categories).find((cat) => cat.id === categoryId)
+      if (!category) return
+
+      const oldIndex = category.services.findIndex((s: ServiceDto) => s.id === active.id)
+      const newIndex = category.services.findIndex((s: ServiceDto) => s.id === over.id)
+
+      const newServices = arrayMove(category.services, oldIndex, newIndex)
+
+      // Update local state optimistically
+      setClusters((prev) =>
+        prev.map((cluster) => ({
+          ...cluster,
+          categories: cluster.categories.map((cat: any) =>
+            cat.id === categoryId ? { ...cat, services: newServices } : cat,
+          ),
+        })),
+      )
+
+      try {
+        await categoriesManagementApi.reorderServicesInCategory(
+          categoryId,
+          newServices.map((s: ServiceDto) => s.id),
+        )
+        toast({
+          title: t("common.success"),
+          description: "Services reordered successfully",
+        })
+      } catch (error) {
+        // Revert on error
+        loadData()
+        toast({
+          title: t("common.error"),
+          description: "Error reordering services",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   if (loading) {
     return <div className="text-center">{t("common.loading")}</div>
   }
@@ -234,25 +283,40 @@ export function ServiceManager() {
 
       {/* Services by Category */}
       <div className="space-y-4">
-        {allCategories.map((category) => (
-          <div key={category.id} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Grid3x3 className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">{category.name}</h3>
-              <span className="text-sm text-muted-foreground">({category.services.length})</span>
+        {allCategories.map((category) => {
+          const categoryTranslation = getTranslation(category.translations, language)
+
+          return (
+            <div key={category.id} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Grid3x3 className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">{categoryTranslation.name}</h3>
+                <span className="text-sm text-muted-foreground">({category.services.length})</span>
+              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => handleServiceDragEnd(event, category.id)}
+              >
+                <SortableContext
+                  items={category.services.map((s: ServiceDto) => s.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2 pl-7">
+                    {category.services.map((service: ServiceDto) => (
+                      <SortableServiceItem
+                        key={service.id}
+                        service={service}
+                        onEdit={() => openEditDialog(service)}
+                        onDelete={() => handleDelete(service)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
-            <div className="space-y-2 pl-7">
-              {category.services.map((service: ServiceDto) => (
-                <SortableServiceItem
-                  key={service.id}
-                  service={service}
-                  onEdit={() => openEditDialog(service)}
-                  onDelete={() => handleDelete(service)}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {allCategories.length === 0 && (

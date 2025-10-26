@@ -9,6 +9,7 @@ import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getTranslation } from "@/lib/utils/translations"
 
 export function ClustersSection() {
   const { t, language } = useLanguage() // Added language to trigger reload
@@ -134,65 +135,73 @@ export function ClustersSection() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {clusters.map((cluster) => (
-            <motion.div key={cluster.id} variants={itemVariants}>
-              <Card className="group h-full overflow-hidden border-2 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/10">
-                <CardHeader className="cursor-pointer" onClick={() => toggleCluster(cluster.id)}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition-all duration-300 group-hover:bg-primary group-hover:scale-110">
-                        {renderIcon(cluster.icon, {
-                          className: "h-6 w-6 text-primary transition-colors duration-300 group-hover:text-white",
+          {clusters.map((cluster) => {
+            const clusterTranslation = getTranslation(cluster.translations, language)
+
+            return (
+              <motion.div key={cluster.id} variants={itemVariants}>
+                <Card className="group h-full overflow-hidden border-2 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/10">
+                  <CardHeader className="cursor-pointer" onClick={() => toggleCluster(cluster.id)}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 transition-all duration-300 group-hover:bg-primary group-hover:scale-110">
+                          {renderIcon(cluster.icon, {
+                            className: "h-6 w-6 text-primary transition-colors duration-300 group-hover:text-white",
+                          })}
+                        </div>
+                        <div>
+                          <CardTitle className="text-xl">{clusterTranslation.name}</CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            {cluster.categories.length} {t("home.clusters.categories")}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        {expandedClusters.has(cluster.id) ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {clusterTranslation.description && (
+                      <CardDescription className="mt-2 text-sm">{clusterTranslation.description}</CardDescription>
+                    )}
+                  </CardHeader>
+
+                  {expandedClusters.has(cluster.id) && cluster.categories.length > 0 && (
+                    <CardContent className="border-t pt-4">
+                      <div className="space-y-2">
+                        {cluster.categories.map((category) => {
+                          const categoryTranslation = getTranslation(category.translations, language)
+
+                          return (
+                            <div
+                              key={category.id}
+                              className="flex items-center gap-2 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
+                            >
+                              {renderIcon(category.icon, { className: "h-4 w-4 text-primary" })}
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">{categoryTranslation.name}</p>
+                                {categoryTranslation.description && (
+                                  <p className="text-xs text-muted-foreground">{categoryTranslation.description}</p>
+                                )}
+                              </div>
+                              {category.services.length > 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                  {category.services.length} {t("home.clusters.services")}
+                                </span>
+                              )}
+                            </div>
+                          )
                         })}
                       </div>
-                      <div>
-                        <CardTitle className="text-xl">{cluster.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          {cluster.categories.length} {t("home.clusters.categories")}
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      {expandedClusters.has(cluster.id) ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  {cluster.description && (
-                    <CardDescription className="mt-2 text-sm">{cluster.description}</CardDescription>
+                    </CardContent>
                   )}
-                </CardHeader>
-
-                {expandedClusters.has(cluster.id) && cluster.categories.length > 0 && (
-                  <CardContent className="border-t pt-4">
-                    <div className="space-y-2">
-                      {cluster.categories.map((category) => (
-                        <div
-                          key={category.id}
-                          className="flex items-center gap-2 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
-                        >
-                          {renderIcon(category.icon, { className: "h-4 w-4 text-primary" })}
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{category.name}</p>
-                            {category.description && (
-                              <p className="text-xs text-muted-foreground">{category.description}</p>
-                            )}
-                          </div>
-                          {category.services.length > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              {category.services.length} {t("home.clusters.services")}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                )}
-              </Card>
-            </motion.div>
-          ))}
+                </Card>
+              </motion.div>
+            )
+          })}
         </div>
       </motion.div>
     </section>

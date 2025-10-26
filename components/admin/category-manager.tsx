@@ -21,9 +21,18 @@ import { useToast } from "@/hooks/use-toast"
 import { IconPicker } from "@/components/admin/icon-picker"
 import { renderIcon } from "@/lib/utils/icons"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
+import { getTranslation } from "@/lib/utils/translations"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { useSortable } from "@dnd-kit/sortable" // Import useSortable
 
 interface CategoryFormData {
   icon: string
@@ -46,7 +55,9 @@ function SortableCategoryItem({
   onRestore?: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: category.id })
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+
+  const translation = getTranslation(category.translations, language)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -61,9 +72,9 @@ function SortableCategoryItem({
       <div className="flex-1">
         <div className="flex items-center gap-2">
           {renderIcon(category.icon, { className: "h-5 w-5" })}
-          <h3 className="font-semibold">{category.name}</h3>
+          <h3 className="font-semibold">{translation.name}</h3>
         </div>
-        {category.description && <p className="text-sm text-muted-foreground">{category.description}</p>}
+        {translation.description && <p className="text-sm text-muted-foreground">{translation.description}</p>}
         <p className="text-xs text-muted-foreground">
           {category.services?.length || 0} {t("admin.services")}
         </p>
@@ -89,7 +100,7 @@ function SortableCategoryItem({
 }
 
 export function CategoryManager() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { toast } = useToast()
   const [categories, setCategories] = useState<CategoryDto[]>([])
   const [unassignedCategories, setUnassignedCategories] = useState<CategoryDto[]>([])
@@ -272,6 +283,42 @@ export function CategoryManager() {
     }
   }
 
+  const handleCategoryDragEnd = async (event: DragEndEvent, clusterId: string) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const cluster = clusters.find((c) => c.id === clusterId)
+      if (!cluster) return
+
+      const oldIndex = cluster.categories.findIndex((c: CategoryDto) => c.id === active.id)
+      const newIndex = cluster.categories.findIndex((c: CategoryDto) => c.id === over.id)
+
+      const newCategories = arrayMove(cluster.categories, oldIndex, newIndex)
+
+      // Update local state optimistically
+      setClusters((prev) => prev.map((c) => (c.id === clusterId ? { ...c, categories: newCategories } : c)))
+
+      try {
+        await categoriesManagementApi.reorderCategoriesInCluster(
+          clusterId,
+          newCategories.map((c: CategoryDto) => c.id),
+        )
+        toast({
+          title: t("common.success"),
+          description: "Categories reordered successfully",
+        })
+      } catch (error) {
+        // Revert on error
+        setClusters((prev) => prev.map((c) => (c.id === clusterId ? { ...c, categories: cluster.categories } : c)))
+        toast({
+          title: t("common.error"),
+          description: "Error reordering categories",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   if (loading) {
     return <div className="text-center">{t("common.loading")}</div>
   }
@@ -291,25 +338,40 @@ export function CategoryManager() {
 
       {/* Assigned Categories by Cluster */}
       <div className="space-y-4">
-        {clusters.map((cluster) => (
-          <div key={cluster.id} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <FolderTree className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">{cluster.name}</h3>
-              <span className="text-sm text-muted-foreground">({cluster.categories.length})</span>
+        {clusters.map((cluster) => {
+          const clusterTranslation = getTranslation(cluster.translations, language)
+
+          return (
+            <div key={cluster.id} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <FolderTree className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">{clusterTranslation.name}</h3>
+                <span className="text-sm text-muted-foreground">({cluster.categories.length})</span>
+              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => handleCategoryDragEnd(event, cluster.id)}
+              >
+                <SortableContext
+                  items={cluster.categories.map((c: CategoryDto) => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2 pl-7">
+                    {cluster.categories.map((category: CategoryDto) => (
+                      <SortableCategoryItem
+                        key={category.id}
+                        category={category}
+                        onEdit={() => openEditDialog(category)}
+                        onDelete={() => handleDelete(category)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
-            <div className="space-y-2 pl-7">
-              {cluster.categories.map((category: CategoryDto) => (
-                <SortableCategoryItem
-                  key={category.id}
-                  category={category}
-                  onEdit={() => openEditDialog(category)}
-                  onDelete={() => handleDelete(category)}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Unassigned Categories */}

@@ -21,6 +21,7 @@ import { Plus, Edit, Trash2, GripVertical, FolderTree } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { IconPicker } from "@/components/admin/icon-picker"
 import { renderIcon } from "@/lib/utils/icons"
+import { getTranslation } from "@/lib/utils/translations"
 import {
   DndContext,
   closestCenter,
@@ -54,7 +55,9 @@ function SortableClusterItem({
   onDelete,
 }: { cluster: ClusterDto; onEdit: () => void; onDelete: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: cluster.id })
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+
+  const translation = getTranslation(cluster.translations, language)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -69,10 +72,10 @@ function SortableClusterItem({
       <div className="flex-1">
         <div className="flex items-center gap-2">
           {renderIcon(cluster.icon, { className: "h-5 w-5" })}
-          <h3 className="font-semibold">{cluster.name}</h3>
+          <h3 className="font-semibold">{translation.name}</h3>
           {!cluster.isActive && <span className="text-xs text-muted-foreground">({t("admin.inactive")})</span>}
         </div>
-        {cluster.description && <p className="text-sm text-muted-foreground">{cluster.description}</p>}
+        {translation.description && <p className="text-sm text-muted-foreground">{translation.description}</p>}
         <p className="text-xs text-muted-foreground">
           {cluster.categories.length} {t("admin.categories")}
         </p>
