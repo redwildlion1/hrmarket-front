@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { useAdminCheck } from "@/lib/hooks/use-admin-check"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FolderTree, CheckCircle, CreditCard } from "lucide-react"
 
@@ -13,8 +12,6 @@ export default function AdminPage() {
   const { t } = useLanguage()
   const router = useRouter()
   const { userInfo, loading } = useAuth()
-
-  useAdminCheck(30000)
 
   useEffect(() => {
     if (!loading && (!userInfo || !userInfo.isAdmin)) {

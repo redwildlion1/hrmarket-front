@@ -9,6 +9,8 @@ import { FolderTree, Grid3x3, Briefcase } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { ClusterManager } from "@/components/admin/cluster-manager"
+import { CategoryManager } from "@/components/admin/category-manager"
+import { ServiceManager } from "@/components/admin/service-manager"
 
 export default function ContentManagementPage() {
   const { t } = useLanguage()
@@ -64,19 +66,11 @@ export default function ContentManagementPage() {
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6">
-          <div className="rounded-lg border bg-card p-6">
-            <h2 className="mb-4 text-2xl font-semibold">{t("admin.manageCategories")}</h2>
-            <p className="text-muted-foreground">{t("admin.categoriesDesc")}</p>
-            {/* Category management UI will go here */}
-          </div>
+          <CategoryManager />
         </TabsContent>
 
         <TabsContent value="services" className="mt-6">
-          <div className="rounded-lg border bg-card p-6">
-            <h2 className="mb-4 text-2xl font-semibold">{t("admin.manageServices")}</h2>
-            <p className="text-muted-foreground">{t("admin.servicesDesc")}</p>
-            {/* Service management UI will go here */}
-          </div>
+          <ServiceManager />
         </TabsContent>
       </Tabs>
     </div>

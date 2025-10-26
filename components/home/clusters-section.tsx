@@ -11,7 +11,7 @@ import { ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function ClustersSection() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage() // Added language to trigger reload
   const [clusters, setClusters] = useState<ClusterDto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +20,7 @@ export function ClustersSection() {
 
   useEffect(() => {
     loadClusters()
-  }, [])
+  }, [language]) // Added language dependency to reload when language changes
 
   const loadClusters = async () => {
     try {
