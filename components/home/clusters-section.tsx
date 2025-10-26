@@ -157,19 +157,23 @@ export function ClustersSection() {
                     )}
                   </CardHeader>
 
-                  <AnimatePresence>
+                  <AnimatePresence mode="wait">
                     {isClusterExpanded && cluster.categories.length > 0 && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        transition={{
+                          duration: 0.4,
+                          ease: [0.4, 0, 0.2, 1],
+                        }}
+                        style={{ overflow: "hidden" }}
                       >
                         <CardContent className="border-t pt-4">
                           <motion.div
                             initial={{ y: -10 }}
                             animate={{ y: 0 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                             className="space-y-2"
                           >
                             {cluster.categories.map((category) => {
@@ -210,13 +214,17 @@ export function ClustersSection() {
                                     </div>
                                   </div>
 
-                                  <AnimatePresence>
+                                  <AnimatePresence mode="wait">
                                     {isCategoryExpanded && category.services.length > 0 && (
                                       <motion.div
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: "auto", opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                                        transition={{
+                                          duration: 0.4,
+                                          ease: [0.4, 0, 0.2, 1],
+                                        }}
+                                        style={{ overflow: "hidden" }}
                                       >
                                         <div className="border-t bg-muted/30 p-3 space-y-1">
                                           {category.services.map((service) => {
@@ -227,7 +235,7 @@ export function ClustersSection() {
                                                 key={service.id}
                                                 initial={{ x: -10, opacity: 0 }}
                                                 animate={{ x: 0, opacity: 1 }}
-                                                transition={{ duration: 0.2 }}
+                                                transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                                                 className="flex items-start gap-2 rounded-md bg-background p-2 text-sm"
                                               >
                                                 {renderIcon(service.icon, {
