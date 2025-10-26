@@ -7,14 +7,14 @@ import { useLanguage } from "@/lib/i18n/language-context"
 import { categoriesManagementApi, type ClusterDto } from "@/lib/api/categories-management"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { renderIcon } from "@/lib/utils/icons"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useInView } from "react-intersection-observer"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getTranslation } from "@/lib/utils/translations"
 
 export function ClustersSection() {
-  const { t, language } = useLanguage() // Added language to trigger reload
+  const { t, language } = useLanguage()
   const [clusters, setClusters] = useState<ClusterDto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -24,24 +24,16 @@ export function ClustersSection() {
 
   useEffect(() => {
     loadClusters()
-  }, []) // Fetch once on mount, translations are selected client-side
+  }, [])
 
   const loadClusters = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5027/api"
-      console.log("[v0] API URL:", apiUrl)
-      console.log("[v0] Loading clusters from API...")
-
       const data = await categoriesManagementApi.getClustersPublic()
-      console.log("[v0] Clusters loaded successfully:", data)
-
-      // Only show active clusters for users
       setClusters(data.filter((c) => c.isActive))
       setError(null)
     } catch (err) {
       console.error("[v0] Error loading clusters:", err)
       setError(err instanceof Error ? err.message : "Failed to load clusters")
-      // Don't show the section if there's an error
       setClusters([])
     } finally {
       setLoading(false)
@@ -61,7 +53,7 @@ export function ClustersSection() {
   }
 
   const toggleCategory = (categoryId: string, e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent cluster toggle when clicking category
+    e.stopPropagation()
     setExpandedCategories((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(categoryId)) {
@@ -107,29 +99,7 @@ export function ClustersSection() {
   }
 
   if (error || clusters.length === 0) {
-    // Silently hide the section for production
-    // In development, you can uncomment the Alert below to see the error
     return null
-
-    /* Development error display:
-    return (
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-4">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Unable to load services</AlertTitle>
-            <AlertDescription>
-              {error || "No services available at the moment."}
-              <br />
-              <span className="text-xs mt-2 block">
-                Make sure your backend is running on {process.env.NEXT_PUBLIC_API_URL || "http://localhost:5027/api"}
-              </span>
-            </AlertDescription>
-          </Alert>
-        </div>
-      </section>
-    )
-    */
   }
 
   return (
@@ -153,6 +123,7 @@ export function ClustersSection() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
           {clusters.map((cluster) => {
             const clusterTranslation = getTranslation(cluster.translations, language)
+            const isClusterExpanded = expandedClusters.has(cluster.id)
 
             return (
               <motion.div key={cluster.id} variants={itemVariants}>
@@ -173,11 +144,12 @@ export function ClustersSection() {
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        {expandedClusters.has(cluster.id) ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
+                        <motion.div
+                          animate={{ rotate: isClusterExpanded ? 180 : 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                        >
                           <ChevronDown className="h-4 w-4" />
-                        )}
+                        </motion.div>
                       </Button>
                     </div>
                     {clusterTranslation.description && (
@@ -185,78 +157,105 @@ export function ClustersSection() {
                     )}
                   </CardHeader>
 
-                  {expandedClusters.has(cluster.id) && cluster.categories.length > 0 && (
-                    <CardContent className="border-t pt-4">
-                      <div className="space-y-2">
-                        {cluster.categories.map((category) => {
-                          const categoryTranslation = getTranslation(category.translations, language)
-                          const isCategoryExpanded = expandedCategories.has(category.id)
+                  <AnimatePresence>
+                    {isClusterExpanded && cluster.categories.length > 0 && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      >
+                        <CardContent className="border-t pt-4">
+                          <motion.div
+                            initial={{ y: -10 }}
+                            animate={{ y: 0 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            className="space-y-2"
+                          >
+                            {cluster.categories.map((category) => {
+                              const categoryTranslation = getTranslation(category.translations, language)
+                              const isCategoryExpanded = expandedCategories.has(category.id)
 
-                          return (
-                            <div key={category.id} className="rounded-lg border bg-card overflow-hidden">
-                              <div
-                                className="flex items-center gap-2 p-3 cursor-pointer transition-colors hover:bg-accent"
-                                onClick={(e) => toggleCategory(category.id, e)}
-                              >
-                                {renderIcon(category.icon, { className: "h-4 w-4 text-primary flex-shrink-0" })}
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm">{categoryTranslation.name}</p>
-                                  {categoryTranslation.description && (
-                                    <p className="text-xs text-muted-foreground line-clamp-1">
-                                      {categoryTranslation.description}
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                  {category.services.length > 0 && (
-                                    <span className="text-xs text-muted-foreground">
-                                      {category.services.length} {t("home.clusters.services")}
-                                    </span>
-                                  )}
-                                  {category.services.length > 0 && (
-                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                      {isCategoryExpanded ? (
-                                        <ChevronUp className="h-3 w-3" />
-                                      ) : (
-                                        <ChevronDown className="h-3 w-3" />
+                              return (
+                                <div key={category.id} className="rounded-lg border bg-card overflow-hidden">
+                                  <div
+                                    className="flex items-center gap-2 p-3 cursor-pointer transition-colors hover:bg-accent"
+                                    onClick={(e) => toggleCategory(category.id, e)}
+                                  >
+                                    {renderIcon(category.icon, { className: "h-4 w-4 text-primary flex-shrink-0" })}
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-sm">{categoryTranslation.name}</p>
+                                      {categoryTranslation.description && (
+                                        <p className="text-xs text-muted-foreground line-clamp-1">
+                                          {categoryTranslation.description}
+                                        </p>
                                       )}
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                      {category.services.length > 0 && (
+                                        <span className="text-xs text-muted-foreground">
+                                          {category.services.length} {t("home.clusters.services")}
+                                        </span>
+                                      )}
+                                      {category.services.length > 0 && (
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                          <motion.div
+                                            animate={{ rotate: isCategoryExpanded ? 180 : 0 }}
+                                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                                          >
+                                            <ChevronDown className="h-3 w-3" />
+                                          </motion.div>
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </div>
 
-                              {isCategoryExpanded && category.services.length > 0 && (
-                                <div className="border-t bg-muted/30 p-3 space-y-1">
-                                  {category.services.map((service) => {
-                                    const serviceTranslation = getTranslation(service.translations, language)
-
-                                    return (
-                                      <div
-                                        key={service.id}
-                                        className="flex items-start gap-2 rounded-md bg-background p-2 text-sm"
+                                  <AnimatePresence>
+                                    {isCategoryExpanded && category.services.length > 0 && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeInOut" }}
                                       >
-                                        {renderIcon(service.icon, {
-                                          className: "h-3 w-3 text-primary mt-0.5 flex-shrink-0",
-                                        })}
-                                        <div className="flex-1 min-w-0">
-                                          <p className="font-medium text-xs">{serviceTranslation.name}</p>
-                                          {serviceTranslation.description && (
-                                            <p className="text-xs text-muted-foreground line-clamp-2">
-                                              {serviceTranslation.description}
-                                            </p>
-                                          )}
+                                        <div className="border-t bg-muted/30 p-3 space-y-1">
+                                          {category.services.map((service) => {
+                                            const serviceTranslation = getTranslation(service.translations, language)
+
+                                            return (
+                                              <motion.div
+                                                key={service.id}
+                                                initial={{ x: -10, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="flex items-start gap-2 rounded-md bg-background p-2 text-sm"
+                                              >
+                                                {renderIcon(service.icon, {
+                                                  className: "h-3 w-3 text-primary mt-0.5 flex-shrink-0",
+                                                })}
+                                                <div className="flex-1 min-w-0">
+                                                  <p className="font-medium text-xs">{serviceTranslation.name}</p>
+                                                  {serviceTranslation.description && (
+                                                    <p className="text-xs text-muted-foreground line-clamp-2">
+                                                      {serviceTranslation.description}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                              </motion.div>
+                                            )
+                                          })}
                                         </div>
-                                      </div>
-                                    )
-                                  })}
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </div>
-                              )}
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </CardContent>
-                  )}
+                              )
+                            })}
+                          </motion.div>
+                        </CardContent>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </Card>
               </motion.div>
             )
