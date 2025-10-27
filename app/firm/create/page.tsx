@@ -24,7 +24,7 @@ function CreateFirmForm() {
   const { t, language } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
-  const { userInfo } = useAuth()
+  const { userInfo, updateUserInfo } = useAuth()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -97,31 +97,59 @@ function CreateFirmForm() {
   const firmTypes = firmTypesData ? (language === "en" ? firmTypesData.en : firmTypesData.ro) : []
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("[v0] handleSubmit called", {
+      timestamp: new Date().toISOString(),
+      step,
+      isSubmitting,
+      loading,
+      eventType: e.type,
+    })
+
     e.preventDefault()
-    e.stopPropagation() // Prevent event bubbling
+    e.stopPropagation()
+
+    console.log("[v0] After preventDefault/stopPropagation", { step, isSubmitting })
 
     if (step !== 4) {
+      console.log("[v0] Blocked: Not on step 4", { currentStep: step })
       return
     }
 
     if (isSubmitting) {
+      console.log("[v0] Blocked: Already submitting")
       return
     }
 
+    console.log("[v0] Starting firm creation submission")
     setIsSubmitting(true)
     setLoading(true)
     clearError()
 
     try {
-      await apiClient.firm.create(formData)
+      console.log("[v0] Calling API to create firm", { formData })
+      const response = await apiClient.firm.create(formData)
+      console.log("[v0] API response received", { response })
+
+      if (response.firmId && response.firmName) {
+        console.log("[v0] Updating user info with firm data", {
+          firmId: response.firmId,
+          firmName: response.firmName,
+        })
+        updateUserInfo({
+          firmId: response.firmId,
+          firmName: response.firmName,
+        })
+      }
 
       toast({
         title: t("common.success"),
         description: t("firm.createSuccess"),
       })
 
+      console.log("[v0] Redirecting to /firm/manage")
       router.push("/firm/manage")
     } catch (error: any) {
+      console.log("[v0] Error creating firm", { error })
       setError(error)
 
       if (error.validationErrors) {
@@ -138,25 +166,31 @@ function CreateFirmForm() {
         })
       }
     } finally {
+      console.log("[v0] Submission complete, resetting flags")
       setLoading(false)
       setIsSubmitting(false)
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log("[v0] handleKeyDown", { key: e.key, step })
     if (e.key === "Enter" && step !== 4) {
+      console.log("[v0] Enter pressed on non-review step, preventing default")
       e.preventDefault()
       if (canProceed()) {
+        console.log("[v0] Moving to next step")
         nextStep()
       }
     }
   }
 
   const nextStep = () => {
+    console.log("[v0] nextStep called", { currentStep: step })
     if (step < 4) setStep(step + 1)
   }
 
   const prevStep = () => {
+    console.log("[v0] prevStep called", { currentStep: step })
     if (step > 1) setStep(step - 1)
   }
 
@@ -568,12 +602,23 @@ function CreateFirmForm() {
             )}
 
             {step < 4 ? (
-              <Button type="button" onClick={nextStep} disabled={!canProceed() || loading}>
+              <Button
+                type="button"
+                onClick={() => {
+                  console.log("[v0] Next button clicked", { step })
+                  nextStep()
+                }}
+                disabled={!canProceed() || loading}
+              >
                 {t("common.next")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={loading || isSubmitting}>
+              <Button
+                type="submit"
+                disabled={loading || isSubmitting}
+                onClick={() => console.log("[v0] Submit button clicked", { step, isSubmitting, loading })}
+              >
                 {loading ? t("common.loading") : t("common.submit")}
                 <CheckCircle2 className="ml-2 h-4 w-4" />
               </Button>

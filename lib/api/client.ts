@@ -534,7 +534,7 @@ export const apiClient = {
       locationCity: string
       locationPostalCode?: string
     }) => {
-      return fetchWithAuth<{ firmId: string }>("/firms/create", {
+      return fetchWithAuth<{ firmId: string; firmName: string; message: string }>("/firms/create", {
         method: "POST",
         body: JSON.stringify(data),
       })

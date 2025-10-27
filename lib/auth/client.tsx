@@ -20,6 +20,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, newsletter?: boolean, isFirm?: boolean) => Promise<void>
   logout: () => Promise<void>
+  updateUserInfo: (updates: Partial<UserInfo>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -80,7 +81,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/")
   }
 
-  return <AuthContext.Provider value={{ userInfo, loading, login, register, logout }}>{children}</AuthContext.Provider>
+  const updateUserInfo = (updates: Partial<UserInfo>) => {
+    if (!userInfo) return
+
+    const updatedUserInfo = { ...userInfo, ...updates }
+    setUserInfo(updatedUserInfo)
+    localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo))
+  }
+
+  return (
+    <AuthContext.Provider value={{ userInfo, loading, login, register, logout, updateUserInfo }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {
