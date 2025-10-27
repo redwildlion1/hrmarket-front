@@ -26,31 +26,83 @@ class ApiError extends Error {
 }
 
 async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem("accessToken")
-  const language = localStorage.getItem("language") || "ro"
+  const makeRequest = async (useRefreshedToken = false): Promise<Response> => {
+    const token = localStorage.getItem("accessToken")
+    const language = localStorage.getItem("language") || "ro"
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "Accept-Language": language === "en" ? "en" : "ro",
-  }
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Accept-Language": language === "en" ? "en" : "ro",
+    }
 
-  // Merge existing headers if any
-  if (options.headers) {
-    const existingHeaders = new Headers(options.headers)
-    existingHeaders.forEach((value, key) => {
-      headers[key] = value
+    if (options.headers) {
+      const existingHeaders = new Headers(options.headers)
+      existingHeaders.forEach((value, key) => {
+        headers[key] = value
+      })
+    }
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`
+    }
+
+    return fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: "include",
     })
   }
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`
-  }
+  let response = await makeRequest()
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: "include",
-  })
+  if (response.status === 401) {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken")
+      const accessToken = localStorage.getItem("accessToken")
+
+      if (refreshToken && accessToken) {
+        // Try to refresh the token
+        const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: accessToken, refreshToken }),
+          credentials: "include",
+        })
+
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json()
+          localStorage.setItem("accessToken", refreshData.token)
+          localStorage.setItem("refreshToken", refreshData.refreshToken)
+
+          // Retry the original request with the new token
+          response = await makeRequest(true)
+        } else {
+          // Refresh failed, logout the user
+          localStorage.removeItem("accessToken")
+          localStorage.removeItem("refreshToken")
+          localStorage.removeItem("userInfo")
+          window.location.href = "/login"
+          throw new ApiError(401, "Session expired", "Please login again")
+        }
+      } else {
+        // No refresh token, logout the user
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("refreshToken")
+        localStorage.removeItem("userInfo")
+        window.location.href = "/login"
+        throw new ApiError(401, "Session expired", "Please login again")
+      }
+    } catch (error) {
+      // Refresh failed, logout the user
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+      localStorage.removeItem("userInfo")
+      window.location.href = "/login"
+      throw new ApiError(401, "Session expired", "Please login again")
+    }
+  }
 
   if (!response.ok) {
     let errorData: ProblemDetails
@@ -74,26 +126,21 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
     return null as T
   }
 
-  // Check if response has content before parsing JSON
   const contentType = response.headers.get("content-type")
   const contentLength = response.headers.get("content-length")
 
-  // If no content-type or content-length is 0, return null
   if (!contentType || contentLength === "0") {
     return null as T
   }
 
-  // Only parse JSON if content-type indicates JSON
   if (contentType.includes("application/json")) {
     const text = await response.text()
-    // If response body is empty, return null
     if (!text || text.trim() === "") {
       return null as T
     }
     return JSON.parse(text)
   }
 
-  // For non-JSON responses, return null
   return null as T
 }
 

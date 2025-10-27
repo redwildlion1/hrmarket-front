@@ -27,6 +27,7 @@ function CreateFirmForm() {
   const { userInfo } = useAuth()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [countries, setCountries] = useState<Array<{ id: number; name: string }>>([])
   const [counties, setCounties] = useState<Array<{ id: number; name: string }>>([])
   const [firmTypesData, setFirmTypesData] = useState<{
@@ -98,10 +99,11 @@ function CreateFirmForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (step !== 4) {
+    if (step !== 4 || isSubmitting) {
       return
     }
 
+    setIsSubmitting(true)
     setLoading(true)
     clearError()
 
@@ -117,15 +119,22 @@ function CreateFirmForm() {
     } catch (error: any) {
       setError(error)
 
-      if (error.response?.data && !error.response.data.validationErrors) {
+      if (error.validationErrors) {
+        toast({
+          title: t("common.validationError"),
+          description: t("firm.validationErrorDesc"),
+          variant: "destructive",
+        })
+      } else {
         toast({
           title: t("common.error"),
-          description: error.response.data.detail || error.response.data.title,
+          description: error.detail || error.title,
           variant: "destructive",
         })
       }
     } finally {
       setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -178,6 +187,22 @@ function CreateFirmForm() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-6">
             {apiError && !apiError.isValidationError && <ErrorAlert />}
+            {apiError && apiError.isValidationError && step === 4 && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  <div className="space-y-2">
+                    <p className="font-semibold">{t("firm.validationErrors")}</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {Object.entries(apiError.validationErrors || {}).map(([field, errors]) => (
+                        <li key={field} className="text-sm">
+                          <span className="font-medium">{field}:</span> {errors.join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
 
             <AnimatePresence mode="wait">
               {step === 1 && (
@@ -534,7 +559,7 @@ function CreateFirmForm() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading || isSubmitting}>
                 {loading ? t("common.loading") : t("common.submit")}
                 <CheckCircle2 className="ml-2 h-4 w-4" />
               </Button>

@@ -79,6 +79,7 @@ export const translations = {
     "common.back": "Înapoi",
     "common.update": "Actualizează",
     "common.create": "Creează",
+    "common.validationError": "Eroare de Validare",
 
     // Home Page
     "home.hero.title": "Bine ai venit la HRMarket",
@@ -322,6 +323,8 @@ export const translations = {
     "firm.step4Desc": "Verifică toate informațiile înainte de trimitere",
     "firm.reviewNote":
       "Te rugăm să verifici toate informațiile. După trimitere, firma ta va fi revizuită de administratori.",
+    "firm.validationErrors": "Erori de Validare",
+    "firm.validationErrorDesc": "Te rugăm să corectezi erorile de mai jos și să încerci din nou.",
 
     // Admin
     "admin.dashboard": "Panou Administrare",
@@ -474,6 +477,7 @@ export const translations = {
     "common.back": "Back",
     "common.update": "Update",
     "common.create": "Create",
+    "common.validationError": "Validation Error",
 
     // Home Page
     "home.hero.title": "Welcome to HRMarket",
@@ -713,6 +717,8 @@ export const translations = {
     "firm.step4Title": "Review",
     "firm.step4Desc": "Review all information before submitting",
     "firm.reviewNote": "Please review all information. After submission, your firm will be reviewed by administrators.",
+    "firm.validationErrors": "Validation Errors",
+    "firm.validationErrorDesc": "Please correct the errors below and try again.",
 
     // Admin
     "admin.dashboard": "Admin Dashboard",
