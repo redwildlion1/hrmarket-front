@@ -604,7 +604,9 @@ function CreateFirmForm() {
             {step < 4 ? (
               <Button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   console.log("[v0] Next button clicked", { step })
                   nextStep()
                 }}
