@@ -20,26 +20,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Building2, Mail, MapPin, ArrowRight, ArrowLeft, CheckCircle2, Info } from "lucide-react"
 
-// Firm types based on language
-const FIRM_TYPES = {
-  ro: [
-    { value: "Srl", label: "SRL - Societate cu Răspundere Limitată" },
-    { value: "Sa", label: "SA - Societate pe Acțiuni" },
-    { value: "Pfa", label: "PFA - Persoană Fizică Autorizată" },
-    { value: "Ii", label: "II - Întreprindere Individuală" },
-    { value: "Ong", label: "ONG - Organizație Non-Guvernamentală" },
-    { value: "Altele", label: "Altele" },
-  ],
-  en: [
-    { value: "Llc", label: "LLC - Limited Liability Company" },
-    { value: "Corp", label: "Corporation" },
-    { value: "SoleProprietorship", label: "Sole Proprietorship" },
-    { value: "IndividualEnterprise", label: "Individual Enterprise" },
-    { value: "NonProfitOrganization", label: "Non-Profit Organization" },
-    { value: "Other", label: "Other" },
-  ],
-}
-
 function CreateFirmForm() {
   const { t, language } = useLanguage()
   const router = useRouter()
@@ -49,10 +29,13 @@ function CreateFirmForm() {
   const [loading, setLoading] = useState(false)
   const [countries, setCountries] = useState<Array<{ id: number; name: string }>>([])
   const [counties, setCounties] = useState<Array<{ id: number; name: string }>>([])
+  const [firmTypesData, setFirmTypesData] = useState<{
+    ro: Array<{ value: string; label: string; description: string }>
+    en: Array<{ value: string; label: string; description: string }>
+  } | null>(null)
 
   const { setError, clearError, apiError } = useFormErrors()
 
-  // Form data
   const [formData, setFormData] = useState({
     cui: "",
     name: "",
@@ -72,7 +55,18 @@ function CreateFirmForm() {
     locationPostalCode: "",
   })
 
-  // Load countries on mount
+  useEffect(() => {
+    const loadFirmTypes = async () => {
+      try {
+        const data = await apiClient.config.getFirmTypes()
+        setFirmTypesData(data)
+      } catch (error) {
+        console.error("Failed to load firm types:", error)
+      }
+    }
+    loadFirmTypes()
+  }, [])
+
   useEffect(() => {
     const loadCountries = async () => {
       try {
@@ -85,7 +79,6 @@ function CreateFirmForm() {
     loadCountries()
   }, [])
 
-  // Load counties when country changes
   useEffect(() => {
     const loadCounties = async () => {
       if (formData.locationCountryId > 0) {
@@ -100,8 +93,15 @@ function CreateFirmForm() {
     loadCounties()
   }, [formData.locationCountryId])
 
+  const firmTypes = firmTypesData ? (language === "en" ? firmTypesData.en : firmTypesData.ro) : []
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (step !== 4) {
+      return
+    }
+
     setLoading(true)
     clearError()
 
@@ -113,7 +113,6 @@ function CreateFirmForm() {
         description: t("firm.createSuccess"),
       })
 
-      // Refresh user info and redirect
       router.push("/firm/manage")
     } catch (error: any) {
       setError(error)
@@ -153,8 +152,6 @@ function CreateFirmForm() {
     }
   }
 
-  const firmTypes = FIRM_TYPES[language as keyof typeof FIRM_TYPES] || FIRM_TYPES.ro
-
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <Card className="w-full max-w-3xl border-0 shadow-2xl backdrop-blur-sm bg-white/95">
@@ -183,7 +180,6 @@ function CreateFirmForm() {
             {apiError && !apiError.isValidationError && <ErrorAlert />}
 
             <AnimatePresence mode="wait">
-              {/* Step 1: Basic Information */}
               {step === 1 && (
                 <motion.div
                   key="step1"
@@ -252,7 +248,6 @@ function CreateFirmForm() {
                 </motion.div>
               )}
 
-              {/* Step 2: Contact Information */}
               {step === 2 && (
                 <motion.div
                   key="step2"
@@ -323,10 +318,31 @@ function CreateFirmForm() {
                       disabled={loading}
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormInput
+                      id="linksTwitter"
+                      label="Twitter"
+                      type="url"
+                      placeholder="https://twitter.com/..."
+                      value={formData.linksTwitter}
+                      onChange={(e) => setFormData({ ...formData, linksTwitter: e.target.value })}
+                      disabled={loading}
+                    />
+
+                    <FormInput
+                      id="linksInstagram"
+                      label="Instagram"
+                      type="url"
+                      placeholder="https://instagram.com/..."
+                      value={formData.linksInstagram}
+                      onChange={(e) => setFormData({ ...formData, linksInstagram: e.target.value })}
+                      disabled={loading}
+                    />
+                  </div>
                 </motion.div>
               )}
 
-              {/* Step 3: Location */}
               {step === 3 && (
                 <motion.div
                   key="step3"
@@ -416,7 +432,6 @@ function CreateFirmForm() {
                 </motion.div>
               )}
 
-              {/* Step 4: Review */}
               {step === 4 && (
                 <motion.div
                   key="step4"
@@ -503,7 +518,7 @@ function CreateFirmForm() {
             </AnimatePresence>
           </CardContent>
 
-          <div className="flex items-center justify-between px-6 pb-6">
+          <div className="flex items-center justify-between px-6 pb-6 mt-6">
             {step > 1 ? (
               <Button type="button" variant="outline" onClick={prevStep} disabled={loading}>
                 <ArrowLeft className="mr-2 h-4 w-4" />

@@ -478,10 +478,20 @@ export const apiClient = {
       locationCity: string
       locationPostalCode?: string
     }) => {
-      return fetchWithAuth<{ firmId: string }>("/firm", {
+      return fetchWithAuth<{ firmId: string }>("/firms/create", {
         method: "POST",
         body: JSON.stringify(data),
       })
+    },
+  },
+
+  // Config endpoints
+  config: {
+    getFirmTypes: async () => {
+      return fetchPublic<{
+        ro: Array<{ value: string; label: string; description: string }>
+        en: Array<{ value: string; label: string; description: string }>
+      }>("/config/firm-types")
     },
   },
 }
