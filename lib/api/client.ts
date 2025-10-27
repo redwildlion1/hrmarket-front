@@ -26,7 +26,7 @@ class ApiError extends Error {
 }
 
 async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const makeRequest = async (useRefreshedToken = false): Promise<Response> => {
+  const makeRequest = async (): Promise<Response> => {
     const token = localStorage.getItem("accessToken")
     const language = localStorage.getItem("language") || "ro"
 
@@ -61,25 +61,34 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
       const accessToken = localStorage.getItem("accessToken")
 
       if (refreshToken && accessToken) {
-        // Try to refresh the token
         const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ token: accessToken, refreshToken }),
+          body: JSON.stringify({
+            token: accessToken,
+            refreshToken: refreshToken,
+          }),
           credentials: "include",
         })
 
         if (refreshResponse.ok) {
           const refreshData = await refreshResponse.json()
+
+          // Store new tokens
           localStorage.setItem("accessToken", refreshData.token)
           localStorage.setItem("refreshToken", refreshData.refreshToken)
 
-          // Retry the original request with the new token
-          response = await makeRequest(true)
+          // Update userInfo if present in response
+          if (refreshData.userInfo) {
+            localStorage.setItem("userInfo", JSON.stringify(refreshData.userInfo))
+          }
+
+          // Retry the original request with new token
+          response = await makeRequest()
         } else {
-          // Refresh failed, logout the user
+          // Refresh failed, logout
           localStorage.removeItem("accessToken")
           localStorage.removeItem("refreshToken")
           localStorage.removeItem("userInfo")
@@ -87,7 +96,7 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
           throw new ApiError(401, "Session expired", "Please login again")
         }
       } else {
-        // No refresh token, logout the user
+        // No tokens, logout
         localStorage.removeItem("accessToken")
         localStorage.removeItem("refreshToken")
         localStorage.removeItem("userInfo")
@@ -95,12 +104,12 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
         throw new ApiError(401, "Session expired", "Please login again")
       }
     } catch (error) {
-      // Refresh failed, logout the user
+      // Refresh failed, logout
       localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
       localStorage.removeItem("userInfo")
       window.location.href = "/login"
-      throw new ApiError(401, "Session expired", "Please login again")
+      throw error instanceof ApiError ? error : new ApiError(401, "Session expired", "Please login again")
     }
   }
 

@@ -98,8 +98,13 @@ function CreateFirmForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation() // Prevent event bubbling
 
-    if (step !== 4 || isSubmitting) {
+    if (step !== 4) {
+      return
+    }
+
+    if (isSubmitting) {
       return
     }
 
@@ -135,6 +140,15 @@ function CreateFirmForm() {
     } finally {
       setLoading(false)
       setIsSubmitting(false)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && step !== 4) {
+      e.preventDefault()
+      if (canProceed()) {
+        nextStep()
+      }
     }
   }
 
@@ -184,7 +198,7 @@ function CreateFirmForm() {
             </div>
           </div>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
           <CardContent className="space-y-6">
             {apiError && !apiError.isValidationError && <ErrorAlert />}
             {apiError && apiError.isValidationError && step === 4 && (
