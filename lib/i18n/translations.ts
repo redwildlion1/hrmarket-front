@@ -44,6 +44,17 @@ export const translations = {
     "auth.firmEmailSuggestion":
       "Recomandăm folosirea unui email de companie pentru o aprobare mai rapidă de către administratori.",
     "auth.selectAccountType": "Selectează tipul de cont",
+    "auth.confirmEmail.verifying": "Verificăm emailul...",
+    "auth.confirmEmail.verifyingDesc": "Te rugăm să aștepți în timp ce confirmăm adresa ta de email.",
+    "auth.confirmEmail.success": "Email Confirmat!",
+    "auth.confirmEmail.successDesc":
+      "Adresa ta de email a fost confirmată cu succes. Acum te poți autentifica în cont.",
+    "auth.confirmEmail.failed": "Confirmare Eșuată",
+    "auth.confirmEmail.errorDesc": "Nu am putut confirma adresa ta de email. Linkul poate fi expirat sau invalid.",
+    "auth.confirmEmail.error": "Eroare la confirmarea emailului",
+    "auth.confirmEmail.missingParams": "Parametri lipsă în link",
+    "auth.confirmEmail.goToLogin": "Mergi la Autentificare",
+    "auth.confirmEmail.goToHome": "Mergi la Pagina Principală",
 
     // Footer
     "footer.tagline": "Be HRMARKable!",
@@ -428,6 +439,17 @@ export const translations = {
     "auth.newsletterDesc": "Receive the latest HR news and opportunities",
     "auth.firmEmailSuggestion": "We recommend using a company email for faster approval by administrators.",
     "auth.selectAccountType": "Select account type",
+    "auth.confirmEmail.verifying": "Verifying Email...",
+    "auth.confirmEmail.verifyingDesc": "Please wait while we confirm your email address.",
+    "auth.confirmEmail.success": "Email Confirmed!",
+    "auth.confirmEmail.successDesc":
+      "Your email address has been successfully confirmed. You can now log in to your account.",
+    "auth.confirmEmail.failed": "Confirmation Failed",
+    "auth.confirmEmail.errorDesc": "We couldn't confirm your email address. The link may be expired or invalid.",
+    "auth.confirmEmail.error": "Error confirming email",
+    "auth.confirmEmail.missingParams": "Missing parameters in link",
+    "auth.confirmEmail.goToLogin": "Go to Login",
+    "auth.confirmEmail.goToHome": "Go to Home",
 
     // Footer
     "footer.tagline": "Be HRMARKable!",
