@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FolderTree, CheckCircle, CreditCard } from "lucide-react"
+import { FolderTree, CheckCircle, CreditCard, HelpCircle } from "lucide-react"
 
 export default function AdminPage() {
   const { t } = useLanguage()
@@ -37,6 +37,12 @@ export default function AdminPage() {
       description: t("admin.contentManagementDesc"),
       icon: FolderTree,
       href: "/admin/content-management",
+    },
+    {
+      title: t("admin.universalQuestions"),
+      description: t("admin.universalQuestionsDesc"),
+      icon: HelpCircle,
+      href: "/admin/universal-questions",
     },
     {
       title: t("admin.subscriptions"),
