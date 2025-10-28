@@ -550,6 +550,151 @@ export const apiClient = {
       }>("/config/firm-types")
     },
   },
+
+  // Admin endpoints
+  admin: {
+    universalQuestions: {
+      getAll: async () => {
+        return fetchWithAuth<{
+          questions: Array<{
+            id: string
+            order: number
+            isRequired: boolean
+            title: string
+            display: string
+            description: string | null
+            placeholder: string | null
+            options: Array<{
+              id: string
+              value: string
+              order: number
+              label: string
+              display: string
+              description: string | null
+            }>
+          }>
+        }>("/admin/universal-questions")
+      },
+
+      getById: async (id: string) => {
+        return fetchWithAuth<{
+          id: string
+          order: number
+          isRequired: boolean
+          title: string
+          display: string
+          description: string | null
+          placeholder: string | null
+          options: Array<{
+            id: string
+            value: string
+            order: number
+            label: string
+            display: string
+            description: string | null
+          }>
+        }>(`/admin/universal-questions/${id}`)
+      },
+
+      create: async (data: {
+        order: number
+        isRequired: boolean
+        translations: Array<{
+          languageCode: string
+          title: string
+          display: string
+          description?: string
+          placeholder?: string
+        }>
+        options: Array<{
+          value: string
+          order: number
+          translations: Array<{
+            languageCode: string
+            label: string
+            display: string
+            description?: string
+          }>
+          metadata?: string
+        }>
+      }) => {
+        return fetchWithAuth<{
+          id: string
+          order: number
+          isRequired: boolean
+          title: string
+          display: string
+          description: string | null
+          placeholder: string | null
+          options: Array<{
+            id: string
+            value: string
+            order: number
+            label: string
+            display: string
+            description: string | null
+          }>
+        }>("/admin/universal-questions", {
+          method: "POST",
+          body: JSON.stringify(data),
+        })
+      },
+
+      update: async (
+        id: string,
+        data: {
+          id: string
+          order: number
+          isRequired: boolean
+          translations: Array<{
+            languageCode: string
+            title: string
+            display: string
+            description?: string
+            placeholder?: string
+          }>
+          options: Array<{
+            value: string
+            order: number
+            translations: Array<{
+              languageCode: string
+              label: string
+              display: string
+              description?: string
+            }>
+            metadata?: string
+          }>
+        },
+      ) => {
+        return fetchWithAuth<{
+          id: string
+          order: number
+          isRequired: boolean
+          title: string
+          display: string
+          description: string | null
+          placeholder: string | null
+          options: Array<{
+            id: string
+            value: string
+            order: number
+            label: string
+            display: string
+            description: string | null
+          }>
+        }>(`/admin/universal-questions/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        })
+      },
+
+      delete: async (id: string) => {
+        return fetchWithAuth(`/admin/universal-questions/${id}`, {
+          method: "DELETE",
+        })
+      },
+    },
+  },
 }
 
 export const api = apiClient
