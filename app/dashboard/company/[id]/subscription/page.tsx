@@ -8,12 +8,13 @@ import { PlanCard } from "@/components/subscription/plan-card"
 import { getSubscriptionPlans, createCheckoutSession } from "@/lib/api/subscription"
 import type { SubscriptionPlan } from "@/lib/types/subscription"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { loadStripe } from "@stripe/stripe-js"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 export default function CompanySubscriptionPage() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const router = useRouter()
   const params = useParams()
   const { toast } = useToast()
@@ -21,6 +22,7 @@ export default function CompanySubscriptionPage() {
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [isYearly, setIsYearly] = useState(false)
+  const [currency, setCurrency] = useState<"EUR" | "RON">("EUR")
   const [loading, setLoading] = useState(true)
   const [processingPlanId, setProcessingPlanId] = useState<string | null>(null)
 
@@ -42,8 +44,13 @@ export default function CompanySubscriptionPage() {
     setProcessingPlanId(plan.id)
 
     try {
-      const priceId = isYearly ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly
-      const { sessionId } = await createCheckoutSession(companyId, priceId)
+      const price = plan.prices.find((p) => p.currency === currency)
+      if (!price) {
+        throw new Error("Price not found for selected currency")
+      }
+
+      const priceId = isYearly ? price.stripePriceIdYearly : price.stripePriceIdMonthly
+      const { sessionId } = await createCheckoutSession(companyId, plan.id, priceId, isYearly, currency)
 
       const stripe = await stripePromise
       if (stripe) {
@@ -83,25 +90,39 @@ export default function CompanySubscriptionPage() {
           <p className="text-muted-foreground">{t("subscription.subtitle")}</p>
         </div>
 
-        <div className="mb-8 flex justify-center">
+        <div className="mb-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Tabs value={isYearly ? "yearly" : "monthly"} onValueChange={(v) => setIsYearly(v === "yearly")}>
             <TabsList>
               <TabsTrigger value="monthly">{t("subscription.monthly")}</TabsTrigger>
               <TabsTrigger value="yearly">{t("subscription.yearly")}</TabsTrigger>
             </TabsList>
           </Tabs>
+          <Select value={currency} onValueChange={(v) => setCurrency(v as "EUR" | "RON")}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="EUR">EUR (€)</SelectItem>
+              <SelectItem value="RON">RON</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              isYearly={isYearly}
-              onSelect={() => handleSelectPlan(plan)}
-              loading={processingPlanId === plan.id}
-            />
-          ))}
+          {plans
+            .filter((plan) => plan.isActive)
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .map((plan) => (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                isYearly={isYearly}
+                currency={currency}
+                language={language}
+                onSelect={() => handleSelectPlan(plan)}
+                loading={processingPlanId === plan.id}
+              />
+            ))}
         </div>
       </div>
     </div>

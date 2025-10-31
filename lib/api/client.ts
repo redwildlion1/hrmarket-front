@@ -394,28 +394,99 @@ export const apiClient = {
   // Subscription endpoints
   subscriptions: {
     getPlans: async () => {
-      return fetchWithAuth<
-        Array<{
+      return fetchPublic<{
+        plans: Array<{
           id: string
+          stripeProductId: string
+          isPopular: boolean
+          maxCategories: number
+          maxArticles: number
+          maxOpenJobs: number
+          displayOrder: number
+          isActive: boolean
+          translations: Array<{
+            languageCode: string
+            name: string
+            description: string | null
+          }>
+          features: Array<{
+            order: number
+            translations: Array<{
+              languageCode: string
+              text: string
+            }>
+          }>
+          prices: Array<{
+            currency: string
+            currencyCode: string
+            currencySymbol: string
+            monthlyPrice: number
+            yearlyPrice: number
+            stripePriceIdMonthly: string
+            stripePriceIdYearly: string
+          }>
+        }>
+        totalCount: number
+      }>("/subscriptions/plans")
+    },
+
+    getPlan: async (planId: string) => {
+      return fetchWithAuth<{
+        id: string
+        stripeProductId: string
+        isPopular: boolean
+        maxCategories: number
+        maxArticles: number
+        maxOpenJobs: number
+        displayOrder: number
+        isActive: boolean
+        translations: Array<{
+          languageCode: string
           name: string
-          description: string
-          priceMonthly: number
-          priceYearly: number
+          description: string | null
+        }>
+        features: Array<{
+          order: number
+          translations: Array<{
+            languageCode: string
+            text: string
+          }>
+        }>
+        prices: Array<{
+          currency: string
+          currencyCode: string
+          currencySymbol: string
+          monthlyPrice: number
+          yearlyPrice: number
           stripePriceIdMonthly: string
           stripePriceIdYearly: string
-          isPopular: boolean
-          features: string[]
         }>
-      >("/subscriptions/plans")
+      }>(`/subscriptions/plans/${planId}`)
     },
 
     createPlan: async (data: {
-      name: string
-      description: string
-      priceMonthly: number
-      priceYearly: number
-      features: string[]
-      isPopular?: boolean
+      translations: Array<{
+        languageCode: string
+        name: string
+        description?: string
+      }>
+      features: Array<{
+        order: number
+        translations: Array<{
+          languageCode: string
+          text: string
+        }>
+      }>
+      prices: Array<{
+        currency: "EUR" | "RON"
+        monthlyPrice: number
+        yearlyPrice: number
+      }>
+      isPopular: boolean
+      maxCategories: number
+      maxArticles: number
+      maxOpenJobs: number
+      displayOrder: number
     }) => {
       return fetchWithAuth("/subscriptions/plans", {
         method: "POST",
@@ -423,10 +494,48 @@ export const apiClient = {
       })
     },
 
+    updatePlan: async (
+      planId: string,
+      data: {
+        id: string
+        translations: Array<{
+          languageCode: string
+          name: string
+          description?: string
+        }>
+        features: Array<{
+          order: number
+          translations: Array<{
+            languageCode: string
+            text: string
+          }>
+        }>
+        isPopular: boolean
+        maxCategories: number
+        maxArticles: number
+        maxOpenJobs: number
+        displayOrder: number
+        isActive: boolean
+      },
+    ) => {
+      return fetchWithAuth(`/subscriptions/plans/${planId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      })
+    },
+
+    deletePlan: async (planId: string) => {
+      return fetchWithAuth(`/subscriptions/plans/${planId}`, {
+        method: "DELETE",
+      })
+    },
+
     createCheckoutSession: async (data: {
       firmId: string
+      planId: string
       priceId: string
       isYearly: boolean
+      currency: "EUR" | "RON"
     }) => {
       return fetchWithAuth<{
         sessionId: string
@@ -443,6 +552,8 @@ export const apiClient = {
         status: string
         currentPeriodEnd: string
         isYearly: boolean
+        currency: string
+        currentPrice: number
         plan: any
       }>(`/subscriptions/firms/${firmId}/status`)
     },
