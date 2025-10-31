@@ -28,17 +28,26 @@ type UniversalQuestion = {
   id: string
   order: number
   isRequired: boolean
-  title: string
-  display: string
-  description: string | null
-  placeholder: string | null
+  createdAt: string
+  updatedAt: string | null
+  translations: Array<{
+    languageCode: string
+    title: string
+    display: string
+    description: string | null
+    placeholder: string | null
+  }>
   options: Array<{
     id: string
     value: string
     order: number
-    label: string
-    display: string
-    description: string | null
+    metadata: string | null
+    translations: Array<{
+      languageCode: string
+      label: string
+      display: string
+      description: string | null
+    }>
   }>
 }
 
@@ -258,29 +267,43 @@ export default function UniversalQuestionsPage() {
     toast({ title: t("admin.reorderSuccess") })
   }
 
+  const getTranslation = (translations: Array<{ languageCode: string; [key: string]: any }>, field: string): string => {
+    const translation = translations.find((t) => t.languageCode === language)
+    return translation?.[field] || translations[0]?.[field] || ""
+  }
+
   const openEditDialog = (question: UniversalQuestion) => {
     setEditingQuestion(question)
+
+    const enTranslation = question.translations.find((t) => t.languageCode === "en")
+    const roTranslation = question.translations.find((t) => t.languageCode === "ro")
+
     setFormData({
       order: question.order,
       isRequired: question.isRequired,
-      titleEn: question.title,
-      titleRo: question.title,
-      displayEn: question.display,
-      displayRo: question.display,
-      descriptionEn: question.description || "",
-      descriptionRo: question.description || "",
-      placeholderEn: question.placeholder || "",
-      placeholderRo: question.placeholder || "",
-      options: question.options.map((opt) => ({
-        value: opt.value,
-        order: opt.order,
-        labelEn: opt.label,
-        labelRo: opt.label,
-        displayEn: opt.display,
-        displayRo: opt.display,
-        descriptionEn: opt.description || "",
-        descriptionRo: opt.description || "",
-      })),
+      titleEn: enTranslation?.title || "",
+      titleRo: roTranslation?.title || "",
+      displayEn: enTranslation?.display || "",
+      displayRo: roTranslation?.display || "",
+      descriptionEn: enTranslation?.description || "",
+      descriptionRo: roTranslation?.description || "",
+      placeholderEn: enTranslation?.placeholder || "",
+      placeholderRo: roTranslation?.placeholder || "",
+      options: question.options.map((opt) => {
+        const enOptTranslation = opt.translations.find((t) => t.languageCode === "en")
+        const roOptTranslation = opt.translations.find((t) => t.languageCode === "ro")
+        return {
+          value: opt.value,
+          order: opt.order,
+          labelEn: enOptTranslation?.label || "",
+          labelRo: roOptTranslation?.label || "",
+          displayEn: enOptTranslation?.display || "",
+          displayRo: roOptTranslation?.display || "",
+          descriptionEn: enOptTranslation?.description || "",
+          descriptionRo: roOptTranslation?.description || "",
+          metadata: opt.metadata || "",
+        }
+      }),
     })
     setIsEditDialogOpen(true)
   }
@@ -379,16 +402,20 @@ export default function UniversalQuestionsPage() {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <CardTitle>{question.title}</CardTitle>
+                              <CardTitle>{getTranslation(question.translations, "title")}</CardTitle>
                               {question.isRequired && (
                                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                                   {t("admin.required")}
                                 </span>
                               )}
                             </div>
-                            <CardDescription className="mt-1">{question.display}</CardDescription>
-                            {question.description && (
-                              <p className="mt-2 text-sm text-muted-foreground">{question.description}</p>
+                            <CardDescription className="mt-1">
+                              {getTranslation(question.translations, "display")}
+                            </CardDescription>
+                            {getTranslation(question.translations, "description") && (
+                              <p className="mt-2 text-sm text-muted-foreground">
+                                {getTranslation(question.translations, "description")}
+                              </p>
                             )}
                             {question.options.length > 0 && (
                               <div className="mt-3">
@@ -398,7 +425,7 @@ export default function UniversalQuestionsPage() {
                                 <div className="mt-1 flex flex-wrap gap-2">
                                   {question.options.map((opt) => (
                                     <span key={opt.id} className="rounded-md bg-muted px-2 py-1 text-xs">
-                                      {opt.label}
+                                      {getTranslation(opt.translations, "label")}
                                     </span>
                                   ))}
                                 </div>

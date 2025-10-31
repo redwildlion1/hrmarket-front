@@ -18,7 +18,36 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Building2, Mail, MapPin, ArrowRight, ArrowLeft, CheckCircle2, Info } from "lucide-react"
+import { Building2, Mail, MapPin, ArrowRight, ArrowLeft, CheckCircle2, Info, HelpCircle } from "lucide-react"
+
+type UniversalQuestionAnswer = {
+  questionId: string
+  answer: string
+}
+
+type UniversalQuestion = {
+  id: string
+  order: number
+  isRequired: boolean
+  translations: Array<{
+    languageCode: string
+    title: string
+    display: string
+    description: string | null
+    placeholder: string | null
+  }>
+  options: Array<{
+    id: string
+    value: string
+    order: number
+    translations: Array<{
+      languageCode: string
+      label: string
+      display: string
+      description: string | null
+    }>
+  }>
+}
 
 function CreateFirmForm() {
   const { t, language } = useLanguage()
@@ -34,6 +63,8 @@ function CreateFirmForm() {
     ro: Array<{ value: string; label: string; description: string }>
     en: Array<{ value: string; label: string; description: string }>
   } | null>(null)
+  const [universalQuestions, setUniversalQuestions] = useState<UniversalQuestion[]>([])
+  const [questionAnswers, setQuestionAnswers] = useState<Record<string, string>>({})
 
   const { setError, clearError, apiError } = useFormErrors()
 
@@ -55,6 +86,18 @@ function CreateFirmForm() {
     locationCity: "",
     locationPostalCode: "",
   })
+
+  useEffect(() => {
+    const loadUniversalQuestions = async () => {
+      try {
+        const data = await apiClient.universalQuestions.getAll()
+        setUniversalQuestions(data.questions.sort((a, b) => a.order - b.order))
+      } catch (error) {
+        console.error("Failed to load universal questions:", error)
+      }
+    }
+    loadUniversalQuestions()
+  }, [])
 
   useEffect(() => {
     const loadFirmTypes = async () => {
@@ -96,6 +139,14 @@ function CreateFirmForm() {
 
   const firmTypes = firmTypesData ? (language === "en" ? firmTypesData.en : firmTypesData.ro) : []
 
+  const getQuestionTranslation = (question: UniversalQuestion) => {
+    return question.translations.find((t) => t.languageCode === language) || question.translations[0]
+  }
+
+  const getOptionTranslation = (option: UniversalQuestion["options"][0]) => {
+    return option.translations.find((t) => t.languageCode === language) || option.translations[0]
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     console.log("[v0] handleSubmit called", {
       timestamp: new Date().toISOString(),
@@ -110,8 +161,8 @@ function CreateFirmForm() {
 
     console.log("[v0] After preventDefault/stopPropagation", { step, isSubmitting })
 
-    if (step !== 4) {
-      console.log("[v0] Blocked: Not on step 4", { currentStep: step })
+    if (step !== 5) {
+      console.log("[v0] Blocked: Not on step 5", { currentStep: step })
       return
     }
 
@@ -126,8 +177,20 @@ function CreateFirmForm() {
     clearError()
 
     try {
-      console.log("[v0] Calling API to create firm", { formData })
-      const response = await apiClient.firm.create(formData)
+      const universalQuestionAnswers: UniversalQuestionAnswer[] = Object.entries(questionAnswers).map(
+        ([questionId, answer]) => ({
+          questionId,
+          answer,
+        }),
+      )
+
+      const submitData = {
+        ...formData,
+        universalQuestionAnswers,
+      }
+
+      console.log("[v0] Calling API to create firm", { submitData })
+      const response = await apiClient.firm.create(submitData)
       console.log("[v0] API response received", { response })
 
       if (response.firmId && response.firmName) {
@@ -174,7 +237,7 @@ function CreateFirmForm() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     console.log("[v0] handleKeyDown", { key: e.key, step })
-    if (e.key === "Enter" && step !== 4) {
+    if (e.key === "Enter" && step !== 5) {
       console.log("[v0] Enter pressed on non-review step, preventing default")
       e.preventDefault()
       if (canProceed()) {
@@ -186,7 +249,7 @@ function CreateFirmForm() {
 
   const nextStep = () => {
     console.log("[v0] nextStep called", { currentStep: step })
-    if (step < 4) setStep(step + 1)
+    if (step < 5) setStep(step + 1)
   }
 
   const prevStep = () => {
@@ -203,6 +266,10 @@ function CreateFirmForm() {
       case 3:
         return formData.locationCountryId > 0 && formData.locationCountyId > 0 && formData.locationCity
       case 4:
+        // Check if all required questions are answered
+        const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
+        return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
+      case 5:
         return true
       default:
         return false
@@ -221,10 +288,10 @@ function CreateFirmForm() {
               <CardDescription className="text-base mt-2">{t("firm.createSubtitle")}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              {[1, 2, 3, 4].map((s) => (
+              {[1, 2, 3, 4, 5].map((s) => (
                 <div
                   key={s}
-                  className={`h-2 w-12 rounded-full transition-all ${
+                  className={`h-2 w-10 rounded-full transition-all ${
                     s === step ? "bg-primary" : s < step ? "bg-primary/50" : "bg-gray-200"
                   }`}
                 />
@@ -235,7 +302,7 @@ function CreateFirmForm() {
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
           <CardContent className="space-y-6">
             {apiError && !apiError.isValidationError && <ErrorAlert />}
-            {apiError && apiError.isValidationError && step === 4 && (
+            {apiError && apiError.isValidationError && step === 5 && (
               <Alert variant="destructive">
                 <AlertDescription>
                   <div className="space-y-2">
@@ -515,11 +582,93 @@ function CreateFirmForm() {
                 >
                   <div className="flex items-center gap-3 pb-4 border-b">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <HelpCircle className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg">{t("firm.step4Title")}</h3>
                       <p className="text-sm text-muted-foreground">{t("firm.step4Desc")}</p>
+                    </div>
+                  </div>
+
+                  {universalQuestions.length === 0 ? (
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription>{t("firm.noQuestions")}</AlertDescription>
+                    </Alert>
+                  ) : (
+                    <div className="space-y-6">
+                      {universalQuestions.map((question) => {
+                        const translation = getQuestionTranslation(question)
+                        const hasOptions = question.options.length > 0
+
+                        return (
+                          <div key={question.id} className="space-y-2">
+                            <Label htmlFor={`question-${question.id}`}>
+                              {translation.display}
+                              {question.isRequired && <span className="text-destructive ml-1">*</span>}
+                            </Label>
+                            {translation.description && (
+                              <p className="text-sm text-muted-foreground">{translation.description}</p>
+                            )}
+
+                            {hasOptions ? (
+                              <Select
+                                value={questionAnswers[question.id] || ""}
+                                onValueChange={(value) =>
+                                  setQuestionAnswers((prev) => ({ ...prev, [question.id]: value }))
+                                }
+                              >
+                                <SelectTrigger id={`question-${question.id}`}>
+                                  <SelectValue placeholder={translation.placeholder || t("firm.selectOption")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {question.options
+                                    .sort((a, b) => a.order - b.order)
+                                    .map((option) => {
+                                      const optionTranslation = getOptionTranslation(option)
+                                      return (
+                                        <SelectItem key={option.id} value={option.value}>
+                                          {optionTranslation.display}
+                                        </SelectItem>
+                                      )
+                                    })}
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <Textarea
+                                id={`question-${question.id}`}
+                                placeholder={translation.placeholder || t("firm.answerPlaceholder")}
+                                value={questionAnswers[question.id] || ""}
+                                onChange={(e) =>
+                                  setQuestionAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))
+                                }
+                                rows={3}
+                                disabled={loading}
+                              />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {step === 5 && (
+                <motion.div
+                  key="step5"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-center gap-3 pb-4 border-b">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">{t("firm.step5Title")}</h3>
+                      <p className="text-sm text-muted-foreground">{t("firm.step5Desc")}</p>
                     </div>
                   </div>
 
@@ -585,6 +734,37 @@ function CreateFirmForm() {
                         )}
                       </div>
                     </div>
+
+                    {universalQuestions.length > 0 && Object.keys(questionAnswers).length > 0 && (
+                      <div className="rounded-lg border p-4 space-y-2">
+                        <h4 className="font-semibold text-sm text-muted-foreground">{t("firm.step4Title")}</h4>
+                        <div className="space-y-1 text-sm">
+                          {universalQuestions
+                            .filter((q) => questionAnswers[q.id])
+                            .map((question) => {
+                              const translation = getQuestionTranslation(question)
+                              const answer = questionAnswers[question.id]
+                              const hasOptions = question.options.length > 0
+
+                              // If it's a select question, show the option label instead of value
+                              let displayAnswer = answer
+                              if (hasOptions) {
+                                const selectedOption = question.options.find((opt) => opt.value === answer)
+                                if (selectedOption) {
+                                  const optionTranslation = getOptionTranslation(selectedOption)
+                                  displayAnswer = optionTranslation.display
+                                }
+                              }
+
+                              return (
+                                <p key={question.id}>
+                                  <span className="font-medium">{translation.display}:</span> {displayAnswer}
+                                </p>
+                              )
+                            })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -601,7 +781,7 @@ function CreateFirmForm() {
               <div />
             )}
 
-            {step < 4 ? (
+            {step < 5 ? (
               <Button
                 type="button"
                 onClick={(e) => {

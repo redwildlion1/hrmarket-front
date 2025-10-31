@@ -551,6 +551,41 @@ export const apiClient = {
     },
   },
 
+  // Universal Questions endpoints
+  universalQuestions: {
+    getAll: async () => {
+      return fetchPublic<{
+        questions: Array<{
+          id: string
+          order: number
+          isRequired: boolean
+          createdAt: string
+          updatedAt: string | null
+          translations: Array<{
+            languageCode: string
+            title: string
+            display: string
+            description: string | null
+            placeholder: string | null
+          }>
+          options: Array<{
+            id: string
+            value: string
+            order: number
+            metadata: string | null
+            translations: Array<{
+              languageCode: string
+              label: string
+              display: string
+              description: string | null
+            }>
+          }>
+        }>
+        availableLanguages: string[]
+      }>("/universal-questions")
+    },
+  },
+
   // Admin endpoints
   admin: {
     universalQuestions: {
@@ -560,19 +595,29 @@ export const apiClient = {
             id: string
             order: number
             isRequired: boolean
-            title: string
-            display: string
-            description: string | null
-            placeholder: string | null
+            createdAt: string
+            updatedAt: string | null
+            translations: Array<{
+              languageCode: string
+              title: string
+              display: string
+              description: string | null
+              placeholder: string | null
+            }>
             options: Array<{
               id: string
               value: string
               order: number
-              label: string
-              display: string
-              description: string | null
+              metadata: string | null
+              translations: Array<{
+                languageCode: string
+                label: string
+                display: string
+                description: string | null
+              }>
             }>
           }>
+          availableLanguages: string[]
         }>("/admin/universal-questions")
       },
 
@@ -581,17 +626,26 @@ export const apiClient = {
           id: string
           order: number
           isRequired: boolean
-          title: string
-          display: string
-          description: string | null
-          placeholder: string | null
+          createdAt: string
+          updatedAt: string | null
+          translations: Array<{
+            languageCode: string
+            title: string
+            display: string
+            description: string | null
+            placeholder: string | null
+          }>
           options: Array<{
             id: string
             value: string
             order: number
-            label: string
-            display: string
-            description: string | null
+            metadata: string | null
+            translations: Array<{
+              languageCode: string
+              label: string
+              display: string
+              description: string | null
+            }>
           }>
         }>(`/admin/universal-questions/${id}`)
       },
@@ -622,17 +676,26 @@ export const apiClient = {
           id: string
           order: number
           isRequired: boolean
-          title: string
-          display: string
-          description: string | null
-          placeholder: string | null
+          createdAt: string
+          updatedAt: string | null
+          translations: Array<{
+            languageCode: string
+            title: string
+            display: string
+            description: string | null
+            placeholder: string | null
+          }>
           options: Array<{
             id: string
             value: string
             order: number
-            label: string
-            display: string
-            description: string | null
+            metadata: string | null
+            translations: Array<{
+              languageCode: string
+              label: string
+              display: string
+              description: string | null
+            }>
           }>
         }>("/admin/universal-questions", {
           method: "POST",
@@ -670,17 +733,26 @@ export const apiClient = {
           id: string
           order: number
           isRequired: boolean
-          title: string
-          display: string
-          description: string | null
-          placeholder: string | null
+          createdAt: string
+          updatedAt: string | null
+          translations: Array<{
+            languageCode: string
+            title: string
+            display: string
+            description: string | null
+            placeholder: string | null
+          }>
           options: Array<{
             id: string
             value: string
             order: number
-            label: string
-            display: string
-            description: string | null
+            metadata: string | null
+            translations: Array<{
+              languageCode: string
+              label: string
+              display: string
+              description: string | null
+            }>
           }>
         }>(`/admin/universal-questions/${id}`, {
           method: "PUT",
