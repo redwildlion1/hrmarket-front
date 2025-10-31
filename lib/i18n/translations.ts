@@ -330,6 +330,8 @@ export const translations = {
     "firm.answerPlaceholder": "Introdu răspunsul tău aici...",
     "firm.validationErrors": "Erori de Validare",
     "firm.validationErrorDesc": "Te rugăm să corectezi erorile de mai jos și să încerci din nou.",
+    "firm.questionMissingOptions": "Această întrebare nu are opțiuni configurate.",
+    "firm.noAnswer": "Niciun răspuns",
 
     // Admin
     "admin.dashboard": "Panou Administrare",
@@ -392,7 +394,7 @@ export const translations = {
     "admin.errorLoadingClusters": "Eroare la încărcarea clusterelor",
     "admin.errorCreatingCluster": "Eroare la crearea clusterului",
     "admin.errorUpdatingCluster": "Eroare la actualizarea clusterului",
-    "admin.errorDeletingCluster": "Eroare la ștergerea clusterului",
+    "admin.errorDeletingCluster": "Eroare la ștergerea clusterelor",
     "admin.errorReorderingClusters": "Eroare la reordonarea clusterelor",
     "admin.confirmDeleteCluster": "Ești sigur că vrei să ștergi acest cluster? Categoriile vor fi mutate în nealocate.",
     "admin.noClusters": "Nu există clustere. Creează primul cluster!",
@@ -743,6 +745,8 @@ export const translations = {
     "firm.answerPlaceholder": "Enter your answer here...",
     "firm.validationErrors": "Validation Errors",
     "firm.validationErrorDesc": "Please correct the errors below and try again.",
+    "firm.questionMissingOptions": "This question has no configured options.",
+    "firm.noAnswer": "No answer",
 
     // Admin
     "admin.dashboard": "Admin Dashboard",

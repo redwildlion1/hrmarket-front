@@ -21,8 +21,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Building2, Mail, MapPin, ArrowRight, ArrowLeft, CheckCircle2, Info, HelpCircle } from "lucide-react"
 
 type UniversalQuestionAnswer = {
-  questionId: string
-  answer: string
+  universalQuestionId: string
+  selectedOptionId: string
 }
 
 type UniversalQuestion = {
@@ -178,9 +178,9 @@ function CreateFirmForm() {
 
     try {
       const universalQuestionAnswers: UniversalQuestionAnswer[] = Object.entries(questionAnswers).map(
-        ([questionId, answer]) => ({
-          questionId,
-          answer,
+        ([questionId, optionId]) => ({
+          universalQuestionId: questionId,
+          selectedOptionId: optionId,
         }),
       )
 
@@ -266,7 +266,6 @@ function CreateFirmForm() {
       case 3:
         return formData.locationCountryId > 0 && formData.locationCountyId > 0 && formData.locationCity
       case 4:
-        // Check if all required questions are answered
         const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
         return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
       case 5:
@@ -614,8 +613,8 @@ function CreateFirmForm() {
                             {hasOptions ? (
                               <Select
                                 value={questionAnswers[question.id] || ""}
-                                onValueChange={(value) =>
-                                  setQuestionAnswers((prev) => ({ ...prev, [question.id]: value }))
+                                onValueChange={(optionId) =>
+                                  setQuestionAnswers((prev) => ({ ...prev, [question.id]: optionId }))
                                 }
                               >
                                 <SelectTrigger id={`question-${question.id}`}>
@@ -627,7 +626,7 @@ function CreateFirmForm() {
                                     .map((option) => {
                                       const optionTranslation = getOptionTranslation(option)
                                       return (
-                                        <SelectItem key={option.id} value={option.value}>
+                                        <SelectItem key={option.id} value={option.id}>
                                           {optionTranslation.display}
                                         </SelectItem>
                                       )
@@ -635,16 +634,9 @@ function CreateFirmForm() {
                                 </SelectContent>
                               </Select>
                             ) : (
-                              <Textarea
-                                id={`question-${question.id}`}
-                                placeholder={translation.placeholder || t("firm.answerPlaceholder")}
-                                value={questionAnswers[question.id] || ""}
-                                onChange={(e) =>
-                                  setQuestionAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))
-                                }
-                                rows={3}
-                                disabled={loading}
-                              />
+                              <Alert variant="destructive">
+                                <AlertDescription>{t("firm.questionMissingOptions")}</AlertDescription>
+                              </Alert>
                             )}
                           </div>
                         )
@@ -743,17 +735,14 @@ function CreateFirmForm() {
                             .filter((q) => questionAnswers[q.id])
                             .map((question) => {
                               const translation = getQuestionTranslation(question)
-                              const answer = questionAnswers[question.id]
-                              const hasOptions = question.options.length > 0
+                              const selectedOptionId = questionAnswers[question.id]
 
-                              // If it's a select question, show the option label instead of value
-                              let displayAnswer = answer
-                              if (hasOptions) {
-                                const selectedOption = question.options.find((opt) => opt.value === answer)
-                                if (selectedOption) {
-                                  const optionTranslation = getOptionTranslation(selectedOption)
-                                  displayAnswer = optionTranslation.display
-                                }
+                              const selectedOption = question.options.find((opt) => opt.id === selectedOptionId)
+                              let displayAnswer = t("firm.noAnswer")
+
+                              if (selectedOption) {
+                                const optionTranslation = getOptionTranslation(selectedOption)
+                                displayAnswer = optionTranslation.display
                               }
 
                               return (
