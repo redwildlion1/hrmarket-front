@@ -6,12 +6,9 @@ import type { OutputData } from "@editorjs/editorjs"
 import { apiClient, ApiError } from "@/lib/api/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { Trash2, Edit, Plus, FileText } from "lucide-react"
-import { EditorJSWrapper } from "@/components/editor/editor-js-wrapper"
 import { useAdminCheck } from "@/hooks/use-admin-check"
 
 interface Blog {
@@ -30,11 +27,6 @@ export default function HRTalksAdminPage() {
 
   const [blogs, setBlogs] = useState<Blog[]>([])
   const [loading, setLoading] = useState(true)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingBlog, setEditingBlog] = useState<Blog | null>(null)
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState<OutputData | undefined>(undefined)
-  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     loadBlogs()
@@ -58,65 +50,11 @@ export default function HRTalksAdminPage() {
   }
 
   const handleCreate = () => {
-    setEditingBlog(null)
-    setTitle("")
-    setContent(undefined)
-    setIsDialogOpen(true)
+    router.push("/admin/hr-talks/create")
   }
 
-  const handleEdit = async (blog: Blog) => {
-    setEditingBlog(blog)
-    setTitle(blog.title)
-    setContent(blog.content)
-    setIsDialogOpen(true)
-  }
-
-  const handleSave = async () => {
-    if (!title.trim()) {
-      toast({
-        title: t("common.error"),
-        description: "Title is required",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!content || !content.blocks || content.blocks.length === 0) {
-      toast({
-        title: t("common.error"),
-        description: "Content is required",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      setSaving(true)
-      if (editingBlog) {
-        await apiClient.admin.blogs.update(editingBlog.id, { title, content })
-        toast({
-          title: t("common.success"),
-          description: "Blog updated successfully",
-        })
-      } else {
-        await apiClient.admin.blogs.create({ title, content })
-        toast({
-          title: t("common.success"),
-          description: "Blog created successfully",
-        })
-      }
-      setIsDialogOpen(false)
-      loadBlogs()
-    } catch (error) {
-      console.error("[v0] Error saving blog:", error)
-      toast({
-        title: t("common.error"),
-        description: error instanceof ApiError ? error.detail : "Failed to save blog",
-        variant: "destructive",
-      })
-    } finally {
-      setSaving(false)
-    }
+  const handleEdit = (blog: Blog) => {
+    router.push(`/admin/hr-talks/edit/${blog.id}`)
   }
 
   const handleDelete = async (id: string) => {
@@ -195,43 +133,6 @@ export default function HRTalksAdminPage() {
           </Card>
         )}
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingBlog ? t("admin.editBlog") : t("admin.addBlog")}</DialogTitle>
-            <DialogDescription>{editingBlog ? t("admin.editBlogDesc") : t("admin.addBlogDesc")}</DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">{t("admin.title")}</label>
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter blog title..."
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">{t("admin.content")}</label>
-              <div className="mt-1 rounded-md border p-4">
-                <EditorJSWrapper holder="editorjs" data={content} onChange={(data) => setContent(data)} />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={saving}>
-                {t("common.cancel")}
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? t("common.saving") : t("common.save")}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

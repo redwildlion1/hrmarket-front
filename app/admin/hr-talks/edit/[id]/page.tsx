@@ -1,0 +1,163 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter, useParams } from "next/navigation"
+import type { OutputData } from "@editorjs/editorjs"
+import { apiClient, ApiError } from "@/lib/api/client"
+import { useLanguage } from "@/lib/i18n/language-context"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
+import { ArrowLeft, Monitor, Smartphone, Save } from "lucide-react"
+import { EditorJSWrapper } from "@/components/editor/editor-js-wrapper"
+import { useAdminCheck } from "@/hooks/use-admin-check"
+import { cn } from "@/lib/utils"
+
+export default function EditBlogPage() {
+  useAdminCheck()
+  const { t } = useLanguage()
+  const router = useRouter()
+  const params = useParams()
+  const { toast } = useToast()
+
+  const [title, setTitle] = useState("")
+  const [content, setContent] = useState<OutputData | undefined>(undefined)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
+
+  useEffect(() => {
+    loadBlog()
+  }, [params.id])
+
+  const loadBlog = async () => {
+    try {
+      setLoading(true)
+      const blog = await apiClient.admin.blogs.getById(params.id as string)
+      setTitle(blog.title)
+      setContent(blog.content)
+    } catch (error) {
+      console.error("[v0] Error loading blog:", error)
+      toast({
+        title: t("common.error"),
+        description: "Failed to load blog",
+        variant: "destructive",
+      })
+      router.push("/admin/hr-talks")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!title.trim()) {
+      toast({
+        title: t("common.error"),
+        description: "Title is required",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!content || !content.blocks || content.blocks.length === 0) {
+      toast({
+        title: t("common.error"),
+        description: "Content is required",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      setSaving(true)
+      await apiClient.admin.blogs.update(params.id as string, { title, content })
+      toast({
+        title: t("common.success"),
+        description: "Blog updated successfully",
+      })
+      router.push("/admin/hr-talks")
+    } catch (error) {
+      console.error("[v0] Error saving blog:", error)
+      toast({
+        title: t("common.error"),
+        description: error instanceof ApiError ? error.detail : "Failed to save blog",
+        variant: "destructive",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>{t("common.loading")}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => router.push("/admin/hr-talks")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {t("common.back")}
+            </Button>
+            <div className="h-6 w-px bg-border" />
+            <h1 className="text-lg font-semibold">{t("admin.editBlog")}</h1>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Preview Mode Toggle */}
+            <div className="flex items-center rounded-md border bg-muted p-1">
+              <Button
+                variant={previewMode === "desktop" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setPreviewMode("desktop")}
+                className="h-8"
+              >
+                <Monitor className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={previewMode === "mobile" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setPreviewMode("mobile")}
+                className="h-8"
+              >
+                <Smartphone className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <Button onClick={handleSave} disabled={saving}>
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? t("common.saving") : t("common.save")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Editor Content */}
+      <div className="container mx-auto py-8">
+        <div className={cn("mx-auto transition-all duration-300", previewMode === "mobile" ? "max-w-sm" : "max-w-4xl")}>
+          {/* Title Input */}
+          <div className="mb-6">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter blog title..."
+              className="border-0 text-3xl font-bold focus-visible:ring-0"
+            />
+          </div>
+
+          {/* Editor */}
+          <div className={cn("rounded-lg border bg-card p-6", previewMode === "mobile" && "p-4")}>
+            <EditorJSWrapper holder="editorjs-fullscreen-edit" data={content} onChange={(data) => setContent(data)} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
