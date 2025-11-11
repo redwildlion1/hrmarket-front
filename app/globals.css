@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* Removed @import "tw-animate-css" as it's causing LightningCSS to fail */
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -71,6 +71,7 @@
 }
 
 @theme inline {
+  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -114,7 +115,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
   }
   html {
     -webkit-text-size-adjust: 100%;
@@ -123,7 +124,6 @@
   }
 }
 
-/* Added comprehensive Editor.js styling for WYSIWYG experience */
 @layer components {
   /* Editor.js Container Styling */
   .editorjs-container {
@@ -340,7 +340,7 @@
 
   /* Inline Formatting Styles */
   .cdx-marker {
-    @apply bg-amber-200 px-1 dark:bg-amber-800;
+    @apply px-1;
   }
 
   .cdx-underline {
@@ -351,10 +351,53 @@
     @apply rounded bg-muted px-2 py-1 font-mono text-sm text-foreground;
   }
 
-  /* Raw HTML Styles */
-  .ce-rawtool__textarea {
-    @apply rounded-lg border border-border bg-muted p-4 font-mono text-sm text-foreground;
-    min-height: 150px;
+  /* Raw HTML Block Styles */
+  .raw-html-block {
+    @apply my-4;
+  }
+
+  .raw-html-input {
+    width: 100% !important;
+    min-height: 150px !important;
+    padding: 12px !important;
+    font-family: monospace !important;
+    font-size: 14px !important;
+    border: 1px solid theme("colors.border") !important;
+    border-radius: 8px !important;
+    margin-bottom: 16px !important;
+    resize: vertical !important;
+    background: theme("colors.muted") !important;
+    color: theme("colors.foreground") !important;
+  }
+
+  .raw-html-preview {
+    padding: 16px !important;
+    border: 1px solid theme("colors.border") !important;
+    border-radius: 8px !important;
+    background: theme("colors.background") !important;
+    min-height: 100px !important;
+  }
+
+  /* Alignment styles for block tune */
+  .ce-block--align-left {
+    text-align: left !important;
+  }
+
+  .ce-block--align-center {
+    text-align: center !important;
+  }
+
+  .ce-block--align-right {
+    text-align: right !important;
+  }
+
+  .ce-block--align-justify {
+    text-align: justify !important;
+  }
+
+  /* Font size inline tool styles */
+  .cdx-font-size {
+    font-size: inherit;
   }
 
   /* Editor Toolbar Styles */
@@ -396,7 +439,6 @@
   }
 }
 
-/* Added modern utility classes for glassmorphism and animations */
 @layer utilities {
   .glass {
     background: rgba(255, 255, 255, 0.7);
@@ -417,23 +459,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-  }
-
-  .animate-scroll {
-    animation: scroll 30s linear infinite;
-  }
-
-  /* Removed hover pause behavior and added explicit paused class */
-  .animate-scroll.paused {
-    animation-play-state: paused;
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out forwards;
   }
 
   .glass-card {
@@ -459,14 +484,6 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
   .bg-grid-pattern {
     background-image: linear-gradient(to right, rgba(220, 38, 38, 0.03) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(220, 38, 38, 0.03) 1px, transparent 1px);
@@ -478,7 +495,6 @@
     background-size: 20px 20px;
   }
 
-  /* Added scrollbar-hide utility for logo carousel */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -486,44 +502,5 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  }
-}
-
-@keyframes scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
   }
 }
