@@ -478,7 +478,7 @@ export const apiClient = {
         }>
       }>
       prices: Array<{
-        currency: "EUR" | "RON"
+        currency: 0 | 1 // 0 = EUR, 1 = RON (Currency enum)
         monthlyPrice: number
         yearlyPrice: number
       }>
@@ -511,6 +511,7 @@ export const apiClient = {
           }>
         }>
         isPopular: boolean
+        maxListings: number // Backend uses maxListings in update DTO
         maxCategories: number
         maxArticles: number
         maxOpenJobs: number

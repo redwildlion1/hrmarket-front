@@ -145,12 +145,12 @@ export default function SubscriptionsPage() {
           .filter((f) => f.translations[0].text.trim() !== ""),
         prices: [
           {
-            currency: "EUR" as const,
+            currency: 0 as const, // EUR
             monthlyPrice: Number.parseFloat(formData.priceMonthlyEur),
             yearlyPrice: Number.parseFloat(formData.priceYearlyEur),
           },
           {
-            currency: "RON" as const,
+            currency: 1 as const, // RON
             monthlyPrice: Number.parseFloat(formData.priceMonthlyRon),
             yearlyPrice: Number.parseFloat(formData.priceYearlyRon),
           },
@@ -163,11 +163,19 @@ export default function SubscriptionsPage() {
       }
 
       if (editingPlan) {
-        await adminApi.updateSubscriptionPlan(editingPlan.id, {
-          ...data,
+        const updateData = {
           id: editingPlan.id,
+          translations: data.translations,
+          features: data.features,
+          isPopular: data.isPopular,
+          maxListings: Number.parseInt(formData.maxCategories), // Backend uses maxListings in update
+          maxCategories: data.maxCategories,
+          maxArticles: data.maxArticles,
+          maxOpenJobs: data.maxOpenJobs,
+          displayOrder: data.displayOrder,
           isActive: formData.isActive,
-        })
+        }
+        await adminApi.updateSubscriptionPlan(editingPlan.id, updateData)
         toast({ title: "Subscription plan updated successfully!" })
       } else {
         await adminApi.createSubscriptionPlan(data)
