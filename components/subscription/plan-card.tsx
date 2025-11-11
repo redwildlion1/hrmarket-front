@@ -28,7 +28,7 @@ const getTranslation = (
 export function PlanCard({ plan, isYearly, currency, language, onSelect, loading }: PlanCardProps) {
   const { t } = useLanguage()
 
-  const priceInfo = plan.prices.find((p) => p.currency === currency)
+  const priceInfo = plan.prices.find((p) => p.currency.toUpperCase() === currency)
   if (!priceInfo) return null
 
   const price = isYearly ? priceInfo.yearlyPrice : priceInfo.monthlyPrice

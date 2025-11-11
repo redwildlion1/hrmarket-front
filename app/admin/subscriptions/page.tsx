@@ -88,8 +88,8 @@ export default function SubscriptionsPage() {
   const handleEdit = (plan: SubscriptionPlan) => {
     const roTranslation = plan.translations.find((t) => t.languageCode === "ro")
     const enTranslation = plan.translations.find((t) => t.languageCode === "en")
-    const eurPrice = plan.prices.find((p) => p.currency === "EUR")
-    const ronPrice = plan.prices.find((p) => p.currency === "RON")
+    const eurPrice = plan.prices.find((p) => p.currency.toUpperCase() === "EUR")
+    const ronPrice = plan.prices.find((p) => p.currency.toUpperCase() === "RON")
 
     setFormData({
       nameRo: roTranslation?.name || "",
@@ -525,8 +525,8 @@ export default function SubscriptionsPage() {
         {plans.map((plan) => {
           const name = getTranslation(plan.translations, "name", language)
           const description = getTranslation(plan.translations, "description", language)
-          const eurPrice = plan.prices.find((p) => p.currency === "EUR")
-          const ronPrice = plan.prices.find((p) => p.currency === "RON")
+          const eurPrice = plan.prices.find((p) => p.currency.toUpperCase() === "EUR")
+          const ronPrice = plan.prices.find((p) => p.currency.toUpperCase() === "RON")
 
           return (
             <Card key={plan.id} className={!plan.isActive ? "opacity-60" : ""}>

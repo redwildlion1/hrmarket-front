@@ -44,7 +44,7 @@ export default function CompanySubscriptionPage() {
     setProcessingPlanId(plan.id)
 
     try {
-      const price = plan.prices.find((p) => p.currency === currency)
+      const price = plan.prices.find((p) => p.currency.toUpperCase() === currency)
       if (!price) {
         throw new Error("Price not found for selected currency")
       }
