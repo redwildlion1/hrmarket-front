@@ -28,7 +28,6 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
   }, [])
 
   const initEditor = async () => {
-    // Dynamically import Editor.js tools
     const Header = (await import("@editorjs/header")).default
     const List = (await import("@editorjs/list")).default
     const Quote = (await import("@editorjs/quote")).default
@@ -40,6 +39,11 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
     const LinkTool = (await import("@editorjs/link")).default
     const ImageTool = (await import("@editorjs/image")).default
     const Paragraph = (await import("@editorjs/paragraph")).default
+    const InlineCode = (await import("@editorjs/inline-code")).default
+    const Marker = (await import("@editorjs/marker")).default
+    const Underline = (await import("@editorjs/underline")).default
+    const WarningTool = (await import("@editorjs/warning")).default
+    const RawTool = (await import("@editorjs/raw")).default
 
     const editor = new EditorJS({
       holder,
@@ -53,24 +57,33 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
             levels: [1, 2, 3, 4, 5, 6],
             defaultLevel: 2,
           },
+          inlineToolbar: ["link", "bold", "italic", "inlineCode", "marker", "underline"],
         },
         paragraph: {
           class: Paragraph,
-          inlineToolbar: true,
+          inlineToolbar: ["link", "bold", "italic", "inlineCode", "marker", "underline"],
         },
         list: {
           class: List,
-          inlineToolbar: true,
+          inlineToolbar: ["link", "bold", "italic", "inlineCode", "marker", "underline"],
           config: {
             defaultStyle: "unordered",
           },
         },
         quote: {
           class: Quote,
-          inlineToolbar: true,
+          inlineToolbar: ["link", "bold", "italic"],
           config: {
             quotePlaceholder: "Enter a quote",
             captionPlaceholder: "Quote's author",
+          },
+        },
+        warning: {
+          class: WarningTool,
+          inlineToolbar: ["link", "bold", "italic"],
+          config: {
+            titlePlaceholder: "Title",
+            messagePlaceholder: "Message",
           },
         },
         code: {
@@ -79,14 +92,32 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
             placeholder: "Enter code",
           },
         },
+        raw: {
+          class: RawTool,
+          config: {
+            placeholder: "Enter raw HTML",
+          },
+        },
+        inlineCode: {
+          class: InlineCode,
+          shortcut: "CMD+SHIFT+M",
+        },
+        marker: {
+          class: Marker,
+          shortcut: "CMD+SHIFT+H",
+        },
+        underline: {
+          class: Underline,
+          shortcut: "CMD+U",
+        },
         checklist: {
           class: Checklist,
-          inlineToolbar: true,
+          inlineToolbar: ["link", "bold", "italic"],
         },
         delimiter: Delimiter,
         table: {
           class: Table,
-          inlineToolbar: true,
+          inlineToolbar: ["link", "bold", "italic"],
           config: {
             rows: 2,
             cols: 3,
@@ -101,13 +132,14 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
               twitter: true,
               instagram: true,
               facebook: true,
+              codepen: true,
             },
           },
         },
         linkTool: {
           class: LinkTool,
           config: {
-            endpoint: "/api/fetch-url", // Optional: fetch link metadata
+            endpoint: "/api/fetch-url",
           },
         },
         image: {
@@ -159,5 +191,5 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
     editorRef.current = editor
   }
 
-  return <div id={holder} className="prose prose-slate max-w-none dark:prose-invert" />
+  return <div id={holder} className="editorjs-container" />
 }
