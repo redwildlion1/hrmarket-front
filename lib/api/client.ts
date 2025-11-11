@@ -878,6 +878,82 @@ export const apiClient = {
         })
       },
     },
+
+    // HR Talks blog management endpoints
+    blogs: {
+      getAll: async () => {
+        return fetchWithAuth<{
+          blogs: Array<{
+            id: string
+            title: string
+            content: any
+            createdAt: string
+            updatedAt: string | null
+          }>
+        }>("/admin/blogs")
+      },
+
+      getById: async (id: string) => {
+        return fetchWithAuth<{
+          id: string
+          title: string
+          content: any
+          createdAt: string
+          updatedAt: string | null
+        }>(`/admin/blogs/${id}`)
+      },
+
+      create: async (data: { title: string; content: any }) => {
+        return fetchWithAuth<{
+          id: string
+          title: string
+          content: any
+          createdAt: string
+        }>("/admin/blogs", {
+          method: "POST",
+          body: JSON.stringify(data),
+        })
+      },
+
+      update: async (id: string, data: { title: string; content: any }) => {
+        return fetchWithAuth<{
+          id: string
+          title: string
+          content: any
+          updatedAt: string
+        }>(`/admin/blogs/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        })
+      },
+
+      delete: async (id: string) => {
+        return fetchWithAuth(`/admin/blogs/${id}`, {
+          method: "DELETE",
+        })
+      },
+
+      uploadImage: async (file: File) => {
+        const formData = new FormData()
+        formData.append("image", file)
+
+        const token = localStorage.getItem("accessToken")
+        const response = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        })
+
+        if (!response.ok) {
+          throw new ApiError(response.status, "Failed to upload image")
+        }
+
+        const result = await response.json()
+        return { url: result.url }
+      },
+    },
   },
 }
 
