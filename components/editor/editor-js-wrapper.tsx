@@ -44,7 +44,7 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
     const Underline = (await import("@editorjs/underline")).default
     const WarningTool = (await import("@editorjs/warning")).default
     const ColorPlugin = (await import("editorjs-text-color-plugin")).default
-    const AlignmentBlockTune = (await import("editorjs-alignment-blocktune")).default
+    const AlignmentBlockTune = (await import("editorjs-text-alignment-blocktune")).default
     const FontSize = (await import("editorjs-inline-font-size-tool")).default
 
     class RawHTMLTool {

@@ -366,7 +366,6 @@
     border-radius: 8px !important;
     margin-bottom: 16px !important;
     resize: vertical !important;
-    background: theme("colors.muted") !important;
     color: theme("colors.foreground") !important;
   }
 
