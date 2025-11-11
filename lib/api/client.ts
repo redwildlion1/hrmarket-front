@@ -478,7 +478,7 @@ export const apiClient = {
         }>
       }>
       prices: Array<{
-        currency: 0 | 1 // 0 = EUR, 1 = RON (Currency enum)
+        currency: "EUR" | "RON"
         monthlyPrice: number
         yearlyPrice: number
       }>

@@ -145,12 +145,12 @@ export default function SubscriptionsPage() {
           .filter((f) => f.translations[0].text.trim() !== ""),
         prices: [
           {
-            currency: 0 as const, // EUR
+            currency: "EUR" as const,
             monthlyPrice: Number.parseFloat(formData.priceMonthlyEur),
             yearlyPrice: Number.parseFloat(formData.priceYearlyEur),
           },
           {
-            currency: 1 as const, // RON
+            currency: "RON" as const,
             monthlyPrice: Number.parseFloat(formData.priceMonthlyRon),
             yearlyPrice: Number.parseFloat(formData.priceYearlyRon),
           },
