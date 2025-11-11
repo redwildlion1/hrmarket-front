@@ -107,20 +107,28 @@ export default function CreateBlogPage() {
       </div>
 
       {/* Editor Content */}
-      <div className="container mx-auto py-8">
-        <div className={cn("mx-auto transition-all duration-300", previewMode === "mobile" ? "max-w-sm" : "max-w-4xl")}>
+      <div className="flex min-h-[calc(100vh-4rem)] items-start justify-center bg-muted/30 py-8">
+        <div
+          className={cn(
+            "mx-auto w-full bg-background shadow-lg transition-all duration-300",
+            previewMode === "mobile" ? "max-w-[375px] rounded-xl" : "max-w-[900px] rounded-lg",
+          )}
+        >
           {/* Title Input */}
-          <div className="mb-6">
+          <div className={cn("border-b px-8 py-6", previewMode === "mobile" && "px-4 py-4")}>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter blog title..."
-              className="border-0 text-3xl font-bold focus-visible:ring-0"
+              className={cn(
+                "border-0 font-bold focus-visible:ring-0",
+                previewMode === "mobile" ? "text-xl" : "text-3xl",
+              )}
             />
           </div>
 
           {/* Editor */}
-          <div className={cn("rounded-lg border bg-card p-6", previewMode === "mobile" && "p-4")}>
+          <div className={cn("min-h-[600px] px-8 py-6", previewMode === "mobile" && "px-4 py-4")}>
             <EditorJSWrapper holder="editorjs-fullscreen" data={content} onChange={(data) => setContent(data)} />
           </div>
         </div>

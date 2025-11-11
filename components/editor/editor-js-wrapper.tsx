@@ -13,8 +13,15 @@ interface EditorJSWrapperProps {
 export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps) {
   const editorRef = useRef<EditorJS | null>(null)
   const [isReady, setIsReady] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
+
     if (!editorRef.current) {
       initEditor()
     }
@@ -25,7 +32,7 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
         editorRef.current = null
       }
     }
-  }, [])
+  }, [isMounted])
 
   const initEditor = async () => {
     const Header = (await import("@editorjs/header")).default
@@ -43,9 +50,124 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
     const Marker = (await import("@editorjs/marker")).default
     const Underline = (await import("@editorjs/underline")).default
     const WarningTool = (await import("@editorjs/warning")).default
-    const ColorPlugin = (await import("editorjs-text-color-plugin")).default
     const AlignmentBlockTune = (await import("editorjs-text-alignment-blocktune")).default
-    const FontSize = (await import("editorjs-inline-font-size-tool")).default
+
+    class ColorPlugin {
+      static get isInline() {
+        return true
+      }
+
+      static get sanitize() {
+        return {
+          span: {
+            style: true,
+          },
+        }
+      }
+
+      constructor({ api }: any) {
+        this.api = api
+        this.button = null
+        this.tag = "SPAN"
+        this.class = "color-plugin"
+      }
+
+      render() {
+        this.button = document.createElement("button")
+        this.button.type = "button"
+        this.button.innerHTML = `
+          <svg width="20" height="18" viewBox="0 0 20 18" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.458 12.04l2.919 1.686-.781 1.417-.984-.03-.974 1.687H8.674l1.49-2.583-.508-.775.802-1.401zm.546-.952l3.624-6.327a1.597 1.597 0 0 1 2.182-.59 1.632 1.632 0 0 1 .615 2.201l-3.519 6.391-2.902-1.675zm-7.73 3.467h3.465a1.123 1.123 0 1 1 0 2.247H3.273a1.123 1.123 0 1 1 0-2.247z"/>
+          </svg>
+        `
+        this.button.classList.add("ce-inline-tool")
+
+        return this.button
+      }
+
+      surround(range: Range) {
+        if (!range) return
+
+        const selectedText = range.extractContents()
+        const span = document.createElement(this.tag)
+
+        const color = prompt("Enter color (hex code like #ff0000 or color name like red):", "#000000")
+        if (color) {
+          span.style.color = color
+          span.appendChild(selectedText)
+          range.insertNode(span)
+
+          this.api.selection.expandToTag(span)
+        }
+      }
+
+      checkState() {
+        const mark = this.api.selection.findParentTag(this.tag)
+        if (mark) {
+          this.button.classList.add("ce-inline-tool--active")
+        } else {
+          this.button.classList.remove("ce-inline-tool--active")
+        }
+      }
+    }
+
+    class HighlightPlugin {
+      static get isInline() {
+        return true
+      }
+
+      static get sanitize() {
+        return {
+          mark: {
+            style: true,
+          },
+        }
+      }
+
+      constructor({ api }: any) {
+        this.api = api
+        this.button = null
+        this.tag = "MARK"
+      }
+
+      render() {
+        this.button = document.createElement("button")
+        this.button.type = "button"
+        this.button.innerHTML = `
+          <svg width="20" height="18" viewBox="0 0 20 18">
+            <path d="M15.5 11l2.5-2.5-6-6L9.5 5 4 10.5V17h6.5L15.5 11z"/>
+          </svg>
+        `
+        this.button.classList.add("ce-inline-tool")
+
+        return this.button
+      }
+
+      surround(range: Range) {
+        if (!range) return
+
+        const selectedText = range.extractContents()
+        const mark = document.createElement(this.tag)
+
+        const color = prompt("Enter background color (hex code like #ffff00 or yellow):", "#fef3c7")
+        if (color) {
+          mark.style.backgroundColor = color
+          mark.appendChild(selectedText)
+          range.insertNode(mark)
+
+          this.api.selection.expandToTag(mark)
+        }
+      }
+
+      checkState() {
+        const mark = this.api.selection.findParentTag(this.tag)
+        if (mark) {
+          this.button.classList.add("ce-inline-tool--active")
+        } else {
+          this.button.classList.remove("ce-inline-tool--active")
+        }
+      }
+    }
 
     class RawHTMLTool {
       static get toolbox() {
@@ -115,72 +237,8 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
       data: data || undefined,
       placeholder: "Start writing your blog post...",
       tools: {
-        Color: {
-          class: ColorPlugin,
-          config: {
-            colorCollections: [
-              "#000000",
-              "#374151",
-              "#6b7280",
-              "#9ca3af",
-              "#ffffff",
-              "#dc2626",
-              "#ef4444",
-              "#ea580c",
-              "#f97316",
-              "#f59e0b",
-              "#fbbf24",
-              "#facc15",
-              "#84cc16",
-              "#22c55e",
-              "#10b981",
-              "#14b8a6",
-              "#06b6d4",
-              "#0ea5e9",
-              "#3b82f6",
-              "#6366f1",
-              "#8b5cf6",
-              "#a855f7",
-              "#d946ef",
-              "#ec4899",
-              "#f43f5e",
-            ],
-            defaultColor: "#000000",
-            type: "text",
-            customPicker: true,
-          },
-        },
-        Marker: {
-          class: ColorPlugin,
-          config: {
-            colorCollections: [
-              "#fef3c7",
-              "#fecaca",
-              "#fed7aa",
-              "#fef9c3",
-              "#d9f99d",
-              "#bbf7d0",
-              "#a7f3d0",
-              "#99f6e4",
-              "#bfdbfe",
-              "#c7d2fe",
-              "#ddd6fe",
-              "#e9d5ff",
-              "#f5d0fe",
-              "#fbcfe8",
-              "#fecdd3",
-            ],
-            defaultColor: "#fef3c7",
-            type: "marker",
-          },
-        },
-        fontSize: {
-          class: FontSize,
-          config: {
-            sizeOptions: [10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48],
-            defaultSize: 16,
-          },
-        },
+        color: ColorPlugin,
+        highlight: HighlightPlugin,
         header: {
           class: Header,
           config: {
@@ -189,17 +247,17 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
             defaultLevel: 2,
           },
           tunes: ["alignment"],
-          inlineToolbar: ["link", "bold", "italic", "inlineCode", "Color", "Marker", "underline", "fontSize"],
+          inlineToolbar: ["link", "bold", "italic", "inlineCode", "color", "highlight", "underline"],
         },
         paragraph: {
           class: Paragraph,
           tunes: ["alignment"],
-          inlineToolbar: ["link", "bold", "italic", "inlineCode", "Color", "Marker", "underline", "fontSize"],
+          inlineToolbar: ["link", "bold", "italic", "inlineCode", "color", "highlight", "underline"],
         },
         list: {
           class: List,
           tunes: ["alignment"],
-          inlineToolbar: ["link", "bold", "italic", "inlineCode", "Color", "Marker", "underline"],
+          inlineToolbar: ["link", "bold", "italic", "inlineCode", "color", "highlight", "underline"],
           config: {
             defaultStyle: "unordered",
           },
@@ -207,7 +265,7 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
         quote: {
           class: Quote,
           tunes: ["alignment"],
-          inlineToolbar: ["link", "bold", "italic", "Color", "Marker"],
+          inlineToolbar: ["link", "bold", "italic", "color", "highlight"],
           config: {
             quotePlaceholder: "Enter a quote",
             captionPlaceholder: "Quote's author",
@@ -215,7 +273,7 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
         },
         warning: {
           class: WarningTool,
-          inlineToolbar: ["link", "bold", "italic", "Color", "Marker"],
+          inlineToolbar: ["link", "bold", "italic", "color", "highlight"],
           config: {
             titlePlaceholder: "Title",
             messagePlaceholder: "Message",
@@ -242,12 +300,12 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
         },
         checklist: {
           class: Checklist,
-          inlineToolbar: ["link", "bold", "italic", "Color", "Marker"],
+          inlineToolbar: ["link", "bold", "italic", "color", "highlight"],
         },
         delimiter: Delimiter,
         table: {
           class: Table,
-          inlineToolbar: ["link", "bold", "italic", "Color", "Marker"],
+          inlineToolbar: ["link", "bold", "italic", "color", "highlight"],
           config: {
             rows: 2,
             cols: 3,
@@ -331,6 +389,10 @@ export function EditorJSWrapper({ data, onChange, holder }: EditorJSWrapperProps
     })
 
     editorRef.current = editor
+  }
+
+  if (!isMounted) {
+    return <div className="editorjs-container flex items-center justify-center py-12">Loading editor...</div>
   }
 
   return <div id={holder} className="editorjs-container" />
