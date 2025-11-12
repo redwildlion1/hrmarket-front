@@ -25,6 +25,7 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
     { id: "vibrant" as const, name: "Vibrant", emoji: "🎉" },
     { id: "tech" as const, name: "Tech", emoji: "💻" },
     { id: "editorial" as const, name: "Editorial", emoji: "📰" },
+    { id: "corporate-event" as const, name: "Corporate Events", emoji: "🎪" },
   ]
 
   const filteredTemplates =
@@ -32,13 +33,13 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-[98vw] w-[98vw] max-h-[98vh] h-[98vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl">Choose a Template</DialogTitle>
           <DialogDescription>Select a professionally designed template to start your blog post</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6">
           {/* Category Filter */}
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
@@ -55,26 +56,25 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
             ))}
           </div>
 
-          {/* Templates Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             {filteredTemplates.map((template) => (
               <div
                 key={template.id}
                 className={cn(
-                  "group border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:border-primary",
+                  "group border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-xl hover:border-primary",
                   previewTemplate?.id === template.id && "ring-2 ring-primary",
                 )}
                 onClick={() => setPreviewTemplate(template)}
               >
-                <div className="aspect-video bg-gradient-to-br from-muted to-muted-foreground/10 flex items-center justify-center text-6xl">
-                  {template.preview}
+                <div className="bg-white p-6 max-h-[700px] overflow-y-auto border-b">
+                  <div dangerouslySetInnerHTML={{ __html: template.html }} />
                 </div>
-                <div className="p-4">
+                <div className="p-4 bg-muted/30">
                   <h3 className="font-semibold text-lg mb-1">{template.name}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{template.description}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
                   <Button
                     size="sm"
-                    className="w-full mt-3"
+                    className="w-full"
                     onClick={(e) => {
                       e.stopPropagation()
                       onSelectTemplate(template)
@@ -88,15 +88,15 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
             ))}
           </div>
 
-          {/* Preview */}
           {previewTemplate && (
             <div className="border-t pt-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold">{previewTemplate.name}</h3>
+                  <h3 className="text-xl font-semibold">{previewTemplate.name}</h3>
                   <p className="text-sm text-muted-foreground">{previewTemplate.description}</p>
                 </div>
                 <Button
+                  size="lg"
                   onClick={() => {
                     onSelectTemplate(previewTemplate)
                     onOpenChange(false)
@@ -107,7 +107,7 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
                 </Button>
               </div>
               <div
-                className="border rounded-lg p-8 bg-white max-h-[400px] overflow-y-auto"
+                className="border rounded-lg p-8 bg-white max-h-[85vh] overflow-y-auto"
                 dangerouslySetInnerHTML={{ __html: previewTemplate.html }}
               />
             </div>

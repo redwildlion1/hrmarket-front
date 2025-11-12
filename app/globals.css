@@ -262,6 +262,57 @@
     content: "";
     @apply absolute left-0 top-0 h-full w-px animate-pulse bg-foreground;
   }
+
+  /* Added styles to preserve template inline styles in editor */
+  /* Preserve all inline styles from templates */
+  .ProseMirror [style],
+  .ProseMirror div[style],
+  .ProseMirror p[style],
+  .ProseMirror h1[style],
+  .ProseMirror h2[style],
+  .ProseMirror h3[style],
+  .ProseMirror span[style],
+  .ProseMirror a[style],
+  .ProseMirror blockquote[style],
+  .ProseMirror ul[style],
+  .ProseMirror ol[style],
+  .ProseMirror li[style] {
+    all: revert !important;
+  }
+
+  /* Ensure backgrounds, colors, padding, borders render properly */
+  .ProseMirror [style*="background"],
+  .ProseMirror [style*="color"],
+  .ProseMirror [style*="padding"],
+  .ProseMirror [style*="margin"],
+  .ProseMirror [style*="border"],
+  .ProseMirror [style*="font"],
+  .ProseMirror [style*="display"],
+  .ProseMirror [style*="grid"],
+  .ProseMirror [style*="flex"] {
+    all: revert !important;
+  }
+
+  /* Make sure divs display as blocks and preserve their styling */
+  .ProseMirror div {
+    display: block;
+  }
+
+  /* Preserve gradient backgrounds */
+  .ProseMirror [style*="linear-gradient"],
+  .ProseMirror [style*="radial-gradient"] {
+    all: revert !important;
+  }
+
+  /* Ensure text colors from inline styles are preserved */
+  .ProseMirror [style*="color:"] {
+    color: inherit !important;
+  }
+
+  /* Override Tailwind prose styles for template content */
+  .ProseMirror.prose-override * {
+    all: revert;
+  }
 }
 
 @layer utilities {
