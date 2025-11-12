@@ -60,6 +60,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
   const [isHighlightOpen, setIsHighlightOpen] = useState(false)
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: {
