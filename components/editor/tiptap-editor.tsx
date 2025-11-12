@@ -12,7 +12,6 @@ import TextStyle from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
 import Youtube from "@tiptap/extension-youtube"
-import FontFamily from "@tiptap/extension-font-family"
 import { Extension } from "@tiptap/core"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -60,7 +59,7 @@ const PreserveInlineStyles = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["textStyle"],
+        types: ["textStyle", "paragraph", "heading"],
         attributes: {
           style: {
             default: null,
@@ -186,9 +185,6 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
           class: "w-full aspect-video rounded",
         },
       }),
-      FontFamily.configure({
-        types: ["textStyle"],
-      }),
       PreserveInlineStyles,
       Div,
     ],
@@ -196,7 +192,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[500px] [&_*]:all-revert [&_div]:block [&_p]:block [&_h1]:block [&_h2]:block [&_h3]:block",
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[500px] [&_*[style]]:![all:revert] [&_div]:block [&_p]:block [&_h1]:block [&_h2]:block [&_h3]:block",
       },
     },
     onUpdate: ({ editor }) => {
@@ -240,7 +236,7 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
   }
 
   const applyAdvancedStyling = () => {
-    const style = `font-size: ${fontSize}px; line-height: ${lineHeight}; letter-spacing: ${letterSpacing}px;`
+    const style = `font-size: ${fontSize}px; line-height: ${lineHeight}; letter-spacing: ${letterSpacing}px; font-family: ${selectedFont};`
     editor.chain().focus().setMark("textStyle", { style }).run()
   }
 
@@ -286,13 +282,13 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     { value: "inherit", label: "Default" },
     { value: "Arial", label: "Arial" },
     { value: "Helvetica", label: "Helvetica" },
-    { value: "Times New Roman", label: "Times New Roman" },
+    { value: "'Times New Roman'", label: "Times New Roman" },
     { value: "Georgia", label: "Georgia" },
-    { value: "Courier New", label: "Courier New" },
+    { value: "'Courier New'", label: "Courier New" },
     { value: "Verdana", label: "Verdana" },
-    { value: "Comic Sans MS", label: "Comic Sans" },
+    { value: "'Comic Sans MS'", label: "Comic Sans" },
     { value: "Impact", label: "Impact" },
-    { value: "Trebuchet MS", label: "Trebuchet" },
+    { value: "'Trebuchet MS'", label: "Trebuchet" },
   ]
 
   return (
@@ -380,7 +376,6 @@ export function TiptapEditor({ content, onChange }: TiptapEditorProps) {
               value={selectedFont}
               onValueChange={(value) => {
                 setSelectedFont(value)
-                editor.chain().focus().setFontFamily(value).run()
               }}
             >
               <SelectTrigger className="h-8 w-[140px] text-xs">

@@ -137,56 +137,57 @@
     margin-top: 0.75em;
   }
 
-  .ProseMirror h1 {
+  /* Reduced default styling specificity so inline styles can override */
+  .ProseMirror h1:not([style]) {
     @apply text-4xl font-bold leading-tight md:text-5xl;
     margin: 1.5rem 0 0.5rem;
   }
 
-  .ProseMirror h2 {
+  .ProseMirror h2:not([style]) {
     @apply text-3xl font-bold leading-tight md:text-4xl;
     margin: 1.25rem 0 0.5rem;
   }
 
-  .ProseMirror h3 {
+  .ProseMirror h3:not([style]) {
     @apply text-2xl font-bold leading-snug md:text-3xl;
     margin: 1rem 0 0.5rem;
   }
 
-  .ProseMirror p {
+  .ProseMirror p:not([style]) {
     @apply text-base leading-relaxed;
     line-height: 1.8;
   }
 
-  .ProseMirror a {
+  .ProseMirror a:not([style]) {
     @apply text-primary underline hover:no-underline;
   }
 
-  .ProseMirror ul,
-  .ProseMirror ol {
+  .ProseMirror ul:not([style]),
+  .ProseMirror ol:not([style]) {
     @apply my-4 pl-6;
   }
 
-  .ProseMirror ul {
+  .ProseMirror ul:not([style]) {
     @apply list-disc;
   }
 
-  .ProseMirror ol {
+  .ProseMirror ol:not([style]) {
     @apply list-decimal;
   }
 
-  .ProseMirror li {
+  .ProseMirror li:not([style]) {
     @apply mb-2 leading-relaxed;
   }
 
-  .ProseMirror blockquote {
+  .ProseMirror blockquote:not([style]) {
     @apply my-6 border-l-4 border-primary bg-muted/50 p-4 italic;
   }
 
-  .ProseMirror code {
+  .ProseMirror code:not([style]) {
     @apply rounded bg-muted px-2 py-1 font-mono text-sm;
   }
 
-  .ProseMirror pre {
+  .ProseMirror pre:not([style]) {
     @apply my-4 overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm;
   }
 
@@ -194,7 +195,7 @@
     @apply bg-transparent p-0;
   }
 
-  .ProseMirror img {
+  .ProseMirror img:not([style]) {
     @apply my-4 max-w-full rounded-lg;
   }
 
@@ -231,21 +232,25 @@
     @apply my-6 aspect-video w-full rounded-lg;
   }
 
-  /* Text alignment */
-  .ProseMirror [style*="text-align: left"] {
-    text-align: left;
+  /* Elements with inline styles get higher priority and preserve their styling */
+  .ProseMirror [style] {
+    /* Inline styles will naturally override due to higher specificity */
   }
 
-  .ProseMirror [style*="text-align: center"] {
-    text-align: center;
+  /* Make sure divs display as blocks */
+  .ProseMirror div {
+    display: block;
   }
 
-  .ProseMirror [style*="text-align: right"] {
-    text-align: right;
+  /* Ensure grid and flex layouts work */
+  .ProseMirror [style*="display: grid"],
+  .ProseMirror [style*="display:grid"] {
+    display: grid !important;
   }
 
-  .ProseMirror [style*="text-align: justify"] {
-    text-align: justify;
+  .ProseMirror [style*="display: flex"],
+  .ProseMirror [style*="display:flex"] {
+    display: flex !important;
   }
 
   /* Tiptap Selection */
@@ -261,57 +266,6 @@
   .ProseMirror .ProseMirror-gapcursor:after {
     content: "";
     @apply absolute left-0 top-0 h-full w-px animate-pulse bg-foreground;
-  }
-
-  /* Added styles to preserve template inline styles in editor */
-  /* Preserve all inline styles from templates */
-  .ProseMirror [style],
-  .ProseMirror div[style],
-  .ProseMirror p[style],
-  .ProseMirror h1[style],
-  .ProseMirror h2[style],
-  .ProseMirror h3[style],
-  .ProseMirror span[style],
-  .ProseMirror a[style],
-  .ProseMirror blockquote[style],
-  .ProseMirror ul[style],
-  .ProseMirror ol[style],
-  .ProseMirror li[style] {
-    all: revert !important;
-  }
-
-  /* Ensure backgrounds, colors, padding, borders render properly */
-  .ProseMirror [style*="background"],
-  .ProseMirror [style*="color"],
-  .ProseMirror [style*="padding"],
-  .ProseMirror [style*="margin"],
-  .ProseMirror [style*="border"],
-  .ProseMirror [style*="font"],
-  .ProseMirror [style*="display"],
-  .ProseMirror [style*="grid"],
-  .ProseMirror [style*="flex"] {
-    all: revert !important;
-  }
-
-  /* Make sure divs display as blocks and preserve their styling */
-  .ProseMirror div {
-    display: block;
-  }
-
-  /* Preserve gradient backgrounds */
-  .ProseMirror [style*="linear-gradient"],
-  .ProseMirror [style*="radial-gradient"] {
-    all: revert !important;
-  }
-
-  /* Ensure text colors from inline styles are preserved */
-  .ProseMirror [style*="color:"] {
-    color: inherit !important;
-  }
-
-  /* Override Tailwind prose styles for template content */
-  .ProseMirror.prose-override * {
-    all: revert;
   }
 }
 
