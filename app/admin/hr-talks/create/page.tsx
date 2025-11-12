@@ -2,16 +2,17 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import type { OutputData } from "@editorjs/editorjs"
 import { apiClient, ApiError } from "@/lib/api/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Monitor, Smartphone, Save } from "lucide-react"
-import { EditorJSWrapper } from "@/components/editor/editor-js-wrapper"
+import { ArrowLeft, Monitor, Smartphone, Save, Sparkles } from "lucide-react"
+import { TiptapEditor } from "@/components/editor/tiptap-editor"
+import { TemplateSelector } from "@/components/editor/template-selector"
 import { useAdminCheck } from "@/hooks/use-admin-check"
 import { cn } from "@/lib/utils"
+import type { BlogTemplate } from "@/components/editor/blog-templates"
 
 export default function CreateBlogPage() {
   useAdminCheck()
@@ -20,9 +21,15 @@ export default function CreateBlogPage() {
   const { toast } = useToast()
 
   const [title, setTitle] = useState("")
-  const [content, setContent] = useState<OutputData | undefined>(undefined)
+  const [content, setContent] = useState("")
   const [saving, setSaving] = useState(false)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
+  const [showTemplates, setShowTemplates] = useState(true)
+
+  const handleSelectTemplate = (template: BlogTemplate) => {
+    setContent(template.html)
+    setShowTemplates(false)
+  }
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -34,7 +41,7 @@ export default function CreateBlogPage() {
       return
     }
 
-    if (!content || !content.blocks || content.blocks.length === 0) {
+    if (!content || content.trim() === "") {
       toast({
         title: t("common.error"),
         description: "Content is required",
@@ -52,7 +59,7 @@ export default function CreateBlogPage() {
       })
       router.push("/admin/hr-talks")
     } catch (error) {
-      console.error("[v0] Error saving blog:", error)
+      console.error("Error saving blog:", error)
       toast({
         title: t("common.error"),
         description: error instanceof ApiError ? error.detail : "Failed to save blog",
@@ -65,8 +72,10 @@ export default function CreateBlogPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <TemplateSelector open={showTemplates} onOpenChange={setShowTemplates} onSelectTemplate={handleSelectTemplate} />
+
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => router.push("/admin/hr-talks")}>
@@ -78,6 +87,11 @@ export default function CreateBlogPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Templates
+            </Button>
+
             {/* Preview Mode Toggle */}
             <div className="flex items-center rounded-md border bg-muted p-1">
               <Button
@@ -129,7 +143,7 @@ export default function CreateBlogPage() {
 
           {/* Editor */}
           <div className={cn("min-h-[600px] px-8 py-6", previewMode === "mobile" && "px-4 py-4")}>
-            <EditorJSWrapper holder="editorjs-fullscreen" data={content} onChange={(data) => setContent(data)} />
+            <TiptapEditor content={content} onChange={setContent} />
           </div>
         </div>
       </div>

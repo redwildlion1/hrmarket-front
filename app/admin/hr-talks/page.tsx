@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import type { OutputData } from "@editorjs/editorjs"
 import { apiClient, ApiError } from "@/lib/api/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "@/components/ui/button"
@@ -14,7 +13,7 @@ import { useAdminCheck } from "@/hooks/use-admin-check"
 interface Blog {
   id: string
   title: string
-  content: OutputData
+  content: string // Changed from OutputData to string for HTML content
   createdAt: string
   updatedAt: string | null
 }
@@ -38,7 +37,7 @@ export default function HRTalksAdminPage() {
       const result = await apiClient.admin.blogs.getAll()
       setBlogs(result.blogs)
     } catch (error) {
-      console.error("[v0] Error loading blogs:", error)
+      console.error("Error loading blogs:", error)
       toast({
         title: t("common.error"),
         description: error instanceof ApiError ? error.detail : "Failed to load blogs",
@@ -70,7 +69,7 @@ export default function HRTalksAdminPage() {
       })
       loadBlogs()
     } catch (error) {
-      console.error("[v0] Error deleting blog:", error)
+      console.error("Error deleting blog:", error)
       toast({
         title: t("common.error"),
         description: error instanceof ApiError ? error.detail : "Failed to delete blog",

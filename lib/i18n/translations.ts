@@ -416,6 +416,16 @@ export const translations = {
     "admin.editBlogDesc": "Modifică detaliile articolului",
     "admin.noBlogs": "Nu există articole încă. Creează primul articol!",
     "admin.content": "Conținut",
+    "admin.templates": "Șabloane",
+    "admin.chooseTemplate": "Alege un Șablon",
+    "admin.blankPage": "Începe cu o Pagină Goală",
+    "admin.templateCategories.all": "Toate Șabloanele",
+    "admin.templateCategories.professional": "Profesional",
+    "admin.templateCategories.creative": "Creativ",
+    "admin.templateCategories.minimal": "Minimalist",
+    "admin.templateCategories.vibrant": "Vibrant",
+    "admin.templateCategories.tech": "Tehnologic",
+    "admin.templateCategories.editorial": "Editorial",
   },
   en: {
     // Navigation
@@ -828,6 +838,16 @@ export const translations = {
     "admin.editBlogDesc": "Modify article details",
     "admin.noBlogs": "No articles yet. Create your first article!",
     "admin.content": "Content",
+    "admin.templates": "Templates",
+    "admin.chooseTemplate": "Choose a Template",
+    "admin.blankPage": "Start with a Blank Page",
+    "admin.templateCategories.all": "All Templates",
+    "admin.templateCategories.professional": "Professional",
+    "admin.templateCategories.creative": "Creative",
+    "admin.templateCategories.minimal": "Minimal",
+    "admin.templateCategories.vibrant": "Vibrant",
+    "admin.templateCategories.tech": "Tech",
+    "admin.templateCategories.editorial": "Editorial",
   },
 } as const
 

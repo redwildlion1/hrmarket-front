@@ -886,7 +886,7 @@ export const apiClient = {
           blogs: Array<{
             id: string
             title: string
-            content: any
+            content: string // Changed from 'any' to 'string' for HTML content
             createdAt: string
             updatedAt: string | null
           }>
@@ -897,17 +897,18 @@ export const apiClient = {
         return fetchWithAuth<{
           id: string
           title: string
-          content: any
+          content: string // Changed from 'any' to 'string' for HTML content
           createdAt: string
           updatedAt: string | null
         }>(`/admin/blogs/${id}`)
       },
 
-      create: async (data: { title: string; content: any }) => {
+      create: async (data: { title: string; content: string }) => {
+        // Changed content type to string
         return fetchWithAuth<{
           id: string
           title: string
-          content: any
+          content: string
           createdAt: string
         }>("/admin/blogs", {
           method: "POST",
@@ -915,11 +916,12 @@ export const apiClient = {
         })
       },
 
-      update: async (id: string, data: { title: string; content: any }) => {
+      update: async (id: string, data: { title: string; content: string }) => {
+        // Changed content type to string
         return fetchWithAuth<{
           id: string
           title: string
-          content: any
+          content: string
           updatedAt: string
         }>(`/admin/blogs/${id}`, {
           method: "PUT",
