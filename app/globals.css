@@ -522,4 +522,22 @@
     border-left: 3px solid hsl(var(--primary));
   }
   /* </CHANGE> */
+
+  /* Add GrapesJS canvas iframe styling to preserve inline styles */
+  /* Ensure GrapesJS canvas preserves all inline styles from templates */
+  :global(.gjs-frame-wrapper iframe) {
+    background: white;
+  }
+
+  /* Global styles for GrapesJS canvas - these apply inside the iframe */
+  :global([data-gjs-type]) {
+    /* Ensure all layout properties work */
+    box-sizing: border-box;
+  }
+
+  /* Make sure the canvas body has proper defaults */
+  :global(.gjs-dashed *) {
+    box-sizing: border-box;
+  }
+  /* </CHANGE> */
 }

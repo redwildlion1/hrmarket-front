@@ -27,6 +27,7 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
       width: "auto",
       storageManager: false,
       avoidInlineStyle: false,
+      protectedCss: '',
       plugins: [gjsPresetWebpage],
       pluginsOpts: {
         [gjsPresetWebpage as any]: {
@@ -59,8 +60,13 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
         ],
       },
       canvas: {
-        styles: [],
+        styles: [
+          'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
+        ],
         scripts: [],
+      },
+      cssComposer: {
+        rules: []
       },
       styleManager: {
         sectors: [
@@ -166,14 +172,14 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
               {
                 id: "preview",
                 className: "btn-preview",
-                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"/></svg>',
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5Z"/></svg>',
                 command: "preview",
                 attributes: { title: "Preview" },
               },
               {
                 id: "fullscreen",
                 className: "btn-fullscreen",
-                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M10,17V19H5V14H7V17H10Z"/></svg>',
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M10,17V19H5V14H7V17H10Z"/></svg>',
                 command: "fullscreen",
                 attributes: { title: "Fullscreen" },
               },
@@ -334,10 +340,12 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
 
     if (content) {
       editor.setComponents(content)
+      console.log("[v0] Loaded content with", editor.getComponents().length, "components")
     }
 
     editor.on("change:changesCount", () => {
       const html = editor.getHtml()
+      console.log("[v0] Content changed, HTML length:", html.length)
       onChange(html)
     })
 
