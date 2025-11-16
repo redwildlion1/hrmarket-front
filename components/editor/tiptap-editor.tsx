@@ -8,7 +8,7 @@ import Image from "@tiptap/extension-image"
 import Link from "@tiptap/extension-link"
 import TextAlign from "@tiptap/extension-text-align"
 import Underline from "@tiptap/extension-underline"
-import TextStyle from "@tiptap/extension-text-style"
+import { TextStyle } from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
 import Youtube from "@tiptap/extension-youtube"
@@ -20,35 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Bold,
-  Italic,
-  UnderlineIcon,
-  Strikethrough,
-  Code,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  Undo,
-  Redo,
-  LinkIcon,
-  ImageIcon,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-  Highlighter,
-  YoutubeIcon,
-  Code2,
-  Palette,
-  Type,
-  Paintbrush,
-  Settings2,
-  FileCode,
-} from "lucide-react"
+import { Bold, Italic, UnderlineIcon, Strikethrough, Code, Heading1, Heading2, Heading3, List, ListOrdered, Quote, Undo, Redo, LinkIcon, ImageIcon, AlignLeft, AlignCenter, AlignRight, AlignJustify, Highlighter, YoutubeIcon, Code2, Palette, Type, Paintbrush, Settings2, FileCode } from 'lucide-react'
 import { useState } from "react"
 import { apiClient } from "@/lib/api/client"
 import { Label } from "@/components/ui/label"
