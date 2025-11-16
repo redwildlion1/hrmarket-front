@@ -25,6 +25,7 @@ function FirmManageContent() {
   const { userInfo, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [firm, setFirm] = useState<FirmDetailsDto | null>(null)
+  const [locationNames, setLocationNames] = useState<{ country: string; county: string } | null>(null)
 
   const { setError, clearError } = useFormErrors()
 
@@ -49,6 +50,16 @@ function FirmManageContent() {
       const data = await apiClient.firm.getMyFirm()
       console.log("[v0] Firm data loaded successfully:", data)
       setFirm(data)
+
+      if (data.locationCountryId && data.locationCountyId) {
+        console.log("[v0] Fetching location names for country:", data.locationCountryId, "county:", data.locationCountyId)
+        const locationData = await apiClient.location.getLocationSimple(data.locationCountryId, data.locationCountyId)
+        console.log("[v0] Location names loaded:", locationData)
+        setLocationNames({
+          country: locationData.country.name,
+          county: locationData.county.name,
+        })
+      }
     } catch (error: any) {
       console.error("[v0] Error loading firm:", error)
       setError(error)
@@ -218,6 +229,18 @@ function FirmManageContent() {
               <CardDescription>{t("firm.locationDesc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              {locationNames && (
+                <>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("firm.country")}</p>
+                    <p className="text-base">{locationNames.country}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{t("firm.county")}</p>
+                    <p className="text-base">{locationNames.county}</p>
+                  </div>
+                </>
+              )}
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{t("firm.city")}</p>
                 <p className="text-base">{firm.locationCity}</p>

@@ -389,6 +389,13 @@ export const apiClient = {
     getCounties: async (countryId: number) => {
       return fetchWithAuth<Array<{ id: number; name: string }>>(`/location-elements/${countryId}/counties`)
     },
+
+    getLocationSimple: async (countryId: number, countyId: number) => {
+      return fetchPublic<{
+        country: { id: number; name: string }
+        county: { id: number; name: string }
+      }>(`/location-elements/simple?countryId=${countryId}&countyId=${countyId}`)
+    },
   },
 
   // Subscription endpoints
