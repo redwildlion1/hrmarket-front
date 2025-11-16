@@ -350,7 +350,11 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
       // Combine CSS and HTML into a complete document
       const fullHtml = css ? `<style>${css}</style>\n${html}` : html
       
-      console.log("[v0] Content changed, HTML length:", html.length, "CSS length:", css.length)
+      console.log("[v0] ==> Content changed")
+      console.log("[v0] ==> HTML:", html.substring(0, 200))
+      console.log("[v0] ==> CSS:", css.substring(0, 500))
+      console.log("[v0] ==> Combined length:", fullHtml.length)
+      console.log("[v0] ==> Combined start:", fullHtml.substring(0, 300))
       onChange(fullHtml)
     })
 
