@@ -43,7 +43,7 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
           {
             id: "desktop",
             name: "Desktop",
-            width: "100%",
+            width: "",
           },
           {
             id: "tablet",
@@ -347,7 +347,6 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
       const html = editor.getHtml()
       const css = editor.getCss()
       
-      // Combine CSS and HTML into a complete document
       const fullHtml = css ? `<style>${css}</style>\n${html}` : html
       
       console.log("[v0] ==> Content changed")

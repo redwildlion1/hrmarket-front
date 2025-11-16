@@ -123,8 +123,11 @@ export default function CreateBlogPage() {
                       <meta name="viewport" content="width=device-width, initial-scale=1.0">
                       <title>${title || 'Preview'}</title>
                       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+                      <style>
+                        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+                      </style>
                     </head>
-                    <body style="margin: 0; padding: 0; font-family: 'Inter', sans-serif;">
+                    <body>
                       ${content}
                     </body>
                   </html>
