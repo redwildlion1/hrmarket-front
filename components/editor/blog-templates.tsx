@@ -1018,6 +1018,222 @@ export const blogTemplates: BlogTemplate[] = [
     `,
   },
   {
+    id: "corporate-event",
+    name: "Corporate Event",
+    description: "Modern, clean design for business conferences and professional development events",
+    category: "corporate-event",
+    preview: "🎓",
+    html: `
+<div style="font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a;">
+  <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 5rem 3rem; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -10%; right: -5%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -15%; left: -10%; width: 700px; height: 700px; background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%); border-radius: 50%;"></div>
+    
+    <div style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 10;">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #3b82f6, #6366f1); padding: 0.75rem 1.5rem; border-radius: 0.5rem;">
+          <p style="color: white; font-size: 0.875rem; font-weight: 800; letter-spacing: 0.1rem; margin: 0;">MARCH 15-17, 2025</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0.75rem 1.5rem; border-radius: 0.5rem;">
+          <p style="color: #93c5fd; font-size: 0.875rem; font-weight: 700; margin: 0;">3-DAY EVENT</p>
+        </div>
+      </div>
+      
+      <h1 style="font-size: 5rem; font-weight: 900; line-height: 1; margin-bottom: 2rem; letter-spacing: -0.03em; background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Future of Work Summit 2025</h1>
+      
+      <p style="font-size: 1.75rem; line-height: 1.5; color: #cbd5e1; margin-bottom: 3rem; font-weight: 500;">Where innovation meets implementation: Join 1,500+ HR leaders, executives, and thought leaders shaping the next era of workplace excellence</p>
+      
+      <div style="display: flex; gap: 3rem; align-items: center; flex-wrap: wrap; font-size: 1.125rem; color: #94a3b8; margin-bottom: 3rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="color: #60a5fa; font-size: 1.5rem;">📍</span>
+          <span>Silicon Valley Convention Center</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="color: #60a5fa; font-size: 1.5rem;">🎤</span>
+          <span>50+ Industry Experts</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="color: #60a5fa; font-size: 1.5rem;">🏢</span>
+          <span>100+ Exhibitors</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="color: #60a5fa; font-size: 1.5rem;">🌐</span>
+          <span>Hybrid: In-Person & Virtual</span>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; padding: 1.25rem 3rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none; font-size: 1.125rem; box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);">Register Now - Early Bird</a>
+        <a href="#" style="display: inline-block; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.2); color: white; padding: 1.25rem 3rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none; font-size: 1.125rem; text-transform: uppercase; letter-spacing: 0.05em;">Download Brochure</a>
+      </div>
+    </div>
+  </div>
+  
+  <div style="max-width: 1400px; margin: 0 auto; padding: 6rem 3rem;">
+    <div style="text-align: center; margin-bottom: 5rem;">
+      <p style="color: #3b82f6; font-size: 1rem; font-weight: 700; letter-spacing: 0.1rem; margin-bottom: 1rem; text-transform: uppercase;">Conference Highlights</p>
+      <h2 style="font-size: 3.5rem; font-weight: 900; color: #0f172a; margin-bottom: 2rem; letter-spacing: -0.02em;">What You'll Experience</h2>
+      <p style="font-size: 1.25rem; color: #475569; line-height: 1.8; max-width: 800px; margin: 0 auto;">Three days packed with insights, connections, and actionable strategies to transform your organization</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 3rem; margin-bottom: 6rem;">
+      <div style="background: white; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform 0.3s;">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 2rem;">🎯</div>
+        <h3 style="color: #0f172a; font-size: 1.75rem; font-weight: 800; margin-bottom: 1.25rem;">Keynote Sessions</h3>
+        <p style="color: #475569; font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.5rem;">Hear from visionary CEOs, bestselling authors, and pioneering HR leaders on topics ranging from AI integration to culture transformation.</p>
+        <ul style="color: #64748b; font-size: 1rem; line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+          <li>Morning keynotes from Fortune 500 leaders</li>
+          <li>Afternoon deep-dives with industry experts</li>
+          <li>Closing vision session on the decade ahead</li>
+        </ul>
+      </div>
+      
+      <div style="background: white; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 2rem;">💼</div>
+        <h3 style="color: #0f172a; font-size: 1.75rem; font-weight: 800; margin-bottom: 1.25rem;">Interactive Workshops</h3>
+        <p style="color: #475569; font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.5rem;">Roll up your sleeves in hands-on sessions designed to give you immediately applicable skills and frameworks.</p>
+        <ul style="color: #64748b; font-size: 1rem; line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+          <li>Data analytics for HR professionals</li>
+          <li>Building high-performance teams</li>
+          <li>Change management certification track</li>
+        </ul>
+      </div>
+      
+      <div style="background: white; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 2rem;">🤝</div>
+        <h3 style="color: #0f172a; font-size: 1.75rem; font-weight: 800; margin-bottom: 1.25rem;">Networking Opportunities</h3>
+        <p style="color: #475569; font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.5rem;">Connect with peers facing similar challenges, build relationships that last beyond the conference.</p>
+        <ul style="color: #64748b; font-size: 1rem; line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+          <li>Structured networking sessions</li>
+          <li>Industry-specific roundtables</li>
+          <li>Evening receptions and social events</li>
+        </ul>
+      </div>
+      
+      <div style="background: white; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 2rem;">🚀</div>
+        <h3 style="color: #0f172a; font-size: 1.75rem; font-weight: 800; margin-bottom: 1.25rem;">Innovation Showcase</h3>
+        <p style="color: #475569; font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.5rem;">Explore cutting-edge HR technology solutions from 100+ exhibitors on the show floor.</p>
+        <ul style="color: #64748b; font-size: 1rem; line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+          <li>Live product demonstrations</li>
+          <li>Exclusive conference discounts</li>
+          <li>One-on-one consultations with vendors</li>
+        </ul>
+      </div>
+      
+      <div style="background: white; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 2rem;">📊</div>
+        <h3 style="color: #0f172a; font-size: 1.75rem; font-weight: 800; margin-bottom: 1.25rem;">Research & Insights</h3>
+        <p style="color: #475569; font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.5rem;">Access exclusive research reports and benchmarking data available only to conference attendees.</p>
+        <ul style="color: #64748b; font-size: 1rem; line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+          <li>2025 State of HR Report</li>
+          <li>Salary benchmarking database</li>
+          <li>Case study library with 200+ examples</li>
+        </ul>
+      </div>
+      
+      <div style="background: white; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 2rem;">🎓</div>
+        <h3 style="color: #0f172a; font-size: 1.75rem; font-weight: 800; margin-bottom: 1.25rem;">Professional Development</h3>
+        <p style="color: #475569; font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.5rem;">Earn continuing education credits and certifications to advance your career.</p>
+        <ul style="color: #64748b; font-size: 1rem; line-height: 1.8; margin: 0; padding-left: 1.5rem;">
+          <li>24 HRCI and SHRM credits available</li>
+          <li>Certificate programs in specialized tracks</li>
+          <li>Post-conference learning resources</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); padding: 5rem 4rem; border-radius: 2rem; margin: 6rem 0;">
+      <div style="text-align: center; margin-bottom: 4rem;">
+        <h2 style="color: #1e40af; font-size: 3rem; font-weight: 900; margin-bottom: 1.5rem;">Featured Speakers</h2>
+        <p style="color: #1e40af; font-size: 1.25rem;">Learn from the best minds in business and HR</p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;">
+        <div style="background: white; padding: 2.5rem; border-radius: 1.25rem; text-align: center; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);">
+          <div style="width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">👩‍💼</div>
+          <h3 style="color: #0f172a; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Dr. Jennifer Chen</h3>
+          <p style="color: #3b82f6; font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Chief People Officer, InnovateTech</p>
+          <p style="color: #64748b; font-size: 0.875rem; font-style: italic; margin-bottom: 1.5rem;">"AI-Powered Talent Management: Reality vs. Hype"</p>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin: 0;">Former VP at Google, author of "The Digital HR Revolution", recognized as Top 10 HR Influencer</p>
+        </div>
+        
+        <div style="background: white; padding: 2.5rem; border-radius: 1.25rem; text-align: center; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);">
+          <div style="width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">👨‍🏫</div>
+          <h3 style="color: #0f172a; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Marcus Williams</h3>
+          <p style="color: #3b82f6; font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">CEO, FutureWork Institute</p>
+          <p style="color: #64748b; font-size: 0.875rem; font-style: italic; margin-bottom: 1.5rem;">"Building Resilient Organizations in Uncertain Times"</p>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin: 0;">NYT bestselling author, keynote at WEF, advises Fortune 100 companies on organizational design</p>
+        </div>
+        
+        <div style="background: white; padding: 2.5rem; border-radius: 1.25rem; text-align: center; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);">
+          <div style="width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; font-size: 4rem;">👩‍💻</div>
+          <h3 style="color: #0f172a; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Sarah Patel</h3>
+          <p style="color: #3b82f6; font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Founder, DEI Solutions Global</p>
+          <p style="color: #64748b; font-size: 0.875rem; font-style: italic; margin-bottom: 1.5rem;">"From Intention to Impact: Measurable DEI Strategies"</p>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.7; margin: 0;">TEDx speaker, Harvard Business Review contributor, transformed DEI at 50+ organizations</p>
+        </div>
+      </div>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #0f172a, #1e293b); padding: 5rem 4rem; border-radius: 2rem; text-align: center; margin-top: 6rem;">
+      <h2 style="color: white; font-size: 3rem; font-weight: 900; margin-bottom: 2rem;">Registration Options</h2>
+      <p style="color: #cbd5e1; font-size: 1.25rem; margin-bottom: 4rem;">Choose the package that's right for you</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.1); padding: 3rem; border-radius: 1.25rem;">
+          <h3 style="color: #93c5fd; font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem;">Virtual Pass</h3>
+          <p style="color: #cbd5e1; font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem;">$299</p>
+          <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 2rem;">Access all sessions virtually</p>
+          <ul style="color: #cbd5e1; font-size: 1rem; line-height: 2; text-align: left; margin: 0 0 2rem 0; padding-left: 1.5rem;">
+            <li>Live stream of all keynotes</li>
+            <li>On-demand session recordings</li>
+            <li>Digital resource library</li>
+            <li>Virtual networking platform</li>
+          </ul>
+          <a href="#" style="display: block; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); color: white; padding: 1rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none;">Register Virtual</a>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #3b82f6, #6366f1); padding: 3rem; border-radius: 1.25rem; position: relative; overflow: hidden; box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4);">
+          <div style="position: absolute; top: 1rem; right: 1rem; background: #fbbf24; color: #0f172a; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 800;">MOST POPULAR</div>
+          <h3 style="color: white; font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem;">Full Conference</h3>
+          <p style="color: white; font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem;">$899</p>
+          <p style="color: #dbeafe; font-size: 0.875rem; margin-bottom: 2rem;">Complete in-person experience</p>
+          <ul style="color: white; font-size: 1rem; line-height: 2; text-align: left; margin: 0 0 2rem 0; padding-left: 1.5rem;">
+            <li>All keynotes & workshops</li>
+            <li>Expo hall access</li>
+            <li>Meals & refreshments included</li>
+            <li>Networking events</li>
+            <li>Conference materials & swag</li>
+            <li>All virtual pass benefits</li>
+          </ul>
+          <a href="#" style="display: block; background: white; color: #3b82f6; padding: 1rem; border-radius: 0.75rem; font-weight: 800; text-decoration: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">Register Now</a>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.1); padding: 3rem; border-radius: 1.25rem;">
+          <h3 style="color: #93c5fd; font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem;">VIP Experience</h3>
+          <p style="color: #cbd5e1; font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem;">$1,899</p>
+          <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 2rem;">Premium access & exclusives</p>
+          <ul style="color: #cbd5e1; font-size: 1rem; line-height: 2; text-align: left; margin: 0 0 2rem 0; padding-left: 1.5rem;">
+            <li>All Full Conference benefits</li>
+            <li>VIP seating at keynotes</li>
+            <li>Private speaker meet & greets</li>
+            <li>Executive roundtable dinners</li>
+            <li>Exclusive pre-conference workshop</li>
+            <li>Concierge service</li>
+          </ul>
+          <a href="#" style="display: block; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); color: white; padding: 1rem; border-radius: 0.75rem; font-weight: 700; text-decoration: none;">Register VIP</a>
+        </div>
+      </div>
+      
+      <p style="color: #94a3b8; font-size: 1rem; margin-top: 3rem;">🎯 Early bird discount ends February 15th - Save 25%!</p>
+    </div>
+  </div>
+</div>
+    `,
+  },
+  {
     id: "corporate-gala",
     name: "Corporate Gala Evening",
     description: "Elegant, sophisticated design for high-end corporate events and award ceremonies",
@@ -1368,7 +1584,196 @@ export const blogTemplates: BlogTemplate[] = [
   </div>
 </div>
     `,
-  }
+  },
+  {
+    id: "corporate-gala",
+    name: "Corporate Gala Evening",
+    description: "Elegant, sophisticated design for high-end corporate events and award ceremonies",
+    category: "corporate-event",
+    preview: "🎭",
+    html: `
+<div style="font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%); color: white; padding: 0;">
+  <div style="position: relative; overflow: hidden; padding: 6rem 3rem; background: url('/elegant-corporate-event-ballroom-with-chandeliers.jpg') center/cover; background-blend-mode: overlay; background-color: rgba(30, 27, 75, 0.85);">
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.2) 0%, transparent 70%);"></div>
+    
+    <div style="position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; text-align: center;">
+      <div style="display: inline-block; border: 3px solid #fbbf24; padding: 0.5rem 2rem; margin-bottom: 2rem; background: rgba(251, 191, 36, 0.1); backdrop-filter: blur(10px);">
+        <p style="color: #fbbf24; font-size: 0.875rem; font-weight: 800; letter-spacing: 0.2rem; margin: 0; text-transform: uppercase;">Black Tie Event</p>
+      </div>
+      
+      <h1 style="font-size: 5rem; font-weight: 900; line-height: 1.1; margin-bottom: 2rem; color: white; text-shadow: 0 4px 20px rgba(0,0,0,0.5); letter-spacing: -0.02em;">Annual Excellence Awards Gala 2025</h1>
+      
+      <div style="width: 150px; height: 3px; background: linear-gradient(90deg, transparent, #fbbf24, transparent); margin: 2rem auto;"></div>
+      
+      <p style="font-size: 1.875rem; line-height: 1.5; color: #e0e7ff; margin-bottom: 3rem; font-weight: 300; max-width: 900px; margin-left: auto; margin-right: auto;">An evening of celebration, recognition, and inspiration as we honor the outstanding achievements of our team and partners</p>
+      
+      <div style="display: flex; justify-content: center; align-items: center; gap: 3rem; flex-wrap: wrap; font-size: 1.125rem; color: #c7d2fe; margin-bottom: 3rem;">
+        <div style="text-align: center;">
+          <p style="color: #fbbf24; font-size: 2.5rem; margin-bottom: 0.5rem;">📅</p>
+          <p style="margin: 0; font-weight: 600;">Saturday, March 20, 2025</p>
+          <p style="margin: 0; opacity: 0.8; font-size: 1rem;">7:00 PM - 12:00 AM</p>
+        </div>
+        <div style="width: 2px; height: 60px; background: rgba(199, 210, 254, 0.3);"></div>
+        <div style="text-align: center;">
+          <p style="color: #fbbf24; font-size: 2.5rem; margin-bottom: 0.5rem;">📍</p>
+          <p style="margin: 0; font-weight: 600;">The Grand Ballroom</p>
+          <p style="margin: 0; opacity: 0.8; font-size: 1rem;">Royal Plaza Hotel</p>
+        </div>
+        <div style="width: 2px; height: 60px; background: rgba(199, 210, 254, 0.3);"></div>
+        <div style="text-align: center;">
+          <p style="color: #fbbf24; font-size: 2.5rem; margin-bottom: 0.5rem;">👔</p>
+          <p style="margin: 0; font-weight: 600;">Dress Code</p>
+          <p style="margin: 0; opacity: 0.8; font-size: 1rem;">Black Tie</p>
+        </div>
+      </div>
+      
+      <div style="display: inline-flex; gap: 2rem; margin-top: 2rem;">
+        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e1b4b; padding: 1.25rem 3rem; border-radius: 0.5rem; font-weight: 800; text-decoration: none; font-size: 1.125rem; box-shadow: 0 10px 40px rgba(251, 191, 36, 0.4); text-transform: uppercase; letter-spacing: 0.05em;">Reserve Your Seat</a>
+        <a href="#" style="display: inline-block; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 1.25rem 3rem; border-radius: 0.5rem; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;">View Program</a>
+      </div>
+    </div>
+  </div>
+  
+  <div style="max-width: 1400px; margin: 0 auto; padding: 6rem 3rem;">
+    <div style="text-align: center; margin-bottom: 5rem;">
+      <p style="color: #fbbf24; font-size: 1rem; font-weight: 700; letter-spacing: 0.15rem; margin-bottom: 1rem; text-transform: uppercase;">A Night to Remember</p>
+
+      <h2 style="font-size: 3.5rem; font-weight: 900; margin-bottom: 2rem; color: white; letter-spacing: -0.02em;">Evening Program</h2>
+      <p style="font-size: 1.25rem; color: #c7d2fe; line-height: 1.5; max-width: 900px; margin: 0 auto;">Join us for an unforgettable evening of elegance, celebration, and recognition as we honor the outstanding achievements of our team and partners</p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem; margin-bottom: 6rem;">
+      <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 3rem; border-radius: 1rem; backdrop-filter: blur(10px);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">🍾</div>
+        <h3 style="color: #c7d2fe; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">7:00 PM</h3>
+        <h4 style="color: white; font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem;">Cocktail Reception</h4>
+        <p style="color: #a5b4fc; font-size: 1.125rem; line-height: 1.7; margin: 0;">Welcome drinks and canapés in the Grand Foyer. Network with colleagues and partners while enjoying live piano music.</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 3rem; border-radius: 1rem; backdrop-filter: blur(10px);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">🍽️</div>
+        <h3 style="color: #c7d2fe; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">8:00 PM</h3>
+        <h4 style="color: white; font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem;">Dinner Service</h4>
+        <p style="color: #a5b4fc; font-size: 1.125rem; line-height: 1.7; margin: 0;">Five-course gourmet dinner prepared by award-winning Chef Marco Rossi, paired with premium wines selected by our sommelier.</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 3rem; border-radius: 1rem; backdrop-filter: blur(10px);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">🏆</div>
+        <h3 style="color: #c7d2fe; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">9:30 PM</h3>
+        <h4 style="color: white; font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem;">Awards Ceremony</h4>
+        <p style="color: #a5b4fc; font-size: 1.125rem; line-height: 1.7; margin: 0;">Recognition of outstanding achievements across 12 categories, celebrating the excellence and dedication of our team members.</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 3rem; border-radius: 1rem; backdrop-filter: blur(10px);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">🎤</div>
+        <h3 style="color: #c7d2fe; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">10:30 PM</h3>
+        <h4 style="color: white; font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem;">Keynote Address</h4>
+        <p style="color: #a5b4fc; font-size: 1.125rem; line-height: 1.7; margin: 0;">Inspiring words from our CEO on vision, achievements, and the exciting opportunities ahead for our organization.</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 3rem; border-radius: 1rem; backdrop-filter: blur(10px);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">🎵</div>
+        <h3 style="color: #c7d2fe; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">11:00 PM</h3>
+        <h4 style="color: white; font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem;">Live Entertainment</h4>
+        <p style="color: #a5b4fc; font-size: 1.125rem; line-height: 1.7; margin: 0;">Performance by internationally renowned jazz ensemble "The Blue Notes," followed by dancing with DJ Platinum spinning classics and contemporary hits.</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); padding: 3rem; border-radius: 1rem; backdrop-filter: blur(10px);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);">🌙</div>
+        <h3 style="color: #c7d2fe; font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">12:00 AM</h3>
+        <h4 style="color: white; font-size: 1.75rem; font-weight: 800; margin-bottom: 1rem;">Midnight Finale</h4>
+        <p style="color: #a5b4fc; font-size: 1.125rem; line-height: 1.7; margin: 0;">A spectacular close to the evening with champagne toast and farewell as we look forward to another year of success together.</p>
+      </div>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #fbbf24, #f59e0b); padding: 5rem 4rem; border-radius: 2rem; margin: 6rem 0; box-shadow: 0 30px 80px rgba(251, 191, 36, 0.3);">
+      <h2 style="color: #1e1b4b; font-size: 3rem; font-weight: 900; margin-bottom: 2rem;">Award Categories</h2>
+      <p style="color: #78350f; font-size: 1.25rem; margin-bottom: 4rem; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.7;">Celebrating excellence across our organization</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; text-align: left;">
+        <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          <p style="color: #fbbf24; font-size: 2rem; margin-bottom: 1rem;">🌟</p>
+          <h4 style="color: #1e1b4b; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Leadership Excellence</h4>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.6; margin: 0;">Recognizing visionary leaders who inspire teams and drive organizational success</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          <p style="color: #fbbf24; font-size: 2rem; margin-bottom: 1rem;">💡</p>
+          <h4 style="color: #1e1b4b; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Innovation Award</h4>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.6; margin: 0;">Honoring groundbreaking ideas and creative solutions that transform our business</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          <p style="color: #fbbf24; font-size: 2rem; margin-bottom: 1rem;">🤝</p>
+          <h4 style="color: #1e1b4b; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Team Collaboration</h4>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.6; margin: 0;">Celebrating teams that exemplify cooperation, synergy, and collective achievement</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          <p style="color: #fbbf24; font-size: 2rem; margin-bottom: 1rem;">🚀</p>
+          <h4 style="color: #1e1b4b; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Rising Star</h4>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.6; margin: 0;">Recognizing emerging talent demonstrating exceptional potential and impact</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          <p style="color: #fbbf24; font-size: 2rem; margin-bottom: 1rem;">❤️</p>
+          <h4 style="color: #1e1b4b; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Culture Champion</h4>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.6; margin: 0;">Honoring those who embody our values and foster positive workplace culture</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+          <p style="color: #fbbf24; font-size: 2rem; margin-bottom: 1rem;">🎯</p>
+          <h4 style="color: #1e1b4b; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">Performance Excellence</h4>
+          <p style="color: #475569; font-size: 1rem; line-height: 1.6; margin: 0;">Celebrating outstanding results and exceptional achievement of business objectives</p>
+        </div>
+      </div>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15)); border: 2px solid rgba(139, 92, 246, 0.3); padding: 4rem; border-radius: 1.5rem; margin: 6rem 0;">
+      <h2 style="color: white; font-size: 2.5rem; font-weight: 900; margin-bottom: 3rem; text-align: center;">Important Information</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;">
+        <div>
+          <h4 style="color: #fbbf24; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;"><span>🅿️</span> Parking & Transportation</h4>
+          <p style="color: #c7d2fe; font-size: 1rem; line-height: 1.7; margin: 0;">Complimentary valet parking available. Shuttle service provided from main office locations. Ride-share drop-off zone at main entrance.</p>
+        </div>
+        
+        <div>
+          <h4 style="color: #fbbf24; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;"><span>🏨</span> Accommodation</h4>
+          <p style="color: #c7d2fe; font-size: 1rem; line-height: 1.7; margin: 0;">Special rates available at Royal Plaza Hotel. Quote "Excellence Awards 2025" when booking. Limited rooms available—book early!</p>
+        </div>
+        
+        <div>
+          <h4 style="color: #fbbf24; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;"><span>🍽️</span> Dietary Requirements</h4>
+          <p style="color: #c7d2fe; font-size: 1rem; line-height: 1.7; margin: 0;">Please inform us of any dietary restrictions or allergies during registration. Vegetarian, vegan, gluten-free, and halal options available.</p>
+        </div>
+        
+        <div>
+          <h4 style="color: #fbbf24; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;"><span>📸</span> Photography</h4>
+          <p style="color: #c7d2fe; font-size: 1rem; line-height: 1.7; margin: 0;">Professional photographer present. Digital photo booth available. Photos will be shared via company portal within one week of the event.</p>
+        </div>
+        
+        <div>
+          <h4 style="color: #fbbf24; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;"><span>🎁</span> Plus One Policy</h4>
+          <p style="color: #c7d2fe; font-size: 1rem; line-height: 1.7; margin: 0;">All employees welcome to bring a guest. Please register your plus-one by March 10th to ensure proper seating arrangements.</p>
+        </div>
+        
+        <div>
+          <h4 style="color: #fbbf24; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;"><span>📞</span> Contact</h4>
+          <p style="color: #c7d2fe; font-size: 1rem; line-height: 1.7; margin: 0;">Questions? Contact Events Team at events@company.com or ext. 5500. We're here to ensure your evening is perfect!</p>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1)); border-radius: 1.5rem; margin-top: 6rem;">
+      <h3 style="color: white; font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem;">Secure Your Seat Today</h3>
+      <p style="color: #c7d2fe; font-size: 1.25rem; line-height: 1.7; margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">Confirm your attendance by March 10th to guarantee your place at this unforgettable celebration.</p>
+      <a href="#" style="display: inline-block; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e1b4b; padding: 1.5rem 4rem; border-radius: 0.75rem; font-weight: 800; text-decoration: none; font-size: 1.25rem; box-shadow: 0 15px 50px rgba(251, 191, 36, 0.4); text-transform: uppercase; letter-spacing: 0.05em;">RSVP Now</a>
+    </div>
+  </div>
+</div>
+    `,
+  },
 ]
 
 export const templates = blogTemplates

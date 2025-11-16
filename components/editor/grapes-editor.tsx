@@ -18,13 +18,7 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
   useEffect(() => {
     if (!editorRef.current || editorInstanceRef.current) return
 
-    console.log("[v0] Templates loaded:", templates ? templates.length : "undefined")
-    console.log("[v0] Templates:", templates)
-    
-    if (!templates || !Array.isArray(templates)) {
-      console.error("[v0] Templates failed to load properly!")
-    }
-    // </CHANGE>
+    console.log("[v0] Initializing GrapesJS editor with", templates?.length || 0, "templates")
 
     const editor = grapesjs.init({
       container: editorRef.current,
@@ -40,28 +34,34 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
             flexGrid: 1,
           },
           blocks: ["link-block", "quote", "text-basic"],
-          modalImportTitle: "Import Template",
-          modalImportLabel: '<div style="margin-bottom: 10px; font-size: 13px;">Paste here your HTML/CSS and click Import</div>',
-          modalImportContent: (editor: any) => {
-            return (
-              editor.getHtml() +
-              "<style>" +
-              editor.getCss() +
-              "</style>"
-            )
-          },
-          importPlaceholder: "",
         },
+      },
+      deviceManager: {
+        devices: [
+          {
+            id: "desktop",
+            name: "Desktop",
+            width: "100%",
+          },
+          {
+            id: "tablet",
+            name: "Tablet",
+            width: "768px",
+            widthMedia: "768px",
+          },
+          {
+            id: "mobile",
+            name: "Mobile",
+            width: "375px",
+            widthMedia: "375px",
+          },
+        ],
       },
       canvas: {
         styles: [],
         scripts: [],
       },
-      blockManager: {
-        appendTo: ".blocks-container",
-      },
       styleManager: {
-        appendTo: ".styles-container",
         sectors: [
           {
             name: "General",
@@ -97,6 +97,8 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
               "letter-spacing",
               "line-height",
               "text-align",
+              "text-decoration",
+              "text-transform",
             ],
           },
           {
@@ -119,37 +121,216 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
               "min-height",
               "margin",
               "padding",
+              "display",
             ],
           },
           {
             name: "Flexbox",
             open: false,
             properties: [
-              "display",
               "flex-direction",
               "justify-content",
               "align-items",
               "flex-wrap",
               "gap",
+              "align-content",
+            ],
+          },
+          {
+            name: "Position",
+            open: false,
+            properties: [
+              "position",
+              "top",
+              "right",
+              "bottom",
+              "left",
+              "z-index",
             ],
           },
         ],
       },
-      layerManager: {
-        appendTo: ".layers-container",
-      },
-      traitManager: {
-        appendTo: ".traits-container",
-      },
-      selectorManager: {
-        appendTo: ".selectors-container",
-      },
       panels: {
-        defaults: [],
+        defaults: [
+          {
+            id: "basic-actions",
+            el: ".panel__basic-actions",
+            buttons: [
+              {
+                id: "visibility",
+                active: true,
+                className: "btn-toggle-borders",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/></svg>',
+                command: "sw-visibility",
+                attributes: { title: "Toggle Borders" },
+              },
+              {
+                id: "preview",
+                className: "btn-preview",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"/></svg>',
+                command: "preview",
+                attributes: { title: "Preview" },
+              },
+              {
+                id: "fullscreen",
+                className: "btn-fullscreen",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M10,17V19H5V14H7V17H10Z"/></svg>',
+                command: "fullscreen",
+                attributes: { title: "Fullscreen" },
+              },
+              {
+                id: "undo",
+                className: "btn-undo",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"/></svg>',
+                command: "undo",
+                attributes: { title: "Undo" },
+              },
+              {
+                id: "redo",
+                className: "btn-redo",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M18.4,10.6C16.55,9 14.15,8 11.5,8C6.85,8 2.92,11.03 1.54,15.22L3.9,16C4.95,12.81 7.95,10.5 11.5,10.5C13.45,10.5 15.23,11.22 16.62,12.38L13,16H22V7L18.4,10.6Z"/></svg>',
+                command: "redo",
+                attributes: { title: "Redo" },
+              },
+            ],
+          },
+          {
+            id: "devices",
+            el: ".panel__devices",
+            buttons: [
+              {
+                id: "device-desktop",
+                className: "btn-desktop",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M21,16H3V4H21M21,2H3C1.89,2 1,2.89 1,4V16A2,2 0 0,0 3,18H10V20H8V22H16V20H14V18H21A2,2 0 0,0 23,16V4C23,2.89 22.1,2 21,2Z"/></svg>',
+                command: "set-device-desktop",
+                active: true,
+                attributes: { title: "Desktop" },
+              },
+              {
+                id: "device-tablet",
+                className: "btn-tablet",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19,18H5V6H19M21,4H3C1.89,4 1,4.89 1,6V18A2,2 0 0,0 3,20H21A2,2 0 0,0 23,18V6C23,4.89 22.1,4 21,4Z"/></svg>',
+                command: "set-device-tablet",
+                attributes: { title: "Tablet (768px)" },
+              },
+              {
+                id: "device-mobile",
+                className: "btn-mobile",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M17,19H7V5H17M17,1H7C5.89,1 5,1.89 5,3V21A2,2 0 0,0 7,23H17A2,2 0 0,0 19,21V3C19,1.89 18.1,1 17,1Z"/></svg>',
+                command: "set-device-mobile",
+                attributes: { title: "Mobile (375px)" },
+              },
+            ],
+          },
+          {
+            id: "panel-switcher",
+            el: ".panel__switcher",
+            buttons: [
+              {
+                id: "show-blocks",
+                active: true,
+                className: "btn-show-blocks",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3,3H11V11H3V3M13,3H21V11H13V3M3,13H11V21H3V13M13,13H21V21H13V13Z"/></svg>',
+                command: "show-blocks",
+                attributes: { title: "Show Blocks" },
+              },
+              {
+                id: "show-style",
+                className: "btn-show-style",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z"/></svg>',
+                command: "show-styles",
+                attributes: { title: "Style Manager" },
+              },
+              {
+                id: "show-layers",
+                className: "btn-show-layers",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,16L19.36,10.27L21,9L12,2L3,9L4.63,10.27M12,18.54L4.62,12.81L3,14.07L12,21.07L21,14.07L19.37,12.8L12,18.54Z"/></svg>',
+                command: "show-layers",
+                attributes: { title: "Layers" },
+              },
+              {
+                id: "show-traits",
+                className: "btn-show-traits",
+                label: '<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>',
+                command: "show-traits",
+                attributes: { title: "Settings" },
+              },
+            ],
+          },
+        ],
       },
     })
 
-    // Add custom HR-themed blocks
+    editor.Commands.add("show-blocks", {
+      run(editor) {
+        const panelSidebar = document.querySelector(".panel__right")
+        if (panelSidebar) {
+          document.querySelectorAll(".panel__right > div").forEach((el: any) => {
+            el.style.display = "none"
+          })
+          const blocksContainer = document.querySelector(".blocks-container")
+          if (blocksContainer) {
+            ;(blocksContainer as HTMLElement).style.display = "block"
+          }
+        }
+      },
+    })
+
+    editor.Commands.add("show-styles", {
+      run(editor) {
+        const panelSidebar = document.querySelector(".panel__right")
+        if (panelSidebar) {
+          document.querySelectorAll(".panel__right > div").forEach((el: any) => {
+            el.style.display = "none"
+          })
+          const styleContainer = document.querySelector(".styles-container")
+          if (styleContainer) {
+            ;(styleContainer as HTMLElement).style.display = "block"
+          }
+        }
+      },
+    })
+
+    editor.Commands.add("show-layers", {
+      run(editor) {
+        const panelSidebar = document.querySelector(".panel__right")
+        if (panelSidebar) {
+          document.querySelectorAll(".panel__right > div").forEach((el: any) => {
+            el.style.display = "none"
+          })
+          const layersContainer = document.querySelector(".layers-container")
+          if (layersContainer) {
+            ;(layersContainer as HTMLElement).style.display = "block"
+          }
+        }
+      },
+    })
+
+    editor.Commands.add("show-traits", {
+      run(editor) {
+        const panelSidebar = document.querySelector(".panel__right")
+        if (panelSidebar) {
+          document.querySelectorAll(".panel__right > div").forEach((el: any) => {
+            el.style.display = "none"
+          })
+          const traitsContainer = document.querySelector(".traits-container")
+          if (traitsContainer) {
+            ;(traitsContainer as HTMLElement).style.display = "block"
+          }
+        }
+      },
+    })
+
+    editor.Commands.add("set-device-desktop", {
+      run: (editor) => editor.setDevice("desktop"),
+    })
+    editor.Commands.add("set-device-tablet", {
+      run: (editor) => editor.setDevice("tablet"),
+    })
+    editor.Commands.add("set-device-mobile", {
+      run: (editor) => editor.setDevice("mobile"),
+    })
+
     editor.BlockManager.add("hr-hero-section", {
       label: "Hero Section",
       category: "HR Components",
@@ -232,7 +413,7 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
     })
 
     if (templates && Array.isArray(templates)) {
-      console.log("[v0] Adding", templates.length, "templates to block manager")
+      console.log("[v0] Loading", templates.length, "templates into editor")
       templates.forEach((template) => {
         try {
           editor.BlockManager.add(`template-${template.id}`, {
@@ -245,17 +426,12 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
           console.error(`[v0] Error adding template ${template.id}:`, error)
         }
       })
-    } else {
-      console.warn("[v0] Templates array is not available, skipping template blocks")
     }
-    // </CHANGE>
 
-    // Set initial content
     if (content) {
       editor.setComponents(content)
     }
 
-    // Listen for changes
     editor.on("change:changesCount", () => {
       const html = editor.getHtml()
       const css = editor.getCss()
@@ -273,7 +449,6 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
     }
   }, [])
 
-  // Update content when prop changes (for loading saved content)
   useEffect(() => {
     if (editorInstanceRef.current && content && !editorInstanceRef.current.getComponents().length) {
       editorInstanceRef.current.setComponents(content)
@@ -281,8 +456,23 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
   }, [content])
 
   return (
-    <div className="grapes-editor-wrapper" style={{ height: "100%" }}>
-      <div ref={editorRef} style={{ height: "100%" }} />
+    <div className="grapes-editor-wrapper">
+      <div className="panel__top">
+        <div className="panel__basic-actions"></div>
+        <div className="panel__devices"></div>
+        <div className="panel__switcher"></div>
+      </div>
+      <div className="editor-row">
+        <div className="editor-canvas">
+          <div ref={editorRef} />
+        </div>
+        <div className="panel__right">
+          <div className="blocks-container" style={{ display: "block" }}></div>
+          <div className="styles-container" style={{ display: "none" }}></div>
+          <div className="layers-container" style={{ display: "none" }}></div>
+          <div className="traits-container" style={{ display: "none" }}></div>
+        </div>
+      </div>
     </div>
   )
 }
