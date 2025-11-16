@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/lib/i18n/language-context"
 import { apiClient } from "@/lib/api/client"
 import { Button } from "@/components/ui/button"
@@ -18,14 +18,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Plus, Trash2, ArrowLeft, Edit, GripVertical, X } from "lucide-react"
+import { Plus, Trash2, ArrowLeft, Edit, GripVertical, X } from 'lucide-react'
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { useAdminCheck } from "@/hooks/use-admin-check"
+import { IconPicker } from "@/components/admin/icon-picker"
+import { renderIcon } from "@/lib/utils/icons"
 
 type UniversalQuestion = {
   id: string
+  icon?: string
   order: number
   isRequired: boolean
   createdAt: string
@@ -78,6 +81,7 @@ export default function UniversalQuestionsPage() {
 
   // Form data
   const [formData, setFormData] = useState({
+    icon: "HelpCircle",
     order: 0,
     isRequired: false,
     titleEn: "",
@@ -150,6 +154,7 @@ export default function UniversalQuestionsPage() {
       }))
 
       await apiClient.admin.universalQuestions.create({
+        icon: formData.icon,
         order: formData.order,
         isRequired: formData.isRequired,
         translations,
@@ -212,6 +217,7 @@ export default function UniversalQuestionsPage() {
 
       await apiClient.admin.universalQuestions.update(editingQuestion.id, {
         id: editingQuestion.id,
+        icon: formData.icon,
         order: formData.order,
         isRequired: formData.isRequired,
         translations,
@@ -279,6 +285,7 @@ export default function UniversalQuestionsPage() {
     const roTranslation = question.translations.find((t) => t.languageCode === "ro")
 
     setFormData({
+      icon: question.icon || "HelpCircle",
       order: question.order,
       isRequired: question.isRequired,
       titleEn: enTranslation?.title || "",
@@ -310,6 +317,7 @@ export default function UniversalQuestionsPage() {
 
   const resetForm = () => {
     setFormData({
+      icon: "HelpCircle",
       order: questions.length,
       isRequired: false,
       titleEn: "",
@@ -402,6 +410,7 @@ export default function UniversalQuestionsPage() {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
+                              {renderIcon(question.icon || 'HelpCircle', { className: 'h-5 w-5' })}
                               <CardTitle>{getTranslation(question.translations, "title")}</CardTitle>
                               {question.isRequired && (
                                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
@@ -477,6 +486,15 @@ export default function UniversalQuestionsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
+            {/* Icon Picker */}
+            <div className="space-y-2">
+              <Label htmlFor="icon">{t("admin.icon")}</Label>
+              <IconPicker 
+                value={formData.icon} 
+                onChange={(icon) => setFormData({ ...formData, icon })} 
+              />
+            </div>
+
             {/* Basic Settings */}
             <div className="flex items-center justify-between">
               <Label htmlFor="isRequired">{t("admin.required")}</Label>

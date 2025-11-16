@@ -44,6 +44,40 @@ export interface FirmListResponse {
   pageSize: number
 }
 
+export interface FirmDetailsDto {
+  id: string
+  cui: string
+  name: string
+  description?: string
+  contactEmail: string
+  contactPhone?: string
+  linksWebsite?: string
+  linksLinkedIn?: string
+  linksFacebook?: string
+  linksTwitter?: string
+  linksInstagram?: string
+  locationAddress?: string
+  locationCountryId: number
+  locationCountyId: number
+  locationCity: string
+  locationPostalCode?: string
+  logoUrl?: string
+  coverImageUrl?: string
+  universalAnswers: FirmUniversalAnswer[]
+}
+
+export interface FirmUniversalAnswer {
+  icon: string
+  questionDisplayTranslations: Translation[]
+  answerTranslations: Translation[]
+}
+
+export interface Translation {
+  languageCode: string
+  name: string
+  description?: string
+}
+
 // Firms API methods
 export const firmsApi = {
   // GET /firms
@@ -91,6 +125,12 @@ export const firmsApi = {
     const response = await api.get<Firm[]>("/firms/search", {
       params: { query },
     })
+    return response.data
+  },
+
+  // GET /firm/my-firm
+  getMyFirm: async (): Promise<FirmDetailsDto> => {
+    const response = await api.get<FirmDetailsDto>("/firm/my-firm")
     return response.data
   },
 }
