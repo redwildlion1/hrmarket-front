@@ -18,6 +18,14 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
   useEffect(() => {
     if (!editorRef.current || editorInstanceRef.current) return
 
+    console.log("[v0] Templates loaded:", templates ? templates.length : "undefined")
+    console.log("[v0] Templates:", templates)
+    
+    if (!templates || !Array.isArray(templates)) {
+      console.error("[v0] Templates failed to load properly!")
+    }
+    // </CHANGE>
+
     const editor = grapesjs.init({
       container: editorRef.current,
       fromElement: false,
@@ -223,15 +231,24 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
       `,
     })
 
-    // Add templates as blocks
-    templates.forEach((template) => {
-      editor.BlockManager.add(`template-${template.id}`, {
-        label: template.name,
-        category: "Templates",
-        content: template.html,
-        attributes: { class: "template-block" },
+    if (templates && Array.isArray(templates)) {
+      console.log("[v0] Adding", templates.length, "templates to block manager")
+      templates.forEach((template) => {
+        try {
+          editor.BlockManager.add(`template-${template.id}`, {
+            label: template.name,
+            category: "Templates",
+            content: template.html,
+            attributes: { class: "template-block" },
+          })
+        } catch (error) {
+          console.error(`[v0] Error adding template ${template.id}:`, error)
+        }
       })
-    })
+    } else {
+      console.warn("[v0] Templates array is not available, skipping template blocks")
+    }
+    // </CHANGE>
 
     // Set initial content
     if (content) {
