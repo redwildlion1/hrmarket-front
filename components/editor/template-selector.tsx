@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { blogTemplates, type BlogTemplate } from "./blog-templates"
-import { Check } from "lucide-react"
+import { Check } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
 interface TemplateSelectorProps {
@@ -33,20 +33,20 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[98vw] w-[98vw] max-h-[98vh] h-[98vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[98vw] w-[98vw] max-h-[98vh] h-[98vh] overflow-hidden flex flex-col p-8">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-2xl">Choose a Template</DialogTitle>
-          <DialogDescription>Select a professionally designed template to start your blog post</DialogDescription>
+          <DialogTitle className="text-3xl">Choose a Template</DialogTitle>
+          <DialogDescription className="text-base">Select a professionally designed template to start your blog post</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-8">
           {/* Category Filter */}
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <Button
                 key={category.id}
                 variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
+                size="default"
                 onClick={() => setSelectedCategory(category.id)}
                 className="gap-2"
               >
@@ -61,27 +61,27 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
               <div
                 key={template.id}
                 className={cn(
-                  "group border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-xl hover:border-primary",
-                  previewTemplate?.id === template.id && "ring-2 ring-primary",
+                  "group border-2 rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:border-primary",
+                  previewTemplate?.id === template.id && "ring-4 ring-primary border-primary",
                 )}
                 onClick={() => setPreviewTemplate(template)}
               >
-                <div className="bg-white p-6 max-h-[700px] overflow-y-auto border-b">
+                <div className="bg-white p-8 max-h-[900px] overflow-y-auto border-b-4 border-gray-100">
                   <div dangerouslySetInnerHTML={{ __html: template.html }} />
                 </div>
-                <div className="p-4 bg-muted/30">
-                  <h3 className="font-semibold text-lg mb-1">{template.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
+                <div className="p-6 bg-muted/30">
+                  <h3 className="font-semibold text-xl mb-2">{template.name}</h3>
+                  <p className="text-base text-muted-foreground mb-4">{template.description}</p>
                   <Button
-                    size="sm"
-                    className="w-full"
+                    size="lg"
+                    className="w-full text-base"
                     onClick={(e) => {
                       e.stopPropagation()
                       onSelectTemplate(template)
                       onOpenChange(false)
                     }}
                   >
-                    Use Template
+                    Use This Template
                   </Button>
                 </div>
               </div>
@@ -89,11 +89,11 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
           </div>
 
           {previewTemplate && (
-            <div className="border-t pt-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="border-t-2 pt-8">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-xl font-semibold">{previewTemplate.name}</h3>
-                  <p className="text-sm text-muted-foreground">{previewTemplate.description}</p>
+                  <h3 className="text-2xl font-semibold">{previewTemplate.name}</h3>
+                  <p className="text-base text-muted-foreground mt-1">{previewTemplate.description}</p>
                 </div>
                 <Button
                   size="lg"
@@ -102,22 +102,23 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
                     onOpenChange(false)
                   }}
                 >
-                  <Check className="mr-2 h-4 w-4" />
+                  <Check className="mr-2 h-5 w-5" />
                   Use This Template
                 </Button>
               </div>
               <div
-                className="border rounded-lg p-8 bg-white max-h-[85vh] overflow-y-auto"
+                className="border-2 rounded-xl p-12 bg-white max-h-[90vh] overflow-y-auto"
                 dangerouslySetInnerHTML={{ __html: previewTemplate.html }}
               />
             </div>
           )}
 
           {/* Blank Template Option */}
-          <div className="border-t pt-6">
+          <div className="border-t-2 pt-8">
             <Button
               variant="outline"
-              className="w-full bg-transparent"
+              size="lg"
+              className="w-full bg-transparent text-base"
               onClick={() => {
                 onSelectTemplate({
                   id: "blank",
