@@ -111,6 +111,30 @@ export default function CreateBlogPage() {
                 <Smartphone className="h-4 w-4" />
               </Button>
             </div>
+            
+            <Button variant="outline" size="sm" onClick={() => {
+              const previewWindow = window.open('', '_blank')
+              if (previewWindow) {
+                previewWindow.document.write(`
+                  <!DOCTYPE html>
+                  <html>
+                    <head>
+                      <meta charset="UTF-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <title>${title || 'Preview'}</title>
+                      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+                    </head>
+                    <body style="margin: 0; padding: 0; font-family: 'Inter', sans-serif;">
+                      ${content}
+                    </body>
+                  </html>
+                `)
+                previewWindow.document.close()
+              }
+            }}>
+              <Monitor className="mr-2 h-4 w-4" />
+              Preview
+            </Button>
 
             <Button onClick={handleSave} disabled={saving}>
               <Save className="mr-2 h-4 w-4" />

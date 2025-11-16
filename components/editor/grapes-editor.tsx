@@ -345,8 +345,13 @@ export function GrapesEditor({ content, onChange }: GrapesEditorProps) {
 
     editor.on("change:changesCount", () => {
       const html = editor.getHtml()
-      console.log("[v0] Content changed, HTML length:", html.length)
-      onChange(html)
+      const css = editor.getCss()
+      
+      // Combine CSS and HTML into a complete document
+      const fullHtml = css ? `<style>${css}</style>\n${html}` : html
+      
+      console.log("[v0] Content changed, HTML length:", html.length, "CSS length:", css.length)
+      onChange(fullHtml)
     })
 
     editorInstanceRef.current = editor
