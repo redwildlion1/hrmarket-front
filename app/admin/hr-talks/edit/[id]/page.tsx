@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams } from 'next/navigation'
 import { apiClient, ApiError } from "@/lib/api/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Monitor, Smartphone, Save, Sparkles } from "lucide-react"
-import { TiptapEditor } from "@/components/editor/tiptap-editor"
+import { ArrowLeft, Monitor, Smartphone, Save, Sparkles } from 'lucide-react'
+import { GrapesEditor } from "@/components/editor/grapes-editor"
 import { useAdminCheck } from "@/hooks/use-admin-check"
 import { cn } from "@/lib/utils"
 import { TemplateSelector } from "@/components/editor/template-selector"
@@ -155,32 +155,18 @@ export default function EditBlogPage() {
         </div>
       </div>
 
-      {/* Editor Content */}
-      <div className="flex min-h-[calc(100vh-4rem)] items-start justify-center bg-muted/30 py-8">
-        <div
-          className={cn(
-            "mx-auto w-full bg-background shadow-lg transition-all duration-300",
-            previewMode === "mobile" ? "max-w-[375px] rounded-xl" : "max-w-[900px] rounded-lg",
-          )}
-        >
-          {/* Title Input */}
-          <div className={cn("border-b px-8 py-6", previewMode === "mobile" && "px-4 py-4")}>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter blog title..."
-              className={cn(
-                "border-0 font-bold focus-visible:ring-0",
-                previewMode === "mobile" ? "text-xl" : "text-3xl",
-              )}
-            />
-          </div>
+      {/* Title Input - Above Editor */}
+      <div className="border-b bg-background px-8 py-4">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter blog title..."
+          className="border-0 text-3xl font-bold focus-visible:ring-0"
+        />
+      </div>
 
-          {/* Editor */}
-          <div className={cn("min-h-[600px] px-8 py-6", previewMode === "mobile" && "px-4 py-4")}>
-            <TiptapEditor content={content} onChange={setContent} />
-          </div>
-        </div>
+      <div className="h-[calc(100vh-9rem)]">
+        <GrapesEditor content={content} onChange={setContent} />
       </div>
     </div>
   )

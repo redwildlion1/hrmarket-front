@@ -333,4 +333,87 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Add GrapesJS custom styling to match HR theme */
+  .grapes-editor-wrapper {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Style GrapesJS panels with HR theme */
+  :global(.gjs-one-bg) {
+    background-color: hsl(var(--background));
+  }
+
+  :global(.gjs-two-color) {
+    color: hsl(var(--foreground));
+  }
+
+  :global(.gjs-three-bg) {
+    background-color: hsl(var(--muted));
+  }
+
+  :global(.gjs-four-color) {
+    color: hsl(var(--muted-foreground));
+  }
+
+  :global(.gjs-block) {
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  :global(.gjs-block:hover) {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+  }
+
+  :global(.gjs-toolbar) {
+    background-color: hsl(var(--primary)) !important;
+    border-radius: 0.375rem;
+  }
+
+  :global(.gjs-toolbar-item) {
+    color: white !important;
+  }
+
+  :global(.gjs-selected) {
+    outline: 2px solid hsl(var(--primary)) !important;
+  }
+
+  :global(.gjs-cv-canvas) {
+    background-color: hsl(var(--muted)) !important;
+  }
+
+  :global(.gjs-frame) {
+    border-radius: 0.5rem;
+  }
+
+  :global(.gjs-pn-panel) {
+    background-color: hsl(var(--background));
+    border-right: 1px solid hsl(var(--border));
+  }
+
+  :global(.gjs-block-category .gjs-title) {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
+
+  :global(.gjs-field input),
+  :global(.gjs-field select) {
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    border-radius: 0.375rem;
+  }
+
+  :global(.gjs-field input:focus),
+  :global(.gjs-field select:focus) {
+    border-color: hsl(var(--primary));
+    outline: none;
+  }
 }
