@@ -45,9 +45,12 @@ function FirmManageContent() {
   const loadFirm = async () => {
     setLoading(true)
     try {
+      console.log("[v0] Loading firm data for user:", userInfo?.email)
       const data = await apiClient.firm.getMyFirm()
+      console.log("[v0] Firm data loaded successfully:", data)
       setFirm(data)
     } catch (error: any) {
+      console.error("[v0] Error loading firm:", error)
       setError(error)
       toast({
         title: t("common.error"),

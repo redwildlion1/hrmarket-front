@@ -651,6 +651,47 @@ export const apiClient = {
         body: JSON.stringify(data),
       })
     },
+
+    getMyFirm: async () => {
+      console.log("[v0] Calling GET /firm/my-firm")
+      const result = await fetchWithAuth<{
+        id: string
+        cui: string
+        name: string
+        description?: string
+        contactEmail: string
+        contactPhone?: string
+        linksWebsite?: string
+        linksLinkedIn?: string
+        linksFacebook?: string
+        linksTwitter?: string
+        linksInstagram?: string
+        locationAddress?: string
+        locationCountryId: number
+        locationCountyId: number
+        locationCity: string
+        locationPostalCode?: string
+        logoUrl?: string
+        coverImageUrl?: string
+        universalAnswers: Array<{
+          icon: string
+          questionDisplayTranslations: Array<{
+            languageCode: string
+            name: string
+            description?: string
+          }>
+          answerTranslations: Array<{
+            languageCode: string
+            name: string
+            description?: string
+          }>
+        }>
+      }>("/firm/my-firm", {
+        method: "GET",
+      })
+      console.log("[v0] GET /firm/my-firm response:", result)
+      return result
+    },
   },
 
   // Config endpoints
