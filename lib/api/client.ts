@@ -660,7 +660,7 @@ export const apiClient = {
     },
 
     getMyFirm: async () => {
-      console.log("[v0] Calling GET /firm/my-firm")
+      console.log("[v0] Calling GET /firms/my-firm")
       const result = await fetchWithAuth<{
         id: string
         cui: string
@@ -693,10 +693,10 @@ export const apiClient = {
             description?: string
           }>
         }>
-      }>("/firm/my-firm", {
+      }>("/firms/my-firm", {
         method: "GET",
       })
-      console.log("[v0] GET /firm/my-firm response:", result)
+      console.log("[v0] GET /firms/my-firm response:", result)
       return result
     },
   },

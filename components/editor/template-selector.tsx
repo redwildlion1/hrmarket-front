@@ -66,7 +66,7 @@ export function TemplateSelector({ open, onOpenChange, onSelectTemplate }: Templ
                 )}
                 onClick={() => setPreviewTemplate(template)}
               >
-                <div className="bg-white p-8 max-h-[900px] overflow-y-auto border-b-4 border-gray-100">
+                <div className="bg-white p-8 max-h-[50vh] overflow-y-auto border-b-4 border-gray-100">
                   <div dangerouslySetInnerHTML={{ __html: template.html }} />
                 </div>
                 <div className="p-6 bg-muted/30">

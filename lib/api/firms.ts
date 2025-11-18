@@ -130,7 +130,7 @@ export const firmsApi = {
 
   // GET /firm/my-firm
   getMyFirm: async (): Promise<FirmDetailsDto> => {
-    const response = await api.get<FirmDetailsDto>("/firm/my-firm")
+    const response = await api.get<FirmDetailsDto>("/firms/my-firm")
     return response.data
   },
 }
