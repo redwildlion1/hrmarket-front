@@ -81,12 +81,14 @@ function CreateFirmForm() {
     linksFacebook: "",
     linksTwitter: "",
     linksInstagram: "",
-    locationAddress: "",
     locationCountryId: "",
     locationCountyId: "",
     locationCityId: "",
+    locationAddress: "",
     locationPostalCode: "",
   })
+
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const loadUniversalQuestions = async () => {
@@ -190,47 +192,6 @@ function CreateFirmForm() {
     if (isSubmitting) {
       console.log("[v0] Blocked: Already submitting")
       return
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const phoneRegex = /^[\d\s\-+$$$$]+$/
-    const urlRegex = /^https?:\/\/.+/
-
-    if (!emailRegex.test(formData.contactEmail)) {
-      toast({
-        title: t("common.validationError"),
-        description: t("firm.invalidEmail"),
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (formData.contactPhone && !phoneRegex.test(formData.contactPhone)) {
-      toast({
-        title: t("common.validationError"),
-        description: t("firm.invalidPhone"),
-        variant: "destructive",
-      })
-      return
-    }
-
-    const urlFields = [
-      { value: formData.linksWebsite, name: "website" },
-      { value: formData.linksLinkedIn, name: "LinkedIn" },
-      { value: formData.linksFacebook, name: "Facebook" },
-      { value: formData.linksTwitter, name: "Twitter" },
-      { value: formData.linksInstagram, name: "Instagram" },
-    ]
-
-    for (const field of urlFields) {
-      if (field.value && !urlRegex.test(field.value)) {
-        toast({
-          title: t("common.validationError"),
-          description: `${t("firm.invalidUrl")} (${field.name})`,
-          variant: "destructive",
-        })
-        return
-      }
     }
 
     console.log("[v0] Starting firm creation submission")
@@ -338,14 +299,87 @@ function CreateFirmForm() {
     if (step > 1) setStep(step - 1)
   }
 
+  const validateEmail = (email: string): string => {
+    if (!email) return ""
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email) ? "" : t("firm.invalidEmail")
+  }
+
+  const validatePhone = (phone: string): string => {
+    if (!phone) return ""
+    const phoneRegex = /^[\d\s+()-]+$/
+    return phoneRegex.test(phone) && phone.replace(/\D/g, "").length >= 9 ? "" : t("firm.invalidPhone")
+  }
+
+  const validateUrl = (url: string): string => {
+    if (!url) return ""
+    try {
+      const urlObj = new URL(url)
+      return urlObj.protocol === "http:" || urlObj.protocol === "https:" ? "" : t("firm.invalidUrl")
+    } catch {
+      return t("firm.invalidUrl")
+    }
+  }
+
+  const handleEmailChange = (value: string) => {
+    setFormData({ ...formData, contactEmail: value })
+    const error = validateEmail(value)
+    setValidationErrors({ ...validationErrors, contactEmail: error })
+  }
+
+  const handlePhoneChange = (value: string) => {
+    setFormData({ ...formData, contactPhone: value })
+    const error = validatePhone(value)
+    setValidationErrors({ ...validationErrors, contactPhone: error })
+  }
+
+  const handleWebsiteChange = (value: string) => {
+    setFormData({ ...formData, linksWebsite: value })
+    const error = validateUrl(value)
+    setValidationErrors({ ...validationErrors, linksWebsite: error })
+  }
+
+  const handleLinkedInChange = (value: string) => {
+    setFormData({ ...formData, linksLinkedIn: value })
+    const error = validateUrl(value)
+    setValidationErrors({ ...validationErrors, linksLinkedIn: error })
+  }
+
+  const handleFacebookChange = (value: string) => {
+    setFormData({ ...formData, linksFacebook: value })
+    const error = validateUrl(value)
+    setValidationErrors({ ...validationErrors, linksFacebook: error })
+  }
+
+  const handleTwitterChange = (value: string) => {
+    setFormData({ ...formData, linksTwitter: value })
+    const error = validateUrl(value)
+    setValidationErrors({ ...validationErrors, linksTwitter: error })
+  }
+
+  const handleInstagramChange = (value: string) => {
+    setFormData({ ...formData, linksInstagram: value })
+    const error = validateUrl(value)
+    setValidationErrors({ ...validationErrors, linksInstagram: error })
+  }
+
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.cui && formData.name && formData.type
+        return formData.cui.trim() !== "" && formData.name.trim() !== "" && formData.type !== ""
       case 2:
-        return formData.contactEmail
+        const emailValid = formData.contactEmail && !validationErrors.contactEmail
+        const phoneValid = !formData.contactPhone || !validationErrors.contactPhone
+        const websiteValid = !formData.linksWebsite || !validationErrors.linksWebsite
+        const linkedInValid = !formData.linksLinkedIn || !validationErrors.linksLinkedIn
+        const facebookValid = !formData.linksFacebook || !validationErrors.linksFacebook
+        const twitterValid = !formData.linksTwitter || !validationErrors.linksTwitter
+        const instagramValid = !formData.linksInstagram || !validationErrors.linksInstagram
+        return (
+          emailValid && phoneValid && websiteValid && linkedInValid && facebookValid && twitterValid && instagramValid
+        )
       case 3:
-        return formData.locationCountryId && formData.locationCountyId && formData.locationCityId
+        return formData.locationCountryId !== "" && formData.locationCountyId !== "" && formData.locationCityId !== ""
       case 4:
         const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
         return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
@@ -492,9 +526,10 @@ function CreateFirmForm() {
                     type="email"
                     placeholder="contact@company.com"
                     value={formData.contactEmail}
-                    onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                    onChange={(e) => handleEmailChange(e.target.value)}
                     required
                     disabled={loading}
+                    error={validationErrors.contactEmail}
                   />
 
                   <FormInput
@@ -503,8 +538,9 @@ function CreateFirmForm() {
                     type="tel"
                     placeholder="+40 123 456 789"
                     value={formData.contactPhone}
-                    onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
                     disabled={loading}
+                    error={validationErrors.contactPhone}
                   />
 
                   <FormInput
@@ -513,8 +549,9 @@ function CreateFirmForm() {
                     type="url"
                     placeholder="https://company.com"
                     value={formData.linksWebsite}
-                    onChange={(e) => setFormData({ ...formData, linksWebsite: e.target.value })}
+                    onChange={(e) => handleWebsiteChange(e.target.value)}
                     disabled={loading}
+                    error={validationErrors.linksWebsite}
                   />
 
                   <div className="grid grid-cols-2 gap-4">
@@ -524,8 +561,9 @@ function CreateFirmForm() {
                       type="url"
                       placeholder="https://linkedin.com/company/..."
                       value={formData.linksLinkedIn}
-                      onChange={(e) => setFormData({ ...formData, linksLinkedIn: e.target.value })}
+                      onChange={(e) => handleLinkedInChange(e.target.value)}
                       disabled={loading}
+                      error={validationErrors.linksLinkedIn}
                     />
 
                     <FormInput
@@ -534,8 +572,9 @@ function CreateFirmForm() {
                       type="url"
                       placeholder="https://facebook.com/..."
                       value={formData.linksFacebook}
-                      onChange={(e) => setFormData({ ...formData, linksFacebook: e.target.value })}
+                      onChange={(e) => handleFacebookChange(e.target.value)}
                       disabled={loading}
+                      error={validationErrors.linksFacebook}
                     />
                   </div>
 
@@ -546,8 +585,9 @@ function CreateFirmForm() {
                       type="url"
                       placeholder="https://twitter.com/..."
                       value={formData.linksTwitter}
-                      onChange={(e) => setFormData({ ...formData, linksTwitter: e.target.value })}
+                      onChange={(e) => handleTwitterChange(e.target.value)}
                       disabled={loading}
+                      error={validationErrors.linksTwitter}
                     />
 
                     <FormInput
@@ -556,8 +596,9 @@ function CreateFirmForm() {
                       type="url"
                       placeholder="https://instagram.com/..."
                       value={formData.linksInstagram}
-                      onChange={(e) => setFormData({ ...formData, linksInstagram: e.target.value })}
+                      onChange={(e) => handleInstagramChange(e.target.value)}
                       disabled={loading}
+                      error={validationErrors.linksInstagram}
                     />
                   </div>
                 </motion.div>
