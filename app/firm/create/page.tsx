@@ -190,10 +190,15 @@ function CreateFirmForm() {
   }
 
   const handleSubmit = async () => {
-    if (!validateStep(step)) return
+    console.log("[v0] handleSubmit called, step:", step)
+    if (!validateStep(step)) {
+      console.log("[v0] validateStep failed for step:", step)
+      return
+    }
 
     setIsSubmitting(true)
     setLoading(true)
+    console.log("[v0] Starting form submission")
 
     try {
       const universalQuestionAnswers = Object.entries(questionAnswers).map(([questionId, optionId]) => ({
@@ -250,11 +255,15 @@ function CreateFirmForm() {
       console.log("[v0] Redirecting to /firm/manage")
       router.push("/firm/manage")
     } catch (error: any) {
-      console.log("[v0] Error creating firm", { error })
+      console.log("[v0] Error creating firm", { error, errorType: typeof error, errorKeys: Object.keys(error || {}) })
 
-      // setError(error)
+      // Ensure loading states are reset in catch block
+      setIsSubmitting(false)
+      setLoading(false)
+      console.log("[v0] Reset isSubmitting and loading to false")
 
       if (error.validationErrors) {
+        console.log("[v0] Handling validation errors:", error.validationErrors)
         const errorMessages: string[] = []
 
         Object.entries(error.validationErrors).forEach(([field, messages]) => {
@@ -264,6 +273,7 @@ function CreateFirmForm() {
           })
         })
 
+        console.log("[v0] Showing validation error toast with messages:", errorMessages)
         toast({
           title: t("firm.validationErrors"),
           description: (
@@ -279,15 +289,21 @@ function CreateFirmForm() {
           duration: 8000,
         })
       } else {
+        console.log("[v0] Showing generic error toast")
         toast({
           title: t("common.error"),
           description: error.message || t("firm.createError"),
           variant: "destructive",
         })
       }
+
+      // Do NOT redirect on error - user should stay on form
+      console.log("[v0] Error handled, staying on current page")
     } finally {
+      // Always reset loading states in finally block
       setIsSubmitting(false)
       setLoading(false)
+      console.log("[v0] Finally block: reset isSubmitting and loading to false")
     }
   }
 
