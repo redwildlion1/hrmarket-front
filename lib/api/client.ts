@@ -285,8 +285,35 @@ export const apiClient = {
 
   // Company/Firm endpoints
   firms: {
-    create: async (data: any) => {
-      return fetchWithAuth<{ id: string }>("/firm/create", {
+    create: async (data: {
+      cui: string
+      name: string
+      type: string
+      description?: string
+      contact: {
+        email: string
+        phone?: string | null
+      }
+      links: {
+        website?: string | null
+        linkedIn?: string | null
+        facebook?: string | null
+        twitter?: string | null
+        instagram?: string | null
+      }
+      location: {
+        countryId: string
+        countyId: string
+        cityId: string
+        address?: string | null
+        postalCode?: string | null
+      }
+      universalQuestionAnswers: Array<{
+        universalQuestionId: string
+        selectedOptionId: string
+      }>
+    }) => {
+      return fetchWithAuth<{ firmId: string; firmName: string; message: string }>("/firm/create", {
         method: "POST",
         body: JSON.stringify(data),
       })

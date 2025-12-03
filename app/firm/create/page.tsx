@@ -192,21 +192,81 @@ function CreateFirmForm() {
       return
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const phoneRegex = /^[\d\s\-+$$$$]+$/
+    const urlRegex = /^https?:\/\/.+/
+
+    if (!emailRegex.test(formData.contactEmail)) {
+      toast({
+        title: t("common.validationError"),
+        description: t("firm.invalidEmail"),
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (formData.contactPhone && !phoneRegex.test(formData.contactPhone)) {
+      toast({
+        title: t("common.validationError"),
+        description: t("firm.invalidPhone"),
+        variant: "destructive",
+      })
+      return
+    }
+
+    const urlFields = [
+      { value: formData.linksWebsite, name: "website" },
+      { value: formData.linksLinkedIn, name: "LinkedIn" },
+      { value: formData.linksFacebook, name: "Facebook" },
+      { value: formData.linksTwitter, name: "Twitter" },
+      { value: formData.linksInstagram, name: "Instagram" },
+    ]
+
+    for (const field of urlFields) {
+      if (field.value && !urlRegex.test(field.value)) {
+        toast({
+          title: t("common.validationError"),
+          description: `${t("firm.invalidUrl")} (${field.name})`,
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
     console.log("[v0] Starting firm creation submission")
     setIsSubmitting(true)
     setLoading(true)
     clearError()
 
     try {
-      const universalQuestionAnswers: UniversalQuestionAnswer[] = Object.entries(questionAnswers).map(
-        ([questionId, optionId]) => ({
-          universalQuestionId: questionId,
-          selectedOptionId: optionId,
-        }),
-      )
+      const universalQuestionAnswers = Object.entries(questionAnswers).map(([questionId, optionId]) => ({
+        universalQuestionId: questionId,
+        selectedOptionId: optionId,
+      }))
 
       const submitData = {
-        ...formData,
+        cui: formData.cui,
+        name: formData.name,
+        type: formData.type, // Send as string, not object
+        description: formData.description,
+        contact: {
+          email: formData.contactEmail,
+          phone: formData.contactPhone || null,
+        },
+        links: {
+          website: formData.linksWebsite || null,
+          linkedIn: formData.linksLinkedIn || null,
+          facebook: formData.linksFacebook || null,
+          twitter: formData.linksTwitter || null,
+          instagram: formData.linksInstagram || null,
+        },
+        location: {
+          countryId: formData.locationCountryId,
+          countyId: formData.locationCountyId,
+          cityId: formData.locationCityId,
+          address: formData.locationAddress || null,
+          postalCode: formData.locationPostalCode || null,
+        },
         universalQuestionAnswers,
       }
 

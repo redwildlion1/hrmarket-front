@@ -335,6 +335,9 @@ export const translations = {
     "firm.validationErrorDesc": "Te rugăm să corectezi erorile de mai jos și să încerci din nou.",
     "firm.questionMissingOptions": "Această întrebare nu are opțiuni configurate.",
     "firm.noAnswer": "Niciun răspuns",
+    "firm.invalidEmail": "Adresa de email nu este validă",
+    "firm.invalidPhone": "Numărul de telefon nu este valid",
+    "firm.invalidUrl": "URL-ul nu este valid. Trebuie să înceapă cu http:// sau https://",
 
     // Admin
     "admin.dashboard": "Panou Administrare",
@@ -759,6 +762,9 @@ export const translations = {
     "firm.validationErrorDesc": "Please correct the errors below and try again.",
     "firm.questionMissingOptions": "This question has no configured options.",
     "firm.noAnswer": "No answer",
+    "firm.invalidEmail": "Email address is not valid",
+    "firm.invalidPhone": "Phone number is not valid",
+    "firm.invalidUrl": "URL is not valid. Must start with http:// or https://",
 
     // Admin
     "admin.dashboard": "Admin Dashboard",
