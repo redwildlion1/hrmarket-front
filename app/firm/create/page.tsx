@@ -57,8 +57,9 @@ function CreateFirmForm() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [countries, setCountries] = useState<Array<{ id: number; name: string }>>([])
-  const [counties, setCounties] = useState<Array<{ id: number; name: string }>>([])
+  const [countries, setCountries] = useState<Array<{ id: string; name: string }>>([])
+  const [counties, setCounties] = useState<Array<{ id: string; name: string }>>([])
+  const [cities, setCities] = useState<Array<{ id: string; name: string }>>([])
   const [firmTypesData, setFirmTypesData] = useState<{
     ro: Array<{ value: string; label: string; description: string }>
     en: Array<{ value: string; label: string; description: string }>
@@ -81,9 +82,9 @@ function CreateFirmForm() {
     linksTwitter: "",
     linksInstagram: "",
     locationAddress: "",
-    locationCountryId: 0,
-    locationCountyId: 0,
-    locationCity: "",
+    locationCountryId: "",
+    locationCountyId: "",
+    locationCityId: "",
     locationPostalCode: "",
   })
 
@@ -125,17 +126,37 @@ function CreateFirmForm() {
 
   useEffect(() => {
     const loadCounties = async () => {
-      if (formData.locationCountryId > 0) {
+      if (formData.locationCountryId) {
         try {
           const data = await apiClient.location.getCounties(formData.locationCountryId)
           setCounties(data)
+          setCities([])
         } catch (error) {
           console.error("Failed to load counties:", error)
         }
+      } else {
+        setCounties([])
+        setCities([])
       }
     }
     loadCounties()
   }, [formData.locationCountryId])
+
+  useEffect(() => {
+    const loadCities = async () => {
+      if (formData.locationCountyId) {
+        try {
+          const data = await apiClient.location.getCities(formData.locationCountyId)
+          setCities(data)
+        } catch (error) {
+          console.error("Failed to load cities:", error)
+        }
+      } else {
+        setCities([])
+      }
+    }
+    loadCities()
+  }, [formData.locationCountyId])
 
   const firmTypes = firmTypesData ? (language === "en" ? firmTypesData.en : firmTypesData.ro) : []
 
@@ -264,7 +285,7 @@ function CreateFirmForm() {
       case 2:
         return formData.contactEmail
       case 3:
-        return formData.locationCountryId > 0 && formData.locationCountyId > 0 && formData.locationCity
+        return formData.locationCountryId && formData.locationCountyId && formData.locationCityId
       case 4:
         const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
         return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
@@ -503,9 +524,9 @@ function CreateFirmForm() {
                   <div className="space-y-2">
                     <Label htmlFor="country">{t("firm.country")}</Label>
                     <Select
-                      value={formData.locationCountryId.toString()}
+                      value={formData.locationCountryId}
                       onValueChange={(value) =>
-                        setFormData({ ...formData, locationCountryId: Number.parseInt(value), locationCountyId: 0 })
+                        setFormData({ ...formData, locationCountryId: value, locationCountyId: "", locationCityId: "" })
                       }
                     >
                       <SelectTrigger>
@@ -513,7 +534,7 @@ function CreateFirmForm() {
                       </SelectTrigger>
                       <SelectContent>
                         {countries.map((country) => (
-                          <SelectItem key={country.id} value={country.id.toString()}>
+                          <SelectItem key={country.id} value={country.id}>
                             {country.name}
                           </SelectItem>
                         ))}
@@ -524,16 +545,22 @@ function CreateFirmForm() {
                   <div className="space-y-2">
                     <Label htmlFor="county">{t("firm.county")}</Label>
                     <Select
-                      value={formData.locationCountyId.toString()}
-                      onValueChange={(value) => setFormData({ ...formData, locationCountyId: Number.parseInt(value) })}
+                      value={formData.locationCountyId}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, locationCountyId: value, locationCityId: "" })
+                      }
                       disabled={!formData.locationCountryId}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={t("firm.selectCounty")} />
+                        <SelectValue
+                          placeholder={
+                            formData.locationCountryId ? t("firm.selectCounty") : t("firm.selectCountyFirst")
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {counties.map((county) => (
-                          <SelectItem key={county.id} value={county.id.toString()}>
+                          <SelectItem key={county.id} value={county.id}>
                             {county.name}
                           </SelectItem>
                         ))}
@@ -541,15 +568,27 @@ function CreateFirmForm() {
                     </Select>
                   </div>
 
-                  <FormInput
-                    id="locationCity"
-                    label={t("firm.city")}
-                    placeholder={t("firm.cityPlaceholder")}
-                    value={formData.locationCity}
-                    onChange={(e) => setFormData({ ...formData, locationCity: e.target.value })}
-                    required
-                    disabled={loading}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="city">{t("firm.city")}</Label>
+                    <Select
+                      value={formData.locationCityId}
+                      onValueChange={(value) => setFormData({ ...formData, locationCityId: value })}
+                      disabled={!formData.locationCountyId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={formData.locationCountyId ? t("firm.selectCity") : t("firm.selectCityFirst")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={city.id}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   <FormInput
                     id="locationAddress"
@@ -563,7 +602,7 @@ function CreateFirmForm() {
                   <FormInput
                     id="locationPostalCode"
                     label={t("firm.postalCode")}
-                    placeholder="123456"
+                    placeholder="012345"
                     value={formData.locationPostalCode}
                     onChange={(e) => setFormData({ ...formData, locationPostalCode: e.target.value })}
                     disabled={loading}
@@ -671,17 +710,28 @@ function CreateFirmForm() {
 
                   <div className="space-y-4">
                     <div className="rounded-lg border p-4 space-y-2">
-                      <h4 className="font-semibold text-sm text-muted-foreground">{t("firm.step1Title")}</h4>
-                      <div className="space-y-1 text-sm">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        {t("firm.step3Title")}
+                      </h4>
+                      <div className="space-y-2 text-sm">
                         <p>
-                          <span className="font-medium">{t("firm.cui")}:</span> {formData.cui}
+                          <span className="font-medium">{t("firm.country")}:</span>{" "}
+                          {countries.find((c) => c.id === formData.locationCountryId)?.name}
                         </p>
                         <p>
-                          <span className="font-medium">{t("firm.name")}:</span> {formData.name}
+                          <span className="font-medium">{t("firm.county")}:</span>{" "}
+                          {counties.find((c) => c.id === formData.locationCountyId)?.name}
                         </p>
                         <p>
-                          <span className="font-medium">{t("firm.type")}:</span>{" "}
-                          {firmTypes.find((t) => t.value === formData.type)?.label}
+                          <span className="font-medium">{t("firm.city")}:</span>{" "}
+                          {cities.find((c) => c.id === formData.locationCityId)?.name}
+                        </p>
+                        <p>
+                          <span className="font-medium">{t("firm.address")}:</span> {formData.locationAddress}
+                        </p>
+                        <p>
+                          <span className="font-medium">{t("firm.postalCode")}:</span> {formData.locationPostalCode}
                         </p>
                       </div>
                     </div>
@@ -706,24 +756,18 @@ function CreateFirmForm() {
                     </div>
 
                     <div className="rounded-lg border p-4 space-y-2">
-                      <h4 className="font-semibold text-sm text-muted-foreground">{t("firm.step3Title")}</h4>
+                      <h4 className="font-semibold text-sm text-muted-foreground">{t("firm.step1Title")}</h4>
                       <div className="space-y-1 text-sm">
                         <p>
-                          <span className="font-medium">{t("firm.country")}:</span>{" "}
-                          {countries.find((c) => c.id === formData.locationCountryId)?.name}
+                          <span className="font-medium">{t("firm.cui")}:</span> {formData.cui}
                         </p>
                         <p>
-                          <span className="font-medium">{t("firm.county")}:</span>{" "}
-                          {counties.find((c) => c.id === formData.locationCountyId)?.name}
+                          <span className="font-medium">{t("firm.name")}:</span> {formData.name}
                         </p>
                         <p>
-                          <span className="font-medium">{t("firm.city")}:</span> {formData.locationCity}
+                          <span className="font-medium">{t("firm.type")}:</span>{" "}
+                          {firmTypes.find((t) => t.value === formData.type)?.label}
                         </p>
-                        {formData.locationAddress && (
-                          <p>
-                            <span className="font-medium">{t("firm.address")}:</span> {formData.locationAddress}
-                          </p>
-                        )}
                       </div>
                     </div>
 

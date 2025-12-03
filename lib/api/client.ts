@@ -383,11 +383,15 @@ export const apiClient = {
   // Location endpoints
   location: {
     getCountries: async () => {
-      return fetchWithAuth<Array<{ id: number; name: string }>>("/location-elements/countries")
+      return fetchWithAuth<Array<{ id: string; name: string }>>("/location-elements/countries")
     },
 
-    getCounties: async (countryId: number) => {
-      return fetchWithAuth<Array<{ id: number; name: string }>>(`/location-elements/${countryId}/counties`)
+    getCounties: async (countryId: string) => {
+      return fetchWithAuth<Array<{ id: string; name: string }>>(`/location-elements/${countryId}/counties`)
+    },
+
+    getCities: async (countyId: string) => {
+      return fetchWithAuth<Array<{ id: string; name: string }>>(`/location-elements/${countyId}/cities`)
     },
 
     getLocationSimple: async (countryId: number, countyId: number) => {

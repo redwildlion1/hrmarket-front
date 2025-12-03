@@ -5,8 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useLanguage } from "@/lib/i18n/language-context"
-import type { CompanyFormData, Country, County } from "@/lib/types/company"
-import { getCounties } from "@/lib/api/company"
+import type { CompanyFormData, Country } from "@/lib/types/company"
+import { apiClient } from "@/lib/api/client"
 
 interface Step4LocationProps {
   data: Partial<CompanyFormData>
@@ -16,20 +16,40 @@ interface Step4LocationProps {
 
 export function Step4Location({ data, onChange, countries }: Step4LocationProps) {
   const { t } = useLanguage()
-  const [counties, setCounties] = useState<County[]>([])
+  const [counties, setCounties] = useState<Array<{ id: string; name: string }>>([])
+  const [cities, setCities] = useState<Array<{ id: string; name: string }>>([])
   const [loadingCounties, setLoadingCounties] = useState(false)
+  const [loadingCities, setLoadingCities] = useState(false)
 
   useEffect(() => {
     if (data.locationCountryId) {
       setLoadingCounties(true)
-      getCounties(data.locationCountryId)
-        .then(setCounties)
+      apiClient.location
+        .getCounties(data.locationCountryId)
+        .then((data) => {
+          setCounties(data)
+          setCities([])
+        })
         .catch(console.error)
         .finally(() => setLoadingCounties(false))
     } else {
       setCounties([])
+      setCities([])
     }
   }, [data.locationCountryId])
+
+  useEffect(() => {
+    if (data.locationCountyId) {
+      setLoadingCities(true)
+      apiClient.location
+        .getCities(data.locationCountyId)
+        .then(setCities)
+        .catch(console.error)
+        .finally(() => setLoadingCities(false))
+    } else {
+      setCities([])
+    }
+  }, [data.locationCountyId])
 
   return (
     <div className="space-y-4">
@@ -45,9 +65,9 @@ export function Step4Location({ data, onChange, countries }: Step4LocationProps)
       <div className="space-y-2">
         <Label htmlFor="country">{t("company.register.country")} *</Label>
         <Select
-          value={data.locationCountryId?.toString()}
+          value={data.locationCountryId}
           onValueChange={(value) =>
-            onChange({ ...data, locationCountryId: Number.parseInt(value), locationCountyId: 0 })
+            onChange({ ...data, locationCountryId: value, locationCountyId: "", locationCityId: "" })
           }
         >
           <SelectTrigger>
@@ -55,7 +75,7 @@ export function Step4Location({ data, onChange, countries }: Step4LocationProps)
           </SelectTrigger>
           <SelectContent>
             {countries.map((country) => (
-              <SelectItem key={country.id} value={country.id.toString()}>
+              <SelectItem key={country.id} value={country.id}>
                 {country.name}
               </SelectItem>
             ))}
@@ -66,16 +86,16 @@ export function Step4Location({ data, onChange, countries }: Step4LocationProps)
       <div className="space-y-2">
         <Label htmlFor="county">{t("company.register.county")} *</Label>
         <Select
-          value={data.locationCountyId?.toString()}
-          onValueChange={(value) => onChange({ ...data, locationCountyId: Number.parseInt(value) })}
+          value={data.locationCountyId}
+          onValueChange={(value) => onChange({ ...data, locationCountyId: value, locationCityId: "" })}
           disabled={!data.locationCountryId || loadingCounties}
         >
           <SelectTrigger>
-            <SelectValue placeholder={t("company.register.selectCounty")} />
+            <SelectValue placeholder={data.locationCountryId ? t("firm.selectCounty") : t("firm.selectCountyFirst")} />
           </SelectTrigger>
           <SelectContent>
             {counties.map((county) => (
-              <SelectItem key={county.id} value={county.id.toString()}>
+              <SelectItem key={county.id} value={county.id}>
                 {county.name}
               </SelectItem>
             ))}
@@ -85,12 +105,22 @@ export function Step4Location({ data, onChange, countries }: Step4LocationProps)
 
       <div className="space-y-2">
         <Label htmlFor="city">{t("company.register.city")} *</Label>
-        <Input
-          id="city"
-          value={data.locationCity || ""}
-          onChange={(e) => onChange({ ...data, locationCity: e.target.value })}
-          required
-        />
+        <Select
+          value={data.locationCityId}
+          onValueChange={(value) => onChange({ ...data, locationCityId: value })}
+          disabled={!data.locationCountyId || loadingCities}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={data.locationCountyId ? t("firm.selectCity") : t("firm.selectCityFirst")} />
+          </SelectTrigger>
+          <SelectContent>
+            {cities.map((city) => (
+              <SelectItem key={city.id} value={city.id}>
+                {city.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

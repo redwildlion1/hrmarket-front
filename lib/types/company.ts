@@ -18,9 +18,9 @@ export interface CompanyFormData {
 
   // Location
   locationAddress?: string
-  locationCountryId: number
-  locationCountyId: number
-  locationCity: string
+  locationCountryId: string
+  locationCountyId: string
+  locationCityId: string
   locationPostalCode?: string
 }
 
@@ -30,12 +30,18 @@ export interface CompanyType {
 }
 
 export interface Country {
-  id: number
+  id: string
   name: string
 }
 
 export interface County {
-  id: number
+  id: string
   name: string
-  countryId: number
+  countryId: string
+}
+
+export interface City {
+  id: string
+  name: string
+  countyId: string
 }
