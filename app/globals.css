@@ -334,6 +334,25 @@
     display: none;
   }
 
+  /* Add carousel scroll animation */
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+  }
+
+  .animate-scroll.paused {
+    animation-play-state: paused;
+  }
+  /* </CHANGE> */
+
   /* Add GrapesJS custom styling to match HR theme */
   .grapes-editor-wrapper {
     height: 100%;
@@ -373,60 +392,60 @@
   /* </CHANGE> */
 
   /* Style GrapesJS panels with HR theme */
-  :global(.gjs-one-bg) {
+  .gjs-one-bg {
     background-color: hsl(var(--background));
   }
 
-  :global(.gjs-two-color) {
+  .gjs-two-color {
     color: hsl(var(--foreground));
   }
 
-  :global(.gjs-three-bg) {
+  .gjs-three-bg {
     background-color: hsl(var(--muted));
   }
 
-  :global(.gjs-four-color) {
+  .gjs-four-color {
     color: hsl(var(--muted-foreground));
   }
 
-  :global(.gjs-block) {
+  .gjs-block {
     border: 1px solid hsl(var(--border));
     border-radius: 0.5rem;
     transition: all 0.2s;
   }
 
-  :global(.gjs-block:hover) {
+  .gjs-block:hover {
     border-color: hsl(var(--primary));
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
   }
 
-  :global(.gjs-toolbar) {
+  .gjs-toolbar {
     background-color: hsl(var(--primary)) !important;
     border-radius: 0.375rem;
   }
 
-  :global(.gjs-toolbar-item) {
+  .gjs-toolbar-item {
     color: white !important;
   }
 
-  :global(.gjs-selected) {
+  .gjs-selected {
     outline: 2px solid hsl(var(--primary)) !important;
   }
 
-  :global(.gjs-cv-canvas) {
+  .gjs-cv-canvas {
     background-color: hsl(var(--muted)) !important;
   }
 
-  :global(.gjs-frame) {
+  .gjs-frame {
     border-radius: 0.5rem;
   }
 
-  :global(.gjs-pn-panel) {
+  .gjs-pn-panel {
     background-color: hsl(var(--background));
     border-right: 1px solid hsl(var(--border));
   }
 
-  :global(.gjs-block-category .gjs-title) {
+  .gjs-block-category .gjs-title {
     background-color: hsl(var(--muted));
     color: hsl(var(--foreground));
     font-weight: 600;
@@ -435,8 +454,8 @@
     margin-bottom: 0.5rem;
   }
 
-  :global(.gjs-field input),
-  :global(.gjs-field select) {
+  .gjs-field input,
+  .gjs-field select {
     background-color: hsl(var(--background));
     border: 1px solid hsl(var(--border));
     color: hsl(var(--foreground));
@@ -444,15 +463,15 @@
     padding: 0.5rem;
   }
 
-  :global(.gjs-field input:focus),
-  :global(.gjs-field select:focus) {
+  .gjs-field input:focus,
+  .gjs-field select:focus {
     border-color: hsl(var(--primary));
     outline: none;
     ring: 2px solid hsl(var(--ring));
   }
 
   /* Style the panel buttons */
-  :global(.panel__top button) {
+  .panel__top button {
     background: transparent;
     border: 1px solid hsl(var(--border));
     color: hsl(var(--foreground));
@@ -465,34 +484,34 @@
     justify-content: center;
   }
 
-  :global(.panel__top button:hover) {
+  .panel__top button:hover {
     background-color: hsl(var(--muted));
     border-color: hsl(var(--primary));
   }
 
-  :global(.panel__top button.active) {
+  .panel__top button.active {
     background-color: hsl(var(--primary));
     color: white;
     border-color: hsl(var(--primary));
   }
 
-  :global(.gjs-block-category) {
+  .gjs-block-category {
     margin-bottom: 1rem;
   }
 
-  :global(.gjs-blocks-c) {
+  .gjs-blocks-c {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 0.75rem;
     padding: 0.5rem 0;
   }
 
-  :global(.gjs-sm-sector) {
+  .gjs-sm-sector {
     border-bottom: 1px solid hsl(var(--border));
     padding: 0.75rem 0;
   }
 
-  :global(.gjs-sm-sector .gjs-sm-title) {
+  .gjs-sm-sector .gjs-sm-title {
     background-color: hsl(var(--muted));
     color: hsl(var(--foreground));
     font-weight: 600;
@@ -502,22 +521,22 @@
     user-select: none;
   }
 
-  :global(.gjs-sm-properties) {
+  .gjs-sm-properties {
     padding: 0.75rem 0;
   }
 
-  :global(.gjs-layer) {
+  .gjs-layer {
     padding: 0.5rem;
     border-radius: 0.375rem;
     margin-bottom: 0.25rem;
     transition: all 0.2s;
   }
 
-  :global(.gjs-layer:hover) {
+  .gjs-layer:hover {
     background-color: hsl(var(--muted));
   }
 
-  :global(.gjs-layer.gjs-selected) {
+  .gjs-layer.gjs-selected {
     background-color: hsl(var(--primary) / 0.1);
     border-left: 3px solid hsl(var(--primary));
   }
@@ -525,18 +544,18 @@
 
   /* Add GrapesJS canvas iframe styling to preserve inline styles */
   /* Ensure GrapesJS canvas preserves all inline styles from templates */
-  :global(.gjs-frame-wrapper iframe) {
+  .gjs-frame-wrapper iframe {
     background: white;
   }
 
   /* Global styles for GrapesJS canvas - these apply inside the iframe */
-  :global([data-gjs-type]) {
+  [data-gjs-type] {
     /* Ensure all layout properties work */
     box-sizing: border-box;
   }
 
   /* Make sure the canvas body has proper defaults */
-  :global(.gjs-dashed *) {
+  .gjs-dashed * {
     box-sizing: border-box;
   }
   /* </CHANGE> */
