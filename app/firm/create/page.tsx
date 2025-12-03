@@ -302,65 +302,69 @@ function CreateFirmForm() {
   const validateEmail = (email: string): string => {
     if (!email) return ""
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email) ? "" : t("firm.invalidEmail")
+    return emailRegex.test(email) ? "" : t("firm.validation.invalidEmail")
   }
 
   const validatePhone = (phone: string): string => {
     if (!phone) return ""
-    const phoneRegex = /^[\d\s+()-]+$/
-    return phoneRegex.test(phone) && phone.replace(/\D/g, "").length >= 9 ? "" : t("firm.invalidPhone")
+    const phoneRegex = /^[\d\s+\-$$$$]+$/
+    if (!phoneRegex.test(phone)) {
+      return t("firm.validation.invalidPhone")
+    }
+    const digits = phone.replace(/\D/g, "")
+    return digits.length >= 9 ? "" : t("firm.validation.invalidPhone")
   }
 
   const validateUrl = (url: string): string => {
     if (!url) return ""
     try {
-      const urlObj = new URL(url)
-      return urlObj.protocol === "http:" || urlObj.protocol === "https:" ? "" : t("firm.invalidUrl")
+      new URL(url)
+      return ""
     } catch {
-      return t("firm.invalidUrl")
+      return t("firm.validation.invalidUrl")
     }
   }
 
   const handleEmailChange = (value: string) => {
     setFormData({ ...formData, contactEmail: value })
     const error = validateEmail(value)
-    setValidationErrors({ ...validationErrors, contactEmail: error })
+    setValidationErrors((prev) => ({ ...prev, contactEmail: error }))
   }
 
   const handlePhoneChange = (value: string) => {
     setFormData({ ...formData, contactPhone: value })
     const error = validatePhone(value)
-    setValidationErrors({ ...validationErrors, contactPhone: error })
+    setValidationErrors((prev) => ({ ...prev, contactPhone: error }))
   }
 
   const handleWebsiteChange = (value: string) => {
     setFormData({ ...formData, linksWebsite: value })
     const error = validateUrl(value)
-    setValidationErrors({ ...validationErrors, linksWebsite: error })
+    setValidationErrors((prev) => ({ ...prev, linksWebsite: error }))
   }
 
   const handleLinkedInChange = (value: string) => {
     setFormData({ ...formData, linksLinkedIn: value })
     const error = validateUrl(value)
-    setValidationErrors({ ...validationErrors, linksLinkedIn: error })
+    setValidationErrors((prev) => ({ ...prev, linksLinkedIn: error }))
   }
 
   const handleFacebookChange = (value: string) => {
     setFormData({ ...formData, linksFacebook: value })
     const error = validateUrl(value)
-    setValidationErrors({ ...validationErrors, linksFacebook: error })
+    setValidationErrors((prev) => ({ ...prev, linksFacebook: error }))
   }
 
   const handleTwitterChange = (value: string) => {
     setFormData({ ...formData, linksTwitter: value })
     const error = validateUrl(value)
-    setValidationErrors({ ...validationErrors, linksTwitter: error })
+    setValidationErrors((prev) => ({ ...prev, linksTwitter: error }))
   }
 
   const handleInstagramChange = (value: string) => {
     setFormData({ ...formData, linksInstagram: value })
     const error = validateUrl(value)
-    setValidationErrors({ ...validationErrors, linksInstagram: error })
+    setValidationErrors((prev) => ({ ...prev, linksInstagram: error }))
   }
 
   const canProceed = () => {
