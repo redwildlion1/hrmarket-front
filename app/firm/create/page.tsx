@@ -11,7 +11,7 @@ import { apiClient } from "@/lib/api/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { FormInput } from "@/lib/errors/form-input"
+import { FormInput } from "@/components/ui/form-input"
 import { ErrorAlert } from "@/components/errors/error-alert"
 import { FormErrorProvider, useFormErrors } from "@/lib/errors/form-error-context"
 import { Label } from "@/components/ui/label"
@@ -328,18 +328,21 @@ function CreateFirmForm() {
   const handleEmailChange = (value: string) => {
     setFormData({ ...formData, contactEmail: value })
     const error = validateEmail(value)
+    console.log("[v0] Email validation - value:", value, "error:", error)
     setValidationErrors((prev) => ({ ...prev, contactEmail: error }))
   }
 
   const handlePhoneChange = (value: string) => {
     setFormData({ ...formData, contactPhone: value })
     const error = validatePhone(value)
+    console.log("[v0] Phone validation - value:", value, "error:", error)
     setValidationErrors((prev) => ({ ...prev, contactPhone: error }))
   }
 
   const handleWebsiteChange = (value: string) => {
     setFormData({ ...formData, linksWebsite: value })
     const error = validateUrl(value)
+    console.log("[v0] Website validation - value:", value, "error:", error)
     setValidationErrors((prev) => ({ ...prev, linksWebsite: error }))
   }
 
