@@ -428,8 +428,8 @@ function CreateFirmForm() {
     switch (step) {
       case 1:
         const step1Valid =
-          formData.cui.trim() !== "" &&
-          formData.name.trim() !== "" &&
+          ensureString(formData.cui).trim() !== "" &&
+          ensureString(formData.name).trim() !== "" &&
           formData.type !== "" &&
           !validationErrors.cui &&
           !validationErrors.name &&
@@ -463,6 +463,12 @@ function CreateFirmForm() {
       default:
         return false
     }
+  }
+
+  const ensureString = (value: any): string => {
+    if (typeof value === "string") return value
+    if (value === null || value === undefined) return ""
+    return String(value)
   }
 
   return (
@@ -531,8 +537,8 @@ function CreateFirmForm() {
                   <FormInput
                     label={t("firm.cui")}
                     value={formData.cui}
-                    onChange={(value) => {
-                      setFormData({ ...formData, cui: value })
+                    onChange={(e) => {
+                      setFormData({ ...formData, cui: e.target.value })
                       setValidationErrors((prev) => ({ ...prev, cui: "" }))
                     }}
                     placeholder={t("firm.cuiPlaceholder")}
@@ -542,8 +548,8 @@ function CreateFirmForm() {
                   <FormInput
                     label={t("firm.name")}
                     value={formData.name}
-                    onChange={(value) => {
-                      setFormData({ ...formData, name: value })
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value })
                       setValidationErrors((prev) => ({ ...prev, name: "" }))
                     }}
                     placeholder={t("firm.namePlaceholder")}
