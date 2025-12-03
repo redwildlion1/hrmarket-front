@@ -521,73 +521,80 @@ function CreateFirmForm() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="country">{t("firm.country")}</Label>
-                    <Select
-                      value={formData.locationCountryId}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, locationCountryId: value, locationCountyId: "", locationCityId: "" })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("firm.selectCountry")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {countries.map((country) => (
-                          <SelectItem key={country.id} value={country.id}>
-                            {country.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="country">{t("firm.country")}</Label>
+                      <Select
+                        value={formData.locationCountryId}
+                        onValueChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            locationCountryId: value,
+                            locationCountyId: "",
+                            locationCityId: "",
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("firm.selectCountry")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem key={country.id} value={country.id}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="county">{t("firm.county")}</Label>
-                    <Select
-                      value={formData.locationCountyId}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, locationCountyId: value, locationCityId: "" })
-                      }
-                      disabled={!formData.locationCountryId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            formData.locationCountryId ? t("firm.selectCounty") : t("firm.selectCountyFirst")
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {counties.map((county) => (
-                          <SelectItem key={county.id} value={county.id}>
-                            {county.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="county">{t("firm.county")}</Label>
+                      <Select
+                        value={formData.locationCountyId}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, locationCountyId: value, locationCityId: "" })
+                        }
+                        disabled={!formData.locationCountryId}
+                      >
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={
+                              formData.locationCountryId ? t("firm.selectCounty") : t("firm.selectCountyFirst")
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {counties.map((county) => (
+                            <SelectItem key={county.id} value={county.id}>
+                              {county.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="city">{t("firm.city")}</Label>
-                    <Select
-                      value={formData.locationCityId}
-                      onValueChange={(value) => setFormData({ ...formData, locationCityId: value })}
-                      disabled={!formData.locationCountyId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={formData.locationCountyId ? t("firm.selectCity") : t("firm.selectCityFirst")}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cities.map((city) => (
-                          <SelectItem key={city.id} value={city.id}>
-                            {city.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Label htmlFor="city">{t("firm.city")}</Label>
+                      <Select
+                        value={formData.locationCityId}
+                        onValueChange={(value) => setFormData({ ...formData, locationCityId: value })}
+                        disabled={!formData.locationCountyId}
+                      >
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={formData.locationCountyId ? t("firm.selectCity") : t("firm.selectCityFirst")}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem key={city.id} value={city.id}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <FormInput
