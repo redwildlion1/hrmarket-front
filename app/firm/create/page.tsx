@@ -91,7 +91,7 @@ function CreateFirmForm() {
     const loadUniversalQuestions = async () => {
       try {
         const data = await apiClient.universalQuestions.getAll()
-        setUniversalQuestions(data.questions.sort((a, b) => a.order - b.order))
+        setUniversalQuestions(data.questions ? data.questions.sort((a, b) => a.order - b.order) : [])
       } catch (error) {
         console.error("Failed to load universal questions:", error)
       }
