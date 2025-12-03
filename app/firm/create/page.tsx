@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Building2, Mail, MapPin, ArrowRight, ArrowLeft, CheckCircle2, Info, HelpCircle } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 type UniversalQuestionAnswer = {
   universalQuestionId: string
@@ -57,9 +58,9 @@ function CreateFirmForm() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [countries, setCountries] = useState<Array<{ id: string; name: string }>>([])
-  const [counties, setCounties] = useState<Array<{ id: string; name: string }>>([])
-  const [cities, setCities] = useState<Array<{ id: string; name: string }>>([])
+  const [countries, setCountries] = useState<Array<{ id: string; nameRo: string; nameEn: string }>>([])
+  const [counties, setCounties] = useState<Array<{ id: string; nameRo: string; nameEn: string }>>([])
+  const [cities, setCities] = useState<Array<{ id: string; nameRo: string; nameEn: string }>>([])
   const [firmTypesData, setFirmTypesData] = useState<{
     ro: Array<{ value: string; label: string; description: string }>
     en: Array<{ value: string; label: string; description: string }>
@@ -74,18 +75,24 @@ function CreateFirmForm() {
     name: "",
     type: "",
     description: "",
-    contactEmail: "",
-    contactPhone: "",
-    linksWebsite: "",
-    linksLinkedIn: "",
-    linksFacebook: "",
-    linksTwitter: "",
-    linksInstagram: "",
-    locationAddress: "",
-    locationCountryId: "",
-    locationCountyId: "",
-    locationCityId: "",
-    locationPostalCode: "",
+    contact: {
+      email: "",
+      phone: "",
+    },
+    links: {
+      website: "",
+      linkedIn: "",
+      facebook: "",
+      twitter: "",
+      instagram: "",
+    },
+    location: {
+      address: "",
+      countryId: "",
+      countyId: "",
+      cityId: "",
+      postalCode: "",
+    },
   })
 
   useEffect(() => {
@@ -124,39 +131,23 @@ function CreateFirmForm() {
     loadCountries()
   }, [])
 
-  useEffect(() => {
-    const loadCounties = async () => {
-      if (formData.locationCountryId) {
-        try {
-          const data = await apiClient.location.getCounties(formData.locationCountryId)
-          setCounties(data)
-          setCities([])
-        } catch (error) {
-          console.error("Failed to load counties:", error)
-        }
-      } else {
-        setCounties([])
-        setCities([])
-      }
+  const loadCounties = async (countryId: string) => {
+    try {
+      const data = await apiClient.location.getCounties(countryId)
+      setCounties(data)
+    } catch (error) {
+      console.error("Failed to load counties:", error)
     }
-    loadCounties()
-  }, [formData.locationCountryId])
+  }
 
-  useEffect(() => {
-    const loadCities = async () => {
-      if (formData.locationCountyId) {
-        try {
-          const data = await apiClient.location.getCities(formData.locationCountyId)
-          setCities(data)
-        } catch (error) {
-          console.error("Failed to load cities:", error)
-        }
-      } else {
-        setCities([])
-      }
+  const loadCities = async (countyId: string) => {
+    try {
+      const data = await apiClient.location.getCities(countyId)
+      setCities(data)
+    } catch (error) {
+      console.error("Failed to load cities:", error)
     }
-    loadCities()
-  }, [formData.locationCountyId])
+  }
 
   const firmTypes = firmTypesData ? (language === "en" ? firmTypesData.en : firmTypesData.ro) : []
 
@@ -198,15 +189,34 @@ function CreateFirmForm() {
     clearError()
 
     try {
-      const universalQuestionAnswers: UniversalQuestionAnswer[] = Object.entries(questionAnswers).map(
-        ([questionId, optionId]) => ({
-          universalQuestionId: questionId,
-          selectedOptionId: optionId,
-        }),
-      )
+      const universalQuestionAnswers = Object.entries(questionAnswers).map(([questionId, optionId]) => ({
+        universalQuestionId: questionId,
+        selectedOptionId: optionId,
+      }))
 
       const submitData = {
-        ...formData,
+        cui: formData.cui,
+        name: formData.name,
+        type: formData.type,
+        description: formData.description,
+        contact: {
+          email: formData.contact.email,
+          phone: formData.contact.phone || undefined,
+        },
+        links: {
+          website: formData.links.website || undefined,
+          linkedIn: formData.links.linkedIn || undefined,
+          facebook: formData.links.facebook || undefined,
+          twitter: formData.links.twitter || undefined,
+          instagram: formData.links.instagram || undefined,
+        },
+        location: {
+          address: formData.location.address || undefined,
+          countryId: formData.location.countryId,
+          countyId: formData.location.countyId,
+          cityId: formData.location.cityId,
+          postalCode: formData.location.postalCode || undefined,
+        },
         universalQuestionAnswers,
       }
 
@@ -283,9 +293,9 @@ function CreateFirmForm() {
       case 1:
         return formData.cui && formData.name && formData.type
       case 2:
-        return formData.contactEmail
+        return formData.contact.email
       case 3:
-        return formData.locationCountryId && formData.locationCountyId && formData.locationCityId
+        return formData.location.countryId && formData.location.countyId && formData.location.cityId
       case 4:
         const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
         return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
@@ -358,52 +368,52 @@ function CreateFirmForm() {
                     </div>
                   </div>
 
-                  <FormInput
-                    id="cui"
-                    label={t("firm.cui")}
-                    placeholder="RO12345678"
-                    value={formData.cui}
-                    onChange={(e) => setFormData({ ...formData, cui: e.target.value })}
-                    required
-                    disabled={loading}
-                  />
-
-                  <FormInput
-                    id="name"
-                    label={t("firm.name")}
-                    placeholder={t("firm.namePlaceholder")}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    disabled={loading}
-                  />
-
-                  <div className="space-y-2">
-                    <Label htmlFor="type">{t("firm.type")}</Label>
-                    <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("firm.selectType")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {firmTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">{t("firm.description")}</Label>
-                    <Textarea
-                      id="description"
-                      placeholder={t("firm.descriptionPlaceholder")}
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={4}
-                      disabled={loading}
-                    />
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="cui">{t("firm.cui")}</Label>
+                      <Input
+                        id="cui"
+                        value={formData.cui}
+                        onChange={(e) => setFormData({ ...formData, cui: e.target.value })}
+                        placeholder={t("firm.cuiPlaceholder")}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="name">{t("firm.name")}</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder={t("firm.namePlaceholder")}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="type">{t("firm.type")}</Label>
+                      <Input
+                        id="type"
+                        value={formData.type}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                        placeholder={t("firm.typePlaceholder")}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">{t("firm.description")}</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder={t("firm.descriptionPlaceholder")}
+                        rows={4}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -431,8 +441,13 @@ function CreateFirmForm() {
                     label={t("firm.contactEmail")}
                     type="email"
                     placeholder="contact@company.com"
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                    value={formData.contact.email}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contact: { ...formData.contact, email: e.target.value },
+                      })
+                    }
                     required
                     disabled={loading}
                   />
@@ -442,63 +457,92 @@ function CreateFirmForm() {
                     label={t("firm.contactPhone")}
                     type="tel"
                     placeholder="+40 123 456 789"
-                    value={formData.contactPhone}
-                    onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                    value={formData.contact.phone}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contact: { ...formData.contact, phone: e.target.value },
+                      })
+                    }
                     disabled={loading}
                   />
 
-                  <FormInput
-                    id="linksWebsite"
-                    label={t("firm.website")}
-                    type="url"
-                    placeholder="https://company.com"
-                    value={formData.linksWebsite}
-                    onChange={(e) => setFormData({ ...formData, linksWebsite: e.target.value })}
-                    disabled={loading}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormInput
-                      id="linksLinkedIn"
-                      label="LinkedIn"
-                      type="url"
-                      placeholder="https://linkedin.com/company/..."
-                      value={formData.linksLinkedIn}
-                      onChange={(e) => setFormData({ ...formData, linksLinkedIn: e.target.value })}
-                      disabled={loading}
-                    />
-
-                    <FormInput
-                      id="linksFacebook"
-                      label="Facebook"
-                      type="url"
-                      placeholder="https://facebook.com/..."
-                      value={formData.linksFacebook}
-                      onChange={(e) => setFormData({ ...formData, linksFacebook: e.target.value })}
-                      disabled={loading}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormInput
-                      id="linksTwitter"
-                      label="Twitter"
-                      type="url"
-                      placeholder="https://twitter.com/..."
-                      value={formData.linksTwitter}
-                      onChange={(e) => setFormData({ ...formData, linksTwitter: e.target.value })}
-                      disabled={loading}
-                    />
-
-                    <FormInput
-                      id="linksInstagram"
-                      label="Instagram"
-                      type="url"
-                      placeholder="https://instagram.com/..."
-                      value={formData.linksInstagram}
-                      onChange={(e) => setFormData({ ...formData, linksInstagram: e.target.value })}
-                      disabled={loading}
-                    />
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="linksWebsite">{t("firm.website")}</Label>
+                      <Input
+                        id="linksWebsite"
+                        type="url"
+                        value={formData.links.website}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            links: { ...formData.links, website: e.target.value },
+                          })
+                        }
+                        placeholder={t("firm.websitePlaceholder")}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="linksLinkedIn">{t("firm.linkedIn")}</Label>
+                      <Input
+                        id="linksLinkedIn"
+                        type="url"
+                        value={formData.links.linkedIn}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            links: { ...formData.links, linkedIn: e.target.value },
+                          })
+                        }
+                        placeholder={t("firm.linkedInPlaceholder")}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="linksFacebook">{t("firm.facebook")}</Label>
+                      <Input
+                        id="linksFacebook"
+                        type="url"
+                        value={formData.links.facebook}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            links: { ...formData.links, facebook: e.target.value },
+                          })
+                        }
+                        placeholder={t("firm.facebookPlaceholder")}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="linksTwitter">{t("firm.twitter")}</Label>
+                      <Input
+                        id="linksTwitter"
+                        type="url"
+                        value={formData.links.twitter}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            links: { ...formData.links, twitter: e.target.value },
+                          })
+                        }
+                        placeholder={t("firm.twitterPlaceholder")}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="linksInstagram">{t("firm.instagram")}</Label>
+                      <Input
+                        id="linksInstagram"
+                        type="url"
+                        value={formData.links.instagram}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            links: { ...formData.links, instagram: e.target.value },
+                          })
+                        }
+                        placeholder={t("firm.instagramPlaceholder")}
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -522,74 +566,100 @@ function CreateFirmForm() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="country">{t("firm.country")}</Label>
                       <Select
-                        value={formData.locationCountryId}
-                        onValueChange={(value) =>
+                        value={formData.location.countryId}
+                        onValueChange={(value) => {
                           setFormData({
                             ...formData,
-                            locationCountryId: value,
-                            locationCountyId: "",
-                            locationCityId: "",
+                            location: {
+                              ...formData.location,
+                              countryId: value,
+                              countyId: "",
+                              cityId: "",
+                            },
                           })
-                        }
+                          setCounties([])
+                          setCities([])
+                          if (value) {
+                            loadCounties(value)
+                          }
+                        }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="country">
                           <SelectValue placeholder={t("firm.selectCountry")} />
                         </SelectTrigger>
                         <SelectContent>
                           {countries.map((country) => (
                             <SelectItem key={country.id} value={country.id}>
-                              {country.name}
+                              {language === "ro" ? country.nameRo : country.nameEn}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="county">{t("firm.county")}</Label>
                       <Select
-                        value={formData.locationCountyId}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, locationCountyId: value, locationCityId: "" })
-                        }
-                        disabled={!formData.locationCountryId}
+                        value={formData.location.countyId}
+                        onValueChange={(value) => {
+                          setFormData({
+                            ...formData,
+                            location: {
+                              ...formData.location,
+                              countyId: value,
+                              cityId: "",
+                            },
+                          })
+                          setCities([])
+                          if (value) {
+                            loadCities(value)
+                          }
+                        }}
+                        disabled={!formData.location.countryId}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="county">
                           <SelectValue
                             placeholder={
-                              formData.locationCountryId ? t("firm.selectCounty") : t("firm.selectCountyFirst")
+                              !formData.location.countryId ? t("firm.selectCountryFirst") : t("firm.selectCounty")
                             }
                           />
                         </SelectTrigger>
                         <SelectContent>
                           {counties.map((county) => (
                             <SelectItem key={county.id} value={county.id}>
-                              {county.name}
+                              {language === "ro" ? county.nameRo : county.nameEn}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="city">{t("firm.city")}</Label>
                       <Select
-                        value={formData.locationCityId}
-                        onValueChange={(value) => setFormData({ ...formData, locationCityId: value })}
-                        disabled={!formData.locationCountyId}
+                        value={formData.location.cityId}
+                        onValueChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            location: { ...formData.location, cityId: value },
+                          })
+                        }
+                        disabled={!formData.location.countyId}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="city">
                           <SelectValue
-                            placeholder={formData.locationCountyId ? t("firm.selectCity") : t("firm.selectCityFirst")}
+                            placeholder={
+                              !formData.location.countyId ? t("firm.selectCountyFirst") : t("firm.selectCity")
+                            }
                           />
                         </SelectTrigger>
                         <SelectContent>
                           {cities.map((city) => (
                             <SelectItem key={city.id} value={city.id}>
-                              {city.name}
+                              {language === "ro" ? city.nameRo : city.nameEn}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -597,23 +667,35 @@ function CreateFirmForm() {
                     </div>
                   </div>
 
-                  <FormInput
-                    id="locationAddress"
-                    label={t("firm.address")}
-                    placeholder={t("firm.addressPlaceholder")}
-                    value={formData.locationAddress}
-                    onChange={(e) => setFormData({ ...formData, locationAddress: e.target.value })}
-                    disabled={loading}
-                  />
+                  <div>
+                    <Label htmlFor="locationAddress">{t("firm.address")}</Label>
+                    <Input
+                      id="locationAddress"
+                      value={formData.location.address}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          location: { ...formData.location, address: e.target.value },
+                        })
+                      }
+                      placeholder={t("firm.addressPlaceholder")}
+                    />
+                  </div>
 
-                  <FormInput
-                    id="locationPostalCode"
-                    label={t("firm.postalCode")}
-                    placeholder="012345"
-                    value={formData.locationPostalCode}
-                    onChange={(e) => setFormData({ ...formData, locationPostalCode: e.target.value })}
-                    disabled={loading}
-                  />
+                  <div>
+                    <Label htmlFor="locationPostalCode">{t("firm.postalCode")}</Label>
+                    <Input
+                      id="locationPostalCode"
+                      value={formData.location.postalCode}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          location: { ...formData.location, postalCode: e.target.value },
+                        })
+                      }
+                      placeholder="012345"
+                    />
+                  </div>
                 </motion.div>
               )}
 
@@ -724,21 +806,24 @@ function CreateFirmForm() {
                       <div className="space-y-2 text-sm">
                         <p>
                           <span className="font-medium">{t("firm.country")}:</span>{" "}
-                          {countries.find((c) => c.id === formData.locationCountryId)?.name}
+                          {countries.find((c) => c.id === formData.location.countryId)?.nameRo ||
+                            countries.find((c) => c.id === formData.location.countryId)?.nameEn}
                         </p>
                         <p>
                           <span className="font-medium">{t("firm.county")}:</span>{" "}
-                          {counties.find((c) => c.id === formData.locationCountyId)?.name}
+                          {counties.find((c) => c.id === formData.location.countyId)?.nameRo ||
+                            counties.find((c) => c.id === formData.location.countyId)?.nameEn}
                         </p>
                         <p>
                           <span className="font-medium">{t("firm.city")}:</span>{" "}
-                          {cities.find((c) => c.id === formData.locationCityId)?.name}
+                          {cities.find((c) => c.id === formData.location.cityId)?.nameRo ||
+                            cities.find((c) => c.id === formData.location.cityId)?.nameEn}
                         </p>
                         <p>
-                          <span className="font-medium">{t("firm.address")}:</span> {formData.locationAddress}
+                          <span className="font-medium">{t("firm.address")}:</span> {formData.location.address}
                         </p>
                         <p>
-                          <span className="font-medium">{t("firm.postalCode")}:</span> {formData.locationPostalCode}
+                          <span className="font-medium">{t("firm.postalCode")}:</span> {formData.location.postalCode}
                         </p>
                       </div>
                     </div>
@@ -747,16 +832,36 @@ function CreateFirmForm() {
                       <h4 className="font-semibold text-sm text-muted-foreground">{t("firm.step2Title")}</h4>
                       <div className="space-y-1 text-sm">
                         <p>
-                          <span className="font-medium">{t("firm.contactEmail")}:</span> {formData.contactEmail}
+                          <span className="font-medium">{t("firm.contactEmail")}:</span> {formData.contact.email}
                         </p>
-                        {formData.contactPhone && (
+                        {formData.contact.phone && (
                           <p>
-                            <span className="font-medium">{t("firm.contactPhone")}:</span> {formData.contactPhone}
+                            <span className="font-medium">{t("firm.contactPhone")}:</span> {formData.contact.phone}
                           </p>
                         )}
-                        {formData.linksWebsite && (
+                        {formData.links.website && (
                           <p>
-                            <span className="font-medium">{t("firm.website")}:</span> {formData.linksWebsite}
+                            <span className="font-medium">{t("firm.website")}:</span> {formData.links.website}
+                          </p>
+                        )}
+                        {formData.links.linkedIn && (
+                          <p>
+                            <span className="font-medium">{t("firm.linkedIn")}:</span> {formData.links.linkedIn}
+                          </p>
+                        )}
+                        {formData.links.facebook && (
+                          <p>
+                            <span className="font-medium">{t("firm.facebook")}:</span> {formData.links.facebook}
+                          </p>
+                        )}
+                        {formData.links.twitter && (
+                          <p>
+                            <span className="font-medium">{t("firm.twitter")}:</span> {formData.links.twitter}
+                          </p>
+                        )}
+                        {formData.links.instagram && (
+                          <p>
+                            <span className="font-medium">{t("firm.instagram")}:</span> {formData.links.instagram}
                           </p>
                         )}
                       </div>
