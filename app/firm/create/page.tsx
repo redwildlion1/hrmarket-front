@@ -189,34 +189,11 @@ function CreateFirmForm() {
     return option.translations.find((t) => t.languageCode === language) || option.translations[0]
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log("[v0] handleSubmit called", {
-      timestamp: new Date().toISOString(),
-      step,
-      isSubmitting,
-      loading,
-      eventType: e.type,
-    })
+  const handleSubmit = async () => {
+    if (!validateStep(step)) return
 
-    e.preventDefault()
-    e.stopPropagation()
-
-    console.log("[v0] After preventDefault/stopPropagation", { step, isSubmitting })
-
-    if (step !== 5) {
-      console.log("[v0] Blocked: Not on step 5", { currentStep: step })
-      return
-    }
-
-    if (isSubmitting) {
-      console.log("[v0] Blocked: Already submitting")
-      return
-    }
-
-    console.log("[v0] Starting firm creation submission")
     setIsSubmitting(true)
     setLoading(true)
-    clearError()
 
     try {
       const universalQuestionAnswers = Object.entries(questionAnswers).map(([questionId, optionId]) => ({
@@ -282,14 +259,24 @@ function CreateFirmForm() {
         Object.entries(error.validationErrors).forEach(([field, messages]) => {
           const messageArray = Array.isArray(messages) ? messages : [messages]
           messageArray.forEach((msg: string) => {
-            errorMessages.push(`${field}: ${msg}`)
+            // Display just the message without the field name prefix for cleaner look
+            errorMessages.push(`• ${msg}`)
           })
         })
 
         toast({
-          variant: "destructive",
-          title: t("common.validationError"),
-          description: errorMessages.join("\n"),
+          title: t("firm.validationErrors"),
+          description: (
+            <div className="space-y-1 mt-2">
+              <p className="text-sm mb-2">{t("firm.validationErrorDesc")}</p>
+              {errorMessages.map((msg, idx) => (
+                <p key={idx} className="text-sm">
+                  {msg}
+                </p>
+              ))}
+            </div>
+          ),
+          duration: 8000, // Show longer since there may be multiple errors to read
         })
       } else {
         toast({
@@ -394,6 +381,47 @@ function CreateFirmForm() {
     setFormData({ ...formData, linksInstagram: value })
     const error = validateUrl(value)
     setValidationErrors((prev) => ({ ...prev, linksInstagram: error }))
+  }
+
+  const validateStep = (step: number) => {
+    switch (step) {
+      case 1:
+        const step1Valid =
+          formData.cui.trim() !== "" &&
+          formData.name.trim() !== "" &&
+          formData.type !== "" &&
+          !validationErrors.cui &&
+          !validationErrors.name &&
+          !validationErrors.type
+        return step1Valid
+      case 2:
+        const emailValid = formData.contactEmail && !validationErrors.contactEmail
+        const phoneValid = !formData.contactPhone || !validationErrors.contactPhone
+        const websiteValid = !formData.linksWebsite || !validationErrors.linksWebsite
+        const linkedInValid = !formData.linksLinkedIn || !validationErrors.linksLinkedIn
+        const facebookValid = !formData.linksFacebook || !validationErrors.linksFacebook
+        const twitterValid = !formData.linksTwitter || !validationErrors.linksTwitter
+        const instagramValid = !formData.linksInstagram || !validationErrors.linksInstagram
+        return (
+          emailValid && phoneValid && websiteValid && linkedInValid && facebookValid && twitterValid && instagramValid
+        )
+      case 3:
+        const step3Valid =
+          formData.locationCountryId !== "" &&
+          formData.locationCountyId !== "" &&
+          formData.locationCityId !== "" &&
+          !validationErrors.locationCountryId &&
+          !validationErrors.locationCountyId &&
+          !validationErrors.locationCityId
+        return step3Valid
+      case 4:
+        const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
+        return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
+      case 5:
+        return true
+      default:
+        return false
+    }
   }
 
   const canProceed = () => {
