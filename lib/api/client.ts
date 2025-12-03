@@ -56,11 +56,11 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
   let response = await makeRequest()
 
   if (response.status === 401) {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken")
-      const accessToken = localStorage.getItem("accessToken")
+    const refreshToken = localStorage.getItem("refreshToken")
+    const accessToken = localStorage.getItem("accessToken")
 
-      if (refreshToken && accessToken) {
+    if (refreshToken && accessToken) {
+      try {
         const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
           method: "POST",
           headers: {
@@ -95,21 +95,25 @@ async function fetchWithAuth<T>(endpoint: string, options: RequestInit = {}): Pr
           window.location.href = "/login"
           throw new ApiError(401, "Session expired", "Please login again")
         }
-      } else {
-        // No tokens, logout
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("refreshToken")
-        localStorage.removeItem("userInfo")
-        window.location.href = "/login"
-        throw new ApiError(401, "Session expired", "Please login again")
+      } catch (error) {
+        // Only logout for actual auth errors, not for network or other issues
+        if (error instanceof ApiError && error.status === 401) {
+          localStorage.removeItem("accessToken")
+          localStorage.removeItem("refreshToken")
+          localStorage.removeItem("userInfo")
+          window.location.href = "/login"
+          throw error
+        }
+        // For other errors during refresh, throw them as-is
+        throw error
       }
-    } catch (error) {
-      // Refresh failed, logout
+    } else {
+      // No tokens, logout
       localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
       localStorage.removeItem("userInfo")
       window.location.href = "/login"
-      throw error instanceof ApiError ? error : new ApiError(401, "Session expired", "Please login again")
+      throw new ApiError(401, "Session expired", "Please login again")
     }
   }
 
