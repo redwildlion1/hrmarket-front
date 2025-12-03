@@ -487,6 +487,13 @@ function CreateFirmForm() {
     return String(value)
   }
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault() // Prevent default form submission behavior
+    e.stopPropagation()
+    console.log("[v0] Form submitted via handleFormSubmit")
+    await handleSubmit()
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <Card className="w-full max-w-3xl border-0 shadow-2xl backdrop-blur-sm bg-white/95">
@@ -510,7 +517,7 @@ function CreateFirmForm() {
             </div>
           </div>
         </CardHeader>
-        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+        <form onSubmit={handleFormSubmit} onKeyDown={handleKeyDown}>
           <CardContent className="space-y-6">
             {apiError && !apiError.isValidationError && <ErrorAlert />}
             {apiError && apiError.isValidationError && step === 5 && (
