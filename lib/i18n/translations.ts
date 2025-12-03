@@ -338,6 +338,9 @@ export const translations = {
     "firm.invalidEmail": "Adresa de email nu este validă",
     "firm.invalidPhone": "Numărul de telefon nu este valid",
     "firm.invalidUrl": "URL-ul nu este valid. Trebuie să înceapă cu http:// sau https://",
+    "firm.validation.invalidEmail": "Adresa de email nu este validă",
+    "firm.validation.invalidPhone": "Numărul de telefon nu este valid",
+    "firm.validation.invalidUrl": "URL-ul nu este valid. Trebuie să înceapă cu http:// sau https://",
 
     // Admin
     "admin.dashboard": "Panou Administrare",
@@ -765,6 +768,9 @@ export const translations = {
     "firm.invalidEmail": "Email address is not valid",
     "firm.invalidPhone": "Phone number is not valid",
     "firm.invalidUrl": "URL is not valid. Must start with http:// or https://",
+    "firm.validation.invalidEmail": "Email address is not valid",
+    "firm.validation.invalidPhone": "Phone number is not valid",
+    "firm.validation.invalidUrl": "URL is not valid. Must start with http:// or https://",
 
     // Admin
     "admin.dashboard": "Admin Dashboard",
