@@ -90,6 +90,25 @@ function CreateFirmForm() {
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
+  const fieldNameMap: Record<string, string> = {
+    cui: "cui",
+    name: "name",
+    type: "type",
+    description: "description",
+    "contact.email": "contactEmail",
+    "contact.phone": "contactPhone",
+    "links.website": "linksWebsite",
+    "links.linkedIn": "linksLinkedIn",
+    "links.facebook": "linksFacebook",
+    "links.twitter": "linksTwitter",
+    "links.instagram": "linksInstagram",
+    "location.countryId": "locationCountryId",
+    "location.countyId": "locationCountyId",
+    "location.cityId": "locationCityId",
+    "location.address": "locationAddress",
+    "location.postalCode": "locationPostalCode",
+  }
+
   useEffect(() => {
     const loadUniversalQuestions = async () => {
       try {
@@ -258,22 +277,30 @@ function CreateFirmForm() {
       setError(error)
 
       if (error.validationErrors) {
+        const errorMessages: string[] = []
+
+        Object.entries(error.validationErrors).forEach(([field, messages]) => {
+          const messageArray = Array.isArray(messages) ? messages : [messages]
+          messageArray.forEach((msg: string) => {
+            errorMessages.push(`${field}: ${msg}`)
+          })
+        })
+
         toast({
-          title: t("common.validationError"),
-          description: t("firm.validationErrorDesc"),
           variant: "destructive",
+          title: t("common.validationError"),
+          description: errorMessages.join("\n"),
         })
       } else {
         toast({
-          title: t("common.error"),
-          description: error.detail || error.title,
           variant: "destructive",
+          title: t("common.error"),
+          description: error.message || t("firm.createError"),
         })
       }
     } finally {
-      console.log("[v0] Submission complete, resetting flags")
-      setLoading(false)
       setIsSubmitting(false)
+      setLoading(false)
     }
   }
 
@@ -342,7 +369,6 @@ function CreateFirmForm() {
   const handleWebsiteChange = (value: string) => {
     setFormData({ ...formData, linksWebsite: value })
     const error = validateUrl(value)
-    console.log("[v0] Website validation - value:", value, "error:", error)
     setValidationErrors((prev) => ({ ...prev, linksWebsite: error }))
   }
 
@@ -373,7 +399,14 @@ function CreateFirmForm() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.cui.trim() !== "" && formData.name.trim() !== "" && formData.type !== ""
+        const step1Valid =
+          formData.cui.trim() !== "" &&
+          formData.name.trim() !== "" &&
+          formData.type !== "" &&
+          !validationErrors.cui &&
+          !validationErrors.name &&
+          !validationErrors.type
+        return step1Valid
       case 2:
         const emailValid = formData.contactEmail && !validationErrors.contactEmail
         const phoneValid = !formData.contactPhone || !validationErrors.contactPhone
@@ -386,7 +419,14 @@ function CreateFirmForm() {
           emailValid && phoneValid && websiteValid && linkedInValid && facebookValid && twitterValid && instagramValid
         )
       case 3:
-        return formData.locationCountryId !== "" && formData.locationCountyId !== "" && formData.locationCityId !== ""
+        const step3Valid =
+          formData.locationCountryId !== "" &&
+          formData.locationCountyId !== "" &&
+          formData.locationCityId !== "" &&
+          !validationErrors.locationCountryId &&
+          !validationErrors.locationCountyId &&
+          !validationErrors.locationCityId
+        return step3Valid
       case 4:
         const requiredQuestions = universalQuestions.filter((q) => q.isRequired)
         return requiredQuestions.every((q) => questionAnswers[q.id] && questionAnswers[q.id].trim() !== "")
@@ -447,7 +487,8 @@ function CreateFirmForm() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4"
                 >
                   <div className="flex items-center gap-3 pb-4 border-b">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -460,25 +501,27 @@ function CreateFirmForm() {
                   </div>
 
                   <FormInput
-                    id="cui"
                     label={t("firm.cui")}
-                    placeholder="RO12345678"
                     value={formData.cui}
-                    onChange={(e) => setFormData({ ...formData, cui: e.target.value })}
+                    onChange={(value) => {
+                      setFormData({ ...formData, cui: value })
+                      setValidationErrors((prev) => ({ ...prev, cui: "" }))
+                    }}
+                    placeholder={t("firm.cuiPlaceholder")}
                     required
-                    disabled={loading}
+                    error={validationErrors.cui}
                   />
-
                   <FormInput
-                    id="name"
                     label={t("firm.name")}
-                    placeholder={t("firm.namePlaceholder")}
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(value) => {
+                      setFormData({ ...formData, name: value })
+                      setValidationErrors((prev) => ({ ...prev, name: "" }))
+                    }}
+                    placeholder={t("firm.namePlaceholder")}
                     required
-                    disabled={loading}
+                    error={validationErrors.name}
                   />
-
                   <div className="space-y-2">
                     <Label htmlFor="type">{t("firm.type")}</Label>
                     <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
@@ -494,16 +537,18 @@ function CreateFirmForm() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="description">{t("firm.description")}</Label>
                     <Textarea
                       id="description"
                       placeholder={t("firm.descriptionPlaceholder")}
                       value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, description: e.target.value })
+                        setValidationErrors((prev) => ({ ...prev, description: "" }))
+                      }}
                       rows={4}
-                      disabled={loading}
+                      error={validationErrors.description}
                     />
                   </div>
                 </motion.div>
@@ -712,6 +757,7 @@ function CreateFirmForm() {
                     value={formData.locationAddress}
                     onChange={(e) => setFormData({ ...formData, locationAddress: e.target.value })}
                     disabled={loading}
+                    error={validationErrors.locationAddress}
                   />
 
                   <FormInput
@@ -721,6 +767,7 @@ function CreateFirmForm() {
                     value={formData.locationPostalCode}
                     onChange={(e) => setFormData({ ...formData, locationPostalCode: e.target.value })}
                     disabled={loading}
+                    error={validationErrors.locationPostalCode}
                   />
                 </motion.div>
               )}
