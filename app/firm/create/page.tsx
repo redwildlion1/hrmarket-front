@@ -251,7 +251,8 @@ function CreateFirmForm() {
       router.push("/firm/manage")
     } catch (error: any) {
       console.log("[v0] Error creating firm", { error })
-      setError(error)
+
+      // setError(error)
 
       if (error.validationErrors) {
         const errorMessages: string[] = []
@@ -259,7 +260,6 @@ function CreateFirmForm() {
         Object.entries(error.validationErrors).forEach(([field, messages]) => {
           const messageArray = Array.isArray(messages) ? messages : [messages]
           messageArray.forEach((msg: string) => {
-            // Display just the message without the field name prefix for cleaner look
             errorMessages.push(`• ${msg}`)
           })
         })
@@ -276,13 +276,13 @@ function CreateFirmForm() {
               ))}
             </div>
           ),
-          duration: 8000, // Show longer since there may be multiple errors to read
+          duration: 8000,
         })
       } else {
         toast({
-          variant: "destructive",
           title: t("common.error"),
           description: error.message || t("firm.createError"),
+          variant: "destructive",
         })
       }
     } finally {
