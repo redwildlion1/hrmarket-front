@@ -342,6 +342,16 @@ export const translations = {
     "firm.validation.invalidEmail": "Adresa de email nu este validă",
     "firm.validation.invalidPhone": "Numărul de telefon nu este valid",
     "firm.validation.invalidUrl": "URL-ul nu este valid. Trebuie să înceapă cu http:// sau https://",
+    "firm.plan": "Plan",
+    "firm.jobPosts": "Postări de Joburi",
+    "firm.categories": "Categorii",
+    "firm.events": "Evenimente",
+    "firm.available": "Disponibil",
+    "firm.addCategory": "Adaugă Categorie",
+    "firm.categoryInformation": "Informații despre Categorie",
+    "firm.categoryAnswers": "Răspunsurile tale la întrebările specifice categoriei",
+    "firm.universalAnswers": "Răspunsurile tale la întrebările universale",
+    "firm.companyProfile": "Profilul Companiei",
 
     // Admin
     "admin.dashboard": "Panou Administrare",
@@ -773,6 +783,16 @@ export const translations = {
     "firm.validation.invalidEmail": "Email address is not valid",
     "firm.validation.invalidPhone": "Phone number is not valid",
     "firm.validation.invalidUrl": "URL is not valid. Must start with http:// or https://",
+    "firm.plan": "Plan",
+    "firm.jobPosts": "Job Posts",
+    "firm.categories": "Categories",
+    "firm.events": "Events",
+    "firm.available": "Available",
+    "firm.addCategory": "Add Category",
+    "firm.categoryInformation": "Category Information",
+    "firm.categoryAnswers": "Your answers to category-specific questions",
+    "firm.universalAnswers": "Your answers to universal questions",
+    "firm.companyProfile": "Company Profile",
 
     // Admin
     "admin.dashboard": "Admin Dashboard",

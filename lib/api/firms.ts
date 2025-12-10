@@ -78,6 +78,76 @@ export interface Translation {
   description?: string
 }
 
+// Updated FirmDetailsForEditingDto interface
+export interface FirmDetailsForEditingDto {
+  id: string
+  cui: string
+  name: string
+  description?: string
+  status: string
+  contact: {
+    email: string
+    phone?: string
+  }
+  links: {
+    website?: string
+    linkedin?: string
+    facebook?: string
+    twitter?: string
+    instagram?: string
+  }
+  media: Array<{
+    url: string
+    type: string
+  }>
+  forms: Array<{
+    categoryId: string
+    questionsWithAnswers: Array<{
+      categoryQuestion: {
+        id: string
+        type: string
+        translations: Array<{ languageCode: string; text: string }>
+      }
+      categoryAnswer?: {
+        id: string
+        value?: string
+        translations: Array<{ languageCode: string; text: string }>
+      }
+    }>
+  }>
+  universalAnswers: Array<{
+    id: string
+    order: number
+    universalQuestion?: {
+      id: string
+      icon: string
+      translations: Array<{ languageCode: string; name: string }>
+      options: Array<{ id: string; translations: Array<{ languageCode: string; name: string }> }>
+    }
+    selectedOptionId: string
+  }>
+  availableResources: {
+    addonsAvailableJobPosts: number
+    addonsAvailableCategories: number
+    addonsAvailableEvents: number
+    subscriptionAvailableJobPosts: number
+    subscriptionAvailableCategories: number
+    subscriptionAvailableEvents: number
+    totalAvailableJobPosts: number
+    totalAvailableCategories: number
+    totalAvailableEvents: number
+  }
+  subscriptionStatus?: {
+    subscriptionId: string
+    status: string
+    currentPeriodEnd: string
+    isYearly: boolean
+    currency: string
+    currentPrice: number
+    planTranslations: Array<{ languageCode: string; name: string; description?: string }>
+  }
+}
+
 // Firms API methods
 export const firmsApi = {
   // GET /firms
@@ -129,8 +199,8 @@ export const firmsApi = {
   },
 
   // GET /firm/my-firm
-  getMyFirm: async (): Promise<FirmDetailsDto> => {
-    const response = await api.get<FirmDetailsDto>("/firms/my-firm")
+  getMyFirm: async (): Promise<FirmDetailsForEditingDto> => {
+    const response = await api.get<FirmDetailsForEditingDto>("/firm/my-firm")
     return response.data
   },
 }
