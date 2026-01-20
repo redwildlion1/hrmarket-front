@@ -56,12 +56,12 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-24 md:py-32 lg:py-40">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 py-16 sm:py-24 md:py-32 lg:py-40">
         {/* Background decorative elements */}
         <div className="absolute inset-0 bg-dot-pattern opacity-40" />
-        <div className="absolute top-20 right-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl animate-pulse-slow" />
+        <div className="absolute top-20 right-10 h-48 w-48 sm:h-72 sm:w-72 rounded-full bg-primary/10 blur-3xl animate-pulse-slow" />
         <div
-          className="absolute bottom-20 left-10 h-96 w-96 rounded-full bg-accent/10 blur-3xl animate-pulse-slow"
+          className="absolute bottom-20 left-10 h-64 w-64 sm:h-96 sm:w-96 rounded-full bg-accent/10 blur-3xl animate-pulse-slow"
           style={{ animationDelay: "2s" }}
         />
 
@@ -76,16 +76,16 @@ export default function HomePage() {
             {/* Badge */}
             <motion.div
               variants={itemVariants}
-              className="mb-8 inline-flex items-center gap-2 rounded-full border-2 border-primary/20 bg-white/80 backdrop-blur-sm px-6 py-3 text-sm font-semibold text-primary shadow-lg shadow-primary/10"
+              className="mb-6 sm:mb-8 inline-flex items-center gap-2 rounded-full border-2 border-primary/20 bg-white/80 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-semibold text-primary shadow-lg shadow-primary/10"
             >
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
               <span suppressHydrationWarning>{t("home.hero.badge")}</span>
             </motion.div>
 
             {/* Main Heading */}
             <motion.h1
               variants={itemVariants}
-              className="mb-8 text-balance text-5xl font-bold tracking-tight text-shadow-sm md:text-6xl lg:text-7xl xl:text-8xl"
+              className="mb-6 sm:mb-8 text-balance text-4xl sm:text-5xl font-bold tracking-tight text-shadow-sm md:text-6xl lg:text-7xl xl:text-8xl"
               suppressHydrationWarning
             >
               <span className="gradient-text-red">{t("home.hero.title")}</span>
@@ -94,29 +94,29 @@ export default function HomePage() {
             {/* Subtitle */}
             <motion.p
               variants={itemVariants}
-              className="mb-12 text-pretty text-xl leading-relaxed text-muted-foreground md:text-2xl lg:text-3xl"
+              className="mb-8 sm:mb-12 text-pretty text-lg sm:text-xl leading-relaxed text-muted-foreground md:text-2xl lg:text-3xl"
               suppressHydrationWarning
             >
               {t("home.hero.subtitle")}
             </motion.p>
 
             {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <motion.div variants={itemVariants} className="flex flex-col items-center justify-center gap-4 sm:gap-6 sm:flex-row">
               <Button
                 size="lg"
                 asChild
-                className="group gap-3 text-lg px-10 py-7 shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+                className="group gap-3 text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all w-full sm:w-auto"
               >
                 <Link href="/register" suppressHydrationWarning>
                   {t("home.hero.cta")}
-                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-2" />
+                  <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover:translate-x-2" />
                 </Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 asChild
-                className="text-lg px-10 py-7 bg-white/80 backdrop-blur-sm border-2 hover:bg-white hover:border-primary transition-all"
+                className="text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 bg-white/80 backdrop-blur-sm border-2 hover:bg-primary hover:text-white hover:border-primary transition-all w-full sm:w-auto"
               >
                 <Link href="/companies" suppressHydrationWarning>
                   {t("nav.companies")}
@@ -127,43 +127,43 @@ export default function HomePage() {
             {/* Stats Section */}
             <motion.div
               variants={itemVariants}
-              className="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-3 border-t-2 border-primary/10 pt-16"
+              className="mt-12 sm:mt-20 grid grid-cols-1 gap-8 sm:grid-cols-3 border-t-2 border-primary/10 pt-12 sm:pt-16"
             >
               <div className="group text-center">
-                <div className="mb-3 text-5xl font-bold text-primary transition-transform group-hover:scale-110 md:text-6xl">
+                <div className="mb-2 sm:mb-3 text-4xl sm:text-5xl font-bold text-primary transition-transform group-hover:scale-110 md:text-6xl">
                   <AnimatedCounter end={500} suffix="+" />
                 </div>
-                <div className="text-base font-medium text-muted-foreground md:text-lg" suppressHydrationWarning>
+                <div className="text-sm sm:text-base font-medium text-muted-foreground md:text-lg" suppressHydrationWarning>
                   {t("home.stats.companies")}
                 </div>
-                <div className="mt-2 flex items-center justify-center gap-1 text-sm text-primary">
-                  <TrendingUp className="h-4 w-4" />
+                <div className="mt-2 flex items-center justify-center gap-1 text-xs sm:text-sm text-primary">
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span suppressHydrationWarning>{t("home.stats.companiesGrowth")}</span>
                 </div>
               </div>
 
               <div className="group text-center">
-                <div className="mb-3 text-5xl font-bold text-primary transition-transform group-hover:scale-110 md:text-6xl">
+                <div className="mb-2 sm:mb-3 text-4xl sm:text-5xl font-bold text-primary transition-transform group-hover:scale-110 md:text-6xl">
                   <AnimatedCounter end={10000} suffix="+" />
                 </div>
-                <div className="text-base font-medium text-muted-foreground md:text-lg" suppressHydrationWarning>
+                <div className="text-sm sm:text-base font-medium text-muted-foreground md:text-lg" suppressHydrationWarning>
                   {t("home.stats.professionals")}
                 </div>
-                <div className="mt-2 flex items-center justify-center gap-1 text-sm text-primary">
-                  <Users className="h-4 w-4" />
+                <div className="mt-2 flex items-center justify-center gap-1 text-xs sm:text-sm text-primary">
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span suppressHydrationWarning>{t("home.stats.professionalsActive")}</span>
                 </div>
               </div>
 
               <div className="group text-center">
-                <div className="mb-3 text-5xl font-bold text-primary transition-transform group-hover:scale-110 md:text-6xl">
+                <div className="mb-2 sm:mb-3 text-4xl sm:text-5xl font-bold text-primary transition-transform group-hover:scale-110 md:text-6xl">
                   <AnimatedCounter end={1000} suffix="+" />
                 </div>
-                <div className="text-base font-medium text-muted-foreground md:text-lg" suppressHydrationWarning>
+                <div className="text-sm sm:text-base font-medium text-muted-foreground md:text-lg" suppressHydrationWarning>
                   {t("home.stats.events")}
                 </div>
-                <div className="mt-2 flex items-center justify-center gap-1 text-sm text-primary">
-                  <Award className="h-4 w-4" />
+                <div className="mt-2 flex items-center justify-center gap-1 text-xs sm:text-sm text-primary">
+                  <Award className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span suppressHydrationWarning>{t("home.stats.eventsYear")}</span>
                 </div>
               </div>
@@ -173,14 +173,14 @@ export default function HomePage() {
       </section>
 
       {/* About Section */}
-      <section className="py-24 md:py-32">
+      <section className="py-16 sm:py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="mb-10 text-balance text-4xl font-bold md:text-5xl lg:text-6xl" suppressHydrationWarning>
+            <h2 className="mb-6 sm:mb-10 text-balance text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl" suppressHydrationWarning>
               {t("home.about.title")}
             </h2>
             <p
-              className="text-pretty text-xl leading-relaxed text-muted-foreground md:text-2xl lg:leading-relaxed"
+              className="text-pretty text-lg sm:text-xl leading-relaxed text-muted-foreground md:text-2xl lg:leading-relaxed"
               suppressHydrationWarning
             >
               {t("home.about.description")}
@@ -196,7 +196,7 @@ export default function HomePage() {
       <ClustersSection />
 
       {/* Features Section */}
-      <section className="bg-gradient-to-b from-muted/30 to-background py-24 md:py-32">
+      <section className="bg-gradient-to-b from-muted/30 to-background py-16 sm:py-24 md:py-32">
         <motion.div
           ref={featuresRef}
           initial="hidden"
@@ -204,28 +204,28 @@ export default function HomePage() {
           variants={containerVariants}
           className="container mx-auto px-4"
         >
-          <div className="mb-20 text-center">
-            <h2 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl" suppressHydrationWarning>
+          <div className="mb-12 sm:mb-20 text-center">
+            <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl" suppressHydrationWarning>
               {t("home.features.title")}
             </h2>
-            <p className="text-xl text-muted-foreground md:text-2xl" suppressHydrationWarning>
+            <p className="text-lg sm:text-xl text-muted-foreground md:text-2xl" suppressHydrationWarning>
               {t("home.features.subtitle")}
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
             {/* Companies Card */}
             <motion.div variants={itemVariants}>
               <Card className="group relative h-full overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center md:text-left pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
-                    <Building2 className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
+                    <Building2 className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl md:text-xl mb-3" suppressHydrationWarning>
+                  <CardTitle className="text-xl sm:text-2xl md:text-xl mb-2 sm:mb-3" suppressHydrationWarning>
                     {t("home.features.companies")}
                   </CardTitle>
-                  <CardDescription className="text-base md:text-sm leading-relaxed" suppressHydrationWarning>
+                  <CardDescription className="text-sm sm:text-base md:text-sm leading-relaxed" suppressHydrationWarning>
                     {t("home.features.companiesDesc")}
                   </CardDescription>
                 </CardHeader>
@@ -250,13 +250,13 @@ export default function HomePage() {
               <Card className="group relative h-full overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center md:text-left pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
-                    <FileText className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
+                    <FileText className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl md:text-xl mb-3" suppressHydrationWarning>
+                  <CardTitle className="text-xl sm:text-2xl md:text-xl mb-2 sm:mb-3" suppressHydrationWarning>
                     {t("home.features.talks")}
                   </CardTitle>
-                  <CardDescription className="text-base md:text-sm leading-relaxed" suppressHydrationWarning>
+                  <CardDescription className="text-sm sm:text-base md:text-sm leading-relaxed" suppressHydrationWarning>
                     {t("home.features.talksDesc")}
                   </CardDescription>
                 </CardHeader>
@@ -281,13 +281,13 @@ export default function HomePage() {
               <Card className="group relative h-full overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center md:text-left pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
-                    <Calendar className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
+                    <Calendar className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl md:text-xl mb-3" suppressHydrationWarning>
+                  <CardTitle className="text-xl sm:text-2xl md:text-xl mb-2 sm:mb-3" suppressHydrationWarning>
                     {t("home.features.events")}
                   </CardTitle>
-                  <CardDescription className="text-base md:text-sm leading-relaxed" suppressHydrationWarning>
+                  <CardDescription className="text-sm sm:text-base md:text-sm leading-relaxed" suppressHydrationWarning>
                     {t("home.features.eventsDesc")}
                   </CardDescription>
                 </CardHeader>
@@ -312,13 +312,13 @@ export default function HomePage() {
               <Card className="group relative h-full overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center md:text-left pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
-                    <Briefcase className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-primary/10 mx-auto md:mx-0 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/10 group-hover:shadow-primary/20">
+                    <Briefcase className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl md:text-xl mb-3" suppressHydrationWarning>
+                  <CardTitle className="text-xl sm:text-2xl md:text-xl mb-2 sm:mb-3" suppressHydrationWarning>
                     {t("home.features.jobs")}
                   </CardTitle>
-                  <CardDescription className="text-base md:text-sm leading-relaxed" suppressHydrationWarning>
+                  <CardDescription className="text-sm sm:text-base md:text-sm leading-relaxed" suppressHydrationWarning>
                     {t("home.features.jobsDesc")}
                   </CardDescription>
                 </CardHeader>
@@ -342,48 +342,48 @@ export default function HomePage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-24 md:py-32">
+      <section className="py-16 sm:py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-16 text-center">
-              <h2 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl" suppressHydrationWarning>
+            <div className="mb-12 sm:mb-16 text-center">
+              <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl" suppressHydrationWarning>
                 {t("home.whyChoose.title")}
               </h2>
-              <p className="text-xl text-muted-foreground md:text-2xl" suppressHydrationWarning>
+              <p className="text-lg sm:text-xl text-muted-foreground md:text-2xl" suppressHydrationWarning>
                 {t("home.whyChoose.subtitle")}
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-3">
-              <div className="group text-center p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
-                <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 shadow-lg shadow-primary/10 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-primary/20">
-                  <Zap className="h-10 w-10 text-primary transition-colors duration-500 group-hover:text-white" />
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-3">
+              <div className="group text-center p-6 sm:p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
+                <div className="mb-4 sm:mb-6 inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-primary/10 shadow-lg shadow-primary/10 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-primary/20">
+                  <Zap className="h-8 w-8 sm:h-10 sm:w-10 text-primary transition-colors duration-500 group-hover:text-white" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold" suppressHydrationWarning>
+                <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold" suppressHydrationWarning>
                   {t("home.whyChoose.fast")}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed" suppressHydrationWarning>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed" suppressHydrationWarning>
                   {t("home.whyChoose.fastDesc")}
                 </p>
               </div>
-              <div className="group text-center p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
-                <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 shadow-lg shadow-primary/10 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-primary/20">
-                  <Shield className="h-10 w-10 text-primary transition-colors duration-500 group-hover:text-white" />
+              <div className="group text-center p-6 sm:p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
+                <div className="mb-4 sm:mb-6 inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-primary/10 shadow-lg shadow-primary/10 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-primary/20">
+                  <Shield className="h-8 w-8 sm:h-10 sm:w-10 text-primary transition-colors duration-500 group-hover:text-white" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold" suppressHydrationWarning>
+                <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold" suppressHydrationWarning>
                   {t("home.whyChoose.secure")}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed" suppressHydrationWarning>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed" suppressHydrationWarning>
                   {t("home.whyChoose.secureDesc")}
                 </p>
               </div>
-              <div className="group text-center p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
-                <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 shadow-lg shadow-primary/10 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-primary/20">
-                  <Globe className="h-10 w-10 text-primary transition-colors duration-500 group-hover:text-white" />
+              <div className="group text-center p-6 sm:p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
+                <div className="mb-4 sm:mb-6 inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-primary/10 shadow-lg shadow-primary/10 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-primary/20">
+                  <Globe className="h-8 w-8 sm:h-10 sm:w-10 text-primary transition-colors duration-500 group-hover:text-white" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold" suppressHydrationWarning>
+                <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold" suppressHydrationWarning>
                   {t("home.whyChoose.global")}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed" suppressHydrationWarning>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed" suppressHydrationWarning>
                   {t("home.whyChoose.globalDesc")}
                 </p>
               </div>
@@ -393,7 +393,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 md:py-32">
+      <section className="py-16 sm:py-24 md:py-32">
         <motion.div
           ref={ctaRef}
           initial="hidden"
@@ -403,28 +403,28 @@ export default function HomePage() {
         >
           <motion.div
             variants={itemVariants}
-            className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl gradient-red p-16 text-center text-white shadow-2xl md:p-20 lg:p-24"
+            className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl gradient-red p-8 sm:p-16 text-center text-white shadow-2xl md:p-20 lg:p-24"
           >
             <div className="absolute inset-0 bg-dot-pattern opacity-20" />
-            <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute bottom-10 left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute top-10 right-10 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute bottom-10 left-10 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-white/10 blur-3xl" />
 
             <div className="relative">
               <h2
-                className="mb-8 text-balance text-4xl font-bold md:text-5xl lg:text-6xl text-shadow-sm"
+                className="mb-6 sm:mb-8 text-balance text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl text-shadow-sm"
                 suppressHydrationWarning
               >
                 {t("home.cta.title")}
               </h2>
-              <p className="mb-12 text-pretty text-xl opacity-95 md:text-2xl lg:text-3xl" suppressHydrationWarning>
+              <p className="mb-8 sm:mb-12 text-pretty text-lg sm:text-xl opacity-95 md:text-2xl lg:text-3xl" suppressHydrationWarning>
                 {t("home.cta.subtitle")}
               </p>
-              <div className="flex flex-col justify-center gap-6 sm:flex-row">
+              <div className="flex flex-col justify-center gap-4 sm:gap-6 sm:flex-row">
                 <Button
                   size="lg"
                   variant="secondary"
                   asChild
-                  className="text-lg px-10 py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                  className="text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto"
                 >
                   <Link href="/register" suppressHydrationWarning>
                     {t("nav.register")}
@@ -434,7 +434,7 @@ export default function HomePage() {
                   size="lg"
                   variant="outline"
                   asChild
-                  className="border-2 border-white text-white hover:bg-white hover:text-primary bg-transparent text-lg px-10 py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                  className="border-2 border-white text-white hover:bg-white hover:text-primary bg-transparent text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto"
                 >
                   <Link href="/partner" suppressHydrationWarning>
                     {t("nav.partner")}

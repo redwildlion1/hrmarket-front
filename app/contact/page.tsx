@@ -48,13 +48,13 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-12 text-center">
-        <h1 className="mb-4 text-balance text-4xl font-bold md:text-5xl">{t("contact.title")}</h1>
-        <p className="text-pretty text-lg text-muted-foreground">{t("contact.subtitle")}</p>
+    <div className="container mx-auto px-4 py-8 sm:py-12">
+      <div className="mb-8 sm:mb-12 text-center">
+        <h1 className="mb-3 sm:mb-4 text-balance text-3xl sm:text-4xl font-bold md:text-5xl">{t("contact.title")}</h1>
+        <p className="text-pretty text-base sm:text-lg text-muted-foreground">{t("contact.subtitle")}</p>
       </div>
 
-      <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
+      <div className="mx-auto grid max-w-5xl gap-6 sm:gap-8 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>{t("contact.title")}</CardTitle>

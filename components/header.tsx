@@ -111,10 +111,10 @@ export function Header() {
                     size="sm"
                     variant="ghost"
                     asChild
-                    className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
+                    className="h-10 w-10 rounded-full p-0 hover:bg-primary hover:text-white transition-all"
                   >
                     <Link href="/admin">
-                      <Shield className="h-5 w-5 text-primary" />
+                      <Shield className="h-5 w-5" />
                     </Link>
                   </Button>
                 )}
@@ -123,7 +123,7 @@ export function Header() {
                     size="sm"
                     variant="ghost"
                     asChild
-                    className="h-10 w-10 rounded-full p-0 hover:bg-primary/10 transition-all"
+                    className="h-10 w-10 rounded-full p-0 hover:bg-primary hover:text-white transition-all"
                   >
                     <Link href={userInfo.hasFirm ? "/firm/manage" : "/profile"}>
                       {userInfo.hasFirm ? <Building2 className="h-5 w-5" /> : <User className="h-5 w-5" />}
@@ -134,9 +134,9 @@ export function Header() {
                   size="sm"
                   variant="ghost"
                   onClick={handleLogout}
-                  className="h-10 w-10 rounded-full p-0 hover:bg-destructive/10 transition-all"
+                  className="h-10 w-10 rounded-full p-0 hover:bg-destructive hover:text-white transition-all"
                 >
-                  <LogOut className="h-5 w-5 text-destructive" />
+                  <LogOut className="h-5 w-5" />
                 </Button>
               </>
             ) : (

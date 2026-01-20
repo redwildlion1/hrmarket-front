@@ -7,6 +7,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
+import { ReactQueryProvider } from "@/lib/react-query/provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -23,18 +24,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          <LanguageProvider>
-            <Suspense fallback={<div>Loading...</div>}>
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-              <Toaster />
-            </Suspense>
-          </LanguageProvider>
-        </AuthProvider>
+        <ReactQueryProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <Suspense fallback={<div>Loading...</div>}>
+                <div className="flex min-h-screen flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+                <Toaster />
+              </Suspense>
+            </LanguageProvider>
+          </AuthProvider>
+        </ReactQueryProvider>
         <Analytics />
       </body>
     </html>

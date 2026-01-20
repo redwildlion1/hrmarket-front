@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface LogoCarouselProps {
   logos?: Array<{ name: string; src: string }>
 }
 
 export function LogoCarousel({ logos }: LogoCarouselProps) {
+  const { t } = useLanguage()
   const [isPaused, setIsPaused] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -51,7 +53,7 @@ export function LogoCarousel({ logos }: LogoCarouselProps) {
     <div className="relative w-full overflow-hidden bg-muted/20 py-12">
       <div className="container mx-auto px-4">
         <h3 className="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Trusted by Leading HR Companies
+          {t("home.trustedBy")}
         </h3>
       </div>
 

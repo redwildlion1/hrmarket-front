@@ -1,11 +1,11 @@
 import { apiClient } from './client';
 
-export type MediaType = 'logo' | 'cover';
+export type MediaType = 'logo' | 'banner';
 
 export async function uploadCompanyMedia(
-    companyId: string,
     type: MediaType,
     file: File
 ) {
-    return apiClient.firms.uploadMedia(companyId, file, type);
+    const backendType = type === 'logo' ? 'Logo' : 'Banner';
+    return apiClient.firms.uploadMedia(file, backendType);
 }

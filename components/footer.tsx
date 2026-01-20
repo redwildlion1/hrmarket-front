@@ -6,17 +6,45 @@ import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { useState } from "react"
-import { Mail, MapPin, Phone, Sparkles, Send } from "lucide-react"
+import { Mail, MapPin, Phone, Sparkles, Send, CheckCircle2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 export function Footer() {
   const { t } = useLanguage()
   const [email, setEmail] = useState("")
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const currentYear = new Date().getFullYear()
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Newsletter subscription:", email)
-    setEmail("")
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Newsletter/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (response.ok) {
+        setIsSubscribed(true)
+        setEmail("")
+        // Reset success state after 3 seconds
+        setTimeout(() => {
+          setIsSubscribed(false)
+        }, 3000)
+      } else {
+        // Handle error (optional: show error message)
+        console.error("Newsletter subscription failed with status:", response.status)
+      }
+    } catch (error) {
+      console.error("Newsletter subscription failed:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -122,7 +150,7 @@ export function Footer() {
           <div className="space-y-6 text-center md:text-left">
             <h3 className="font-bold text-xl md:text-lg text-primary">{t("footer.newsletter")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Stay updated with the latest HR trends and opportunities
+              {t("footer.newsletterDesc")}
             </p>
             <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-3">
               <Input
@@ -131,11 +159,42 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading || isSubscribed}
                 className="bg-background border-2 h-12"
               />
-              <Button type="submit" size="sm" className="w-full h-12 gap-2 shadow-lg shadow-primary/20">
-                <Send className="h-4 w-4" />
-                {t("footer.subscribe")}
+              <Button 
+                type="submit" 
+                size="sm" 
+                disabled={isLoading || isSubscribed}
+                className={`w-full h-12 gap-2 shadow-lg shadow-primary/20 transition-all duration-500 ${
+                  isSubscribed ? "bg-green-500 hover:bg-green-600" : ""
+                }`}
+              >
+                <AnimatePresence mode="wait">
+                  {isSubscribed ? (
+                    <motion.div
+                      key="success"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      className="flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="h-5 w-5" />
+                      <span>{t("footer.subscribed")}</span>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="default"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Send className="h-4 w-4" />
+                      <span>{isLoading ? t("common.loading") : t("footer.subscribe")}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </Button>
             </form>
           </div>

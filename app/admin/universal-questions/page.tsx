@@ -22,7 +22,6 @@ import { Plus, Trash2, ArrowLeft, Edit, GripVertical, X } from 'lucide-react'
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
-import { useAdminCheck } from "@/hooks/use-admin-check"
 import { IconPicker } from "@/components/admin/icon-picker"
 import { renderIcon } from "@/lib/utils/icons"
 
@@ -31,6 +30,7 @@ type UniversalQuestion = {
   icon?: string
   order: number
   isRequired: boolean
+  isActive?: boolean
   createdAt: string
   updatedAt: string | null
   translations: Array<{
@@ -67,7 +67,6 @@ type QuestionOption = {
 }
 
 export default function UniversalQuestionsPage() {
-  useAdminCheck()
   const { t, language } = useLanguage()
   const router = useRouter()
   const { toast } = useToast()
@@ -102,7 +101,7 @@ export default function UniversalQuestionsPage() {
   const loadData = async () => {
     try {
       const data = await apiClient.admin.universalQuestions.getAll()
-      setQuestions(data.questions)
+      setQuestions(data || [])
     } catch (error) {
       toast({
         title: t("admin.error"),
@@ -511,7 +510,7 @@ export default function UniversalQuestionsPage() {
 
               {/* English */}
               <div className="space-y-3 rounded-lg border p-4">
-                <h4 className="text-sm font-medium">English</h4>
+                <h4 className="text-sm font-medium">{t("admin.lang.en")}</h4>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="titleEn">{t("admin.title")}</Label>
@@ -554,7 +553,7 @@ export default function UniversalQuestionsPage() {
 
               {/* Romanian */}
               <div className="space-y-3 rounded-lg border p-4">
-                <h4 className="text-sm font-medium">Română</h4>
+                <h4 className="text-sm font-medium">{t("admin.lang.ro")}</h4>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="titleRo">{t("admin.title")}</Label>
@@ -618,7 +617,7 @@ export default function UniversalQuestionsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Value (unique identifier)</Label>
+                    <Label>{t("admin.valueIdentifier")}</Label>
                     <Input
                       value={option.value}
                       onChange={(e) => updateOption(index, "value", e.target.value)}
@@ -628,7 +627,7 @@ export default function UniversalQuestionsPage() {
 
                   {/* English Option */}
                   <div className="space-y-2 rounded border-l-2 border-blue-500 pl-3">
-                    <p className="text-xs font-medium text-muted-foreground">English</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("admin.lang.en")}</p>
                     <div className="grid gap-2 sm:grid-cols-2">
                       <Input
                         value={option.labelEn}
@@ -645,7 +644,7 @@ export default function UniversalQuestionsPage() {
 
                   {/* Romanian Option */}
                   <div className="space-y-2 rounded border-l-2 border-yellow-500 pl-3">
-                    <p className="text-xs font-medium text-muted-foreground">Română</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("admin.lang.ro")}</p>
                     <div className="grid gap-2 sm:grid-cols-2">
                       <Input
                         value={option.labelRo}

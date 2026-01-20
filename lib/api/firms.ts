@@ -1,4 +1,4 @@
-import { api, withAuth } from "./client"
+import { api, withAuth, withoutAuth } from "./client"
 import type { CompanyFormData, CompanyType, Country, County } from "@/lib/types/company"
 
 // Request types
@@ -8,6 +8,10 @@ export interface UpdateFirmRequest extends Partial<CompanyFormData> {}
 
 export interface UpdateFirmCategoriesRequest {
   categoryIds: number[]
+}
+
+export interface UpdateUniversalAnswersRequest {
+    answers: UniversalQuestionAnswerItem[]
 }
 
 // Response types
@@ -30,7 +34,7 @@ export interface Firm {
   locationCity: string
   locationPostalCode?: string
   logoUrl?: string
-  coverUrl?: string
+  bannerUrl?: string
   categories?: number[]
   subscriptionTier?: string
   createdAt: string
@@ -62,7 +66,7 @@ export interface FirmDetailsDto {
   locationCity: string
   locationPostalCode?: string
   logoUrl?: string
-  coverImageUrl?: string
+  bannerUrl?: string
   universalAnswers: FirmUniversalAnswer[]
 }
 
@@ -95,6 +99,13 @@ export interface FirmDetailsForEditingDto {
     facebook?: string
     twitter?: string
     instagram?: string
+  }
+  location: {
+    address?: string
+    countryId: string
+    countyId: string
+    cityId: string
+    postalCode?: string
   }
   media: Array<{
     url: string
@@ -148,60 +159,183 @@ export interface FirmDetailsForEditingDto {
   }
 }
 
+// DTOs for Firm Details Page
+export interface FirmDetailsForDisplayDto {
+    id: string
+    cui: string
+    name: string
+    logoUrl?: string
+    bannerUrl?: string
+    status: number // FirmStatus enum
+    description: string
+    forms: GetCategoryFormForDisplayDto[]
+    universalAnswers: UniversalQuestionAnswerItem[]
+    contact: FirmContactDto
+    links: FirmLinksDto
+    location: FirmLocationDto
+    categoryIds: string[]
+}
+
+export interface FirmLocationDto {
+    address?: string
+    countryId: string
+    countyId: string
+    cityId: string
+    postalCode?: string
+}
+
+export interface GetCategoryFormForDisplayDto {
+    categoryId: string
+    questionsWithAnswers: CategoryQuestionsWithAnswers[]
+}
+
+export interface CategoryQuestionsWithAnswers {
+    categoryQuestion: CategoryQuestionWithTranslations
+    categoryAnswer?: CategoryAnswerWithTranslations
+}
+
+export interface CategoryQuestionWithTranslations {
+    id: string
+    type: number // QuestionType enum
+    updatedAt: string
+    isRequired: boolean
+    translations: CategoryQuestionTranslation[]
+    options: CategoryQuestionOption[]
+}
+
+export interface CategoryQuestionTranslation {
+    languageCode: string
+    title: string
+    description: string
+    placeholder?: string
+}
+
+export interface CategoryQuestionOption {
+    id: string
+    translations: CategoryQuestionOptionTranslation[]
+}
+
+export interface CategoryQuestionOptionTranslation {
+    languageCode: string
+    label: string
+    description: string
+}
+
+export interface CategoryAnswerWithTranslations {
+    id: string
+    translations: CategoryAnswerTranslationDto[]
+    value?: string
+    selectedOptionIds: string[]
+    updatedAt: string
+}
+
+export interface CategoryAnswerTranslationDto {
+    languageCode: string
+    text: string
+}
+
+export interface UniversalQuestionAnswerItem {
+    universalQuestionId: string
+    selectedOptionId: string
+}
+
+export interface FirmContactDto {
+    phone?: string
+    email?: string
+}
+
+export interface FirmLinksDto {
+    website?: string
+    linkedIn?: string
+    facebook?: string
+    twitter?: string
+    instagram?: string
+}
+
 // Firms API methods
 export const firmsApi = {
   // GET /firms
   getAll: async (params?: { page?: number; pageSize?: number; search?: string }): Promise<FirmListResponse> => {
-    const response = await api.get<FirmListResponse>("/firms", { params })
-    return response.data
+    const queryParams = new URLSearchParams();
+    if (params) {
+        if (params.page) queryParams.append("page", params.page.toString());
+        if (params.pageSize) queryParams.append("pageSize", params.pageSize.toString());
+        if (params.search) queryParams.append("search", params.search);
+    }
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+    return withoutAuth<FirmListResponse>(`/firms${queryString}`)
   },
 
   // GET /firms/:id
-  getById: async (id: string): Promise<Firm> => {
-    const response = await api.get<Firm>(`/firms/${id}`)
-    return response.data
+  getById: async (id: string): Promise<FirmDetailsForDisplayDto> => {
+    return withoutAuth<FirmDetailsForDisplayDto>(`/firms/${id}`)
   },
 
   // GET /firms/my
-  getMyFirms: async (token: string): Promise<Firm[]> => {
-    const response = await api.get<Firm[]>("/firms/my", withAuth(token))
-    return response.data
+  getMyFirms: async (): Promise<Firm[]> => {
+    return withAuth<Firm[]>("/firms/my")
   },
 
   // POST /firms
-  create: async (data: CreateFirmRequest, token: string): Promise<{ id: string }> => {
-    const response = await api.post<{ id: string }>("/firms", data, withAuth(token))
-    return response.data
+  create: async (data: CreateFirmRequest): Promise<{ id: string }> => {
+    return withAuth<{ id: string }>("/firms", {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
   },
 
   // PUT /firms/:id
-  update: async (id: string, data: UpdateFirmRequest, token: string): Promise<Firm> => {
-    const response = await api.put<Firm>(`/firms/${id}`, data, withAuth(token))
-    return response.data
+  update: async (id: string, data: UpdateFirmRequest): Promise<Firm> => {
+    return withAuth<Firm>(`/firms/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data)
+    })
   },
 
   // DELETE /firms/:id
-  delete: async (id: string, token: string): Promise<void> => {
-    await api.delete(`/firms/${id}`, withAuth(token))
+  delete: async (id: string): Promise<void> => {
+    return withAuth<void>(`/firms/${id}`, {
+        method: "DELETE"
+    })
   },
 
   // PUT /firms/:id/categories
-  updateCategories: async (id: string, data: UpdateFirmCategoriesRequest, token: string): Promise<void> => {
-    await api.put(`/firms/${id}/categories`, data, withAuth(token))
+  updateCategories: async (id: string, data: UpdateFirmCategoriesRequest): Promise<void> => {
+    return withAuth<void>(`/firms/${id}/categories`, {
+        method: "PUT",
+        body: JSON.stringify(data)
+    })
   },
 
   // GET /firms/search?query=...
-  search: async (query: string): Promise<Firm[]> => {
-    const response = await api.get<Firm[]>("/firms/search", {
-      params: { query },
-    })
-    return response.data
+  search: async (params: {
+    categoryId?: string
+    name?: string
+    optionIds?: string[]
+    pageNumber?: number
+    pageSize?: number
+  }) => {
+    return api.firms.search(params)
   },
 
   // GET /firm/my-firm
   getMyFirm: async (): Promise<FirmDetailsForEditingDto> => {
-    const response = await api.get<FirmDetailsForEditingDto>("/firm/my-firm")
-    return response.data
+    return api.firm.getMyFirm()
+  },
+
+  // PUT /api/universal-questions/update-answers
+  updateUniversalAnswers: async (data: UpdateUniversalAnswersRequest): Promise<void> => {
+    return withAuth<void>("/universal-questions/update-answers", {
+        method: "PUT",
+        body: JSON.stringify(data)
+    })
+  },
+
+  // POST /api/firms/submit-for-review
+  submitForReview: async (): Promise<void> => {
+    return withAuth<void>("/firms/submit-for-review", {
+        method: "POST"
+    })
   },
 }
 
@@ -209,21 +343,16 @@ export const firmsApi = {
 export const firmHelpers = {
   // GET /company-types
   getCompanyTypes: async (): Promise<CompanyType[]> => {
-    const response = await api.get<CompanyType[]>("/company-types")
-    return response.data
+    return withoutAuth<CompanyType[]>("/company-types")
   },
 
   // GET /countries
   getCountries: async (): Promise<Country[]> => {
-    const response = await api.get<Country[]>("/countries")
-    return response.data
+    return withoutAuth<Country[]>("/countries")
   },
 
   // GET /counties?countryId=...
   getCounties: async (countryId: number): Promise<County[]> => {
-    const response = await api.get<County[]>("/counties", {
-      params: { countryId },
-    })
-    return response.data
+    return withoutAuth<County[]>(`/counties?countryId=${countryId}`)
   },
 }

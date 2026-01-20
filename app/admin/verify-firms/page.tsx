@@ -6,6 +6,7 @@ import { useLanguage } from "@/lib/i18n/language-context"
 import { useAdminCheck } from "@/lib/hooks/use-admin-check"
 import { adminApi } from "@/lib/api/admin"
 import type { FirmVerification } from "@/lib/types/admin"
+import { FirmRejectionReasonType } from "@/lib/types/admin"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,9 +20,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { CheckCircle, XCircle, ArrowLeft } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CheckCircle, XCircle, ArrowLeft, Building, Mail, Calendar, FileText, Info } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
 
 export default function VerifyFirmsPage() {
   const { t } = useLanguage()
@@ -31,8 +34,9 @@ export default function VerifyFirmsPage() {
   const [firms, setFirms] = useState<FirmVerification[]>([])
   const [selectedFirm, setSelectedFirm] = useState<FirmVerification | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [verificationStatus, setVerificationStatus] = useState<"verified" | "rejected">("verified")
-  const [notes, setNotes] = useState("")
+  const [verificationStatus, setVerificationStatus] = useState<"approved" | "rejected">("approved")
+  const [rejectionReason, setRejectionReason] = useState<string | undefined>(undefined)
+  const [rejectionNote, setRejectionNote] = useState("")
 
   useAdminCheck(30000)
 
@@ -42,7 +46,7 @@ export default function VerifyFirmsPage() {
 
   const loadFirms = async () => {
     try {
-      const data = await adminApi.getPendingFirms()
+      const data = await adminApi.getFirmsAwaitingReview()
       setFirms(data)
     } catch (error) {
       if (error instanceof Error && error.message.includes("Unauthorized")) {
@@ -50,8 +54,8 @@ export default function VerifyFirmsPage() {
         return
       }
       toast({
-        title: t("admin.error"),
-        description: "Failed to load firms",
+        title: t("common.error"),
+        description: t("firm.loadError"),
         variant: "destructive",
       })
     } finally {
@@ -59,11 +63,17 @@ export default function VerifyFirmsPage() {
     }
   }
 
-  const handleVerify = (firm: FirmVerification, status: "verified" | "rejected") => {
+  const handleVerify = (firm: FirmVerification, status: "approved" | "rejected") => {
     setSelectedFirm(firm)
     setVerificationStatus(status)
-    setNotes("")
+    setRejectionReason(undefined)
+    setRejectionNote("")
     setIsDialogOpen(true)
+  }
+
+  const handleMoreDetails = (firm: FirmVerification) => {
+    // Logic for more details will be implemented later
+    console.log("More details for firm:", firm.id)
   }
 
   const handleSubmitVerification = async () => {
@@ -73,29 +83,41 @@ export default function VerifyFirmsPage() {
       await adminApi.verifyFirm({
         firmId: selectedFirm.id,
         status: verificationStatus,
-        notes,
+        rejectionReason: verificationStatus === "rejected" ? rejectionReason : undefined,
+        rejectionNote: verificationStatus === "rejected" ? rejectionNote : undefined,
       })
       toast({ title: t("admin.verifySuccess") })
       setIsDialogOpen(false)
       setSelectedFirm(null)
-      setNotes("")
       loadFirms()
     } catch (error) {
       toast({
-        title: t("admin.error"),
-        description: "Failed to verify firm",
+        title: t("common.error"),
+        description: t("firm.submitError"),
         variant: "destructive",
       })
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive"> = {
-      pending: "secondary",
-      verified: "default",
-      rejected: "destructive",
+  const getStatusBadge = (status: number) => {
+    const statusMap: Record<number, string> = {
+      0: "Draft",
+      1: "AwaitingReview",
+      2: "Approved",
+      3: "Rejected",
+      4: "Suspended",
+      5: "Trusted",
     }
-    return <Badge variant={variants[status] || "default"}>{t(`admin.${status}`)}</Badge>
+    const statusKey = statusMap[status] || "Unknown"
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      AwaitingReview: "secondary",
+      Approved: "default",
+      Rejected: "destructive",
+      Draft: "outline",
+      Suspended: "destructive",
+      Trusted: "default",
+    }
+    return <Badge variant={variants[statusKey] || "default"}>{t(`firm.status.${statusKey.toLowerCase()}` as any) || statusKey}</Badge>
   }
 
   if (loading) {
@@ -116,68 +138,104 @@ export default function VerifyFirmsPage() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold md:text-4xl">{t("admin.verifyFirms")}</h1>
-        <p className="mt-2 text-muted-foreground">Review and verify pending company registrations</p>
+        <p className="mt-2 text-muted-foreground">{t("admin.verifyFirmsDesc")}</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {firms.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No pending firms to verify</p>
-            </CardContent>
-          </Card>
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">{t("companies.noResults")}</p>
+              </CardContent>
+            </Card>
+          </div>
         ) : (
           firms.map((firm) => (
-            <Card key={firm.id}>
+            <Card key={firm.id} className="flex flex-col">
               <CardHeader>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <CardTitle className="text-xl">{firm.firmName}</CardTitle>
-                      {getStatusBadge(firm.status)}
-                    </div>
-                    <div className="mt-3 space-y-1 text-sm">
-                      <p>
-                        <span className="font-medium">{t("admin.cui")}:</span> {firm.cui}
-                      </p>
-                      <p>
-                        <span className="font-medium">{t("admin.contactEmail")}:</span> {firm.contactEmail}
-                      </p>
-                      <p className="text-muted-foreground">
-                        <span className="font-medium">{t("admin.submittedAt")}:</span>{" "}
-                        {new Date(firm.submittedAt).toLocaleDateString()}
-                      </p>
-                      {firm.notes && (
-                        <p className="mt-2">
-                          <span className="font-medium">{t("admin.notes")}:</span> {firm.notes}
-                        </p>
-                      )}
-                    </div>
+                <div className="relative mb-4 h-40 w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={firm.bannerUrl || "/placeholder.svg"}
+                    alt={`${firm.name} banner`}
+                    layout="fill"
+                    objectFit="cover"
+                    className="bg-muted"
+                  />
+                  <div className="absolute bottom-2 left-2">
+                    <Image
+                      src={firm.logoUrl || "/placeholder.svg"}
+                      alt={`${firm.name} logo`}
+                      width={64}
+                      height={64}
+                      className="rounded-full border-4 border-background bg-background"
+                    />
                   </div>
-                  {firm.status === "pending" && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() => handleVerify(firm, "verified")}
-                        className="gap-2"
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                        {t("admin.verify")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleVerify(firm, "rejected")}
-                        className="gap-2"
-                      >
-                        <XCircle className="h-4 w-4" />
-                        {t("admin.reject")}
-                      </Button>
-                    </div>
-                  )}
                 </div>
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-xl">{firm.name}</CardTitle>
+                  {getStatusBadge(firm.status)}
+                </div>
+                <p className="text-sm text-muted-foreground">{firm.type}</p>
               </CardHeader>
+              <CardContent className="flex-grow space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Building className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    <span className="font-medium">{t("firm.cui")}:</span> {firm.cui}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    <span className="font-medium">{t("firm.ownerEmail")}:</span> {firm.ownerEmail}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    <span className="font-medium">{t("jobs.postedOn")}:</span>{" "}
+                    {new Date(firm.submittedForReviewAt).toLocaleDateString()}
+                  </span>
+                </div>
+                {firm.description && (
+                  <div className="flex items-start gap-2">
+                    <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    <p className="line-clamp-3">{firm.description}</p>
+                  </div>
+                )}
+              </CardContent>
+              <div className="flex items-center justify-between p-4 border-t bg-muted/10">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleMoreDetails(firm)}
+                  className="gap-2"
+                >
+                  <Info className="h-4 w-4" />
+                  {t("common.moreDetails")}
+                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => handleVerify(firm, "approved")}
+                    className="gap-2"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {t("common.yes")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleVerify(firm, "rejected")}
+                    className="gap-2"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    {t("common.no")}
+                  </Button>
+                </div>
+              </div>
             </Card>
           ))
         )}
@@ -186,32 +244,53 @@ export default function VerifyFirmsPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{verificationStatus === "verified" ? t("admin.verify") : t("admin.reject")} Firm</DialogTitle>
+            <DialogTitle>
+              {verificationStatus === "approved" ? t("firm.status.approved") : t("firm.status.rejected")}
+            </DialogTitle>
             <DialogDescription>
-              {selectedFirm?.firmName} - {selectedFirm?.cui}
+              {selectedFirm?.name} - {selectedFirm?.cui}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="notes">{t("admin.verificationNotes")}</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add any notes about this verification..."
-                rows={4}
-              />
+          {verificationStatus === "rejected" && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="rejectionReason">{t("firm.rejectionReason")}</Label>
+                <Select onValueChange={setRejectionReason} value={rejectionReason}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("firm.selectRejectionReason")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(FirmRejectionReasonType)
+                      .filter(([key]) => isNaN(Number(key)))
+                      .map(([key, value]) => (
+                        <SelectItem key={value} value={String(value)}>
+                          {t(`enums.firmRejectionReasonType.${key}` as any)}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="rejectionNote">{t("contact.message")}</Label>
+                <Textarea
+                  id="rejectionNote"
+                  value={rejectionNote}
+                  onChange={(e) => setRejectionNote(e.target.value)}
+                  placeholder={t("firm.answerPlaceholder")}
+                  rows={4}
+                />
+              </div>
             </div>
-          </div>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              {t("admin.cancel")}
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleSubmitVerification}
-              variant={verificationStatus === "verified" ? "default" : "destructive"}
+              variant={verificationStatus === "approved" ? "default" : "destructive"}
             >
-              {verificationStatus === "verified" ? t("admin.verify") : t("admin.reject")}
+              {t("common.submit")}
             </Button>
           </DialogFooter>
         </DialogContent>

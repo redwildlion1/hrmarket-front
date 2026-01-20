@@ -113,18 +113,39 @@ export const AVAILABLE_ICONS = [
   "Copy",
   "Scissors",
   "Paperclip",
+  "ChartLine",
+  "Calculator",
+  "HardHat",
+  "HeartPulse",
+  "Circle",
 ] as const
 
 export type IconName = (typeof AVAILABLE_ICONS)[number]
 
 // Render an icon from its string name
 export function renderIcon(iconName: string, props?: React.ComponentProps<LucideIcons.LucideIcon>) {
-  const Icon = (LucideIcons as any)[iconName] as LucideIcons.LucideIcon
+  // 1. Try direct lookup
+  let Icon = (LucideIcons as any)[iconName]
+
+  // 2. Try PascalCase conversion (e.g. "chart-line" -> "ChartLine")
+  if (!Icon && typeof iconName === "string") {
+    const pascalName = iconName
+      .split("-")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join("")
+    Icon = (LucideIcons as any)[pascalName]
+  }
+
+  // 3. Manual mappings
+  if (!Icon) {
+    if (iconName === "heartbeat") Icon = (LucideIcons as any)["HeartPulse"]
+  }
 
   if (!Icon) {
     // Fallback to a default icon if the name is not found
     return <LucideIcons.HelpCircle {...props} />
   }
 
-  return <Icon {...props} />
+  const Component = Icon as LucideIcons.LucideIcon
+  return <Component {...props} />
 }

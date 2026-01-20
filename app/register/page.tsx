@@ -63,7 +63,7 @@ function RegisterForm() {
             status: 400,
             timestamp: new Date().toISOString(),
             validationErrors: {
-              password: ["Password must be at least 8 characters long"],
+              password: [t("auth.passwordMinLength")],
             },
           },
         },
@@ -109,22 +109,23 @@ function RegisterForm() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70"
+              className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70"
             >
-              <CheckCircle2 className="h-10 w-10 text-white" />
+              <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
             </motion.div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               {t("auth.success")}
             </CardTitle>
-            <CardDescription className="text-base">{t("auth.checkEmail")}</CardDescription>
+            <CardDescription className="text-sm sm:text-base">{t("auth.checkEmail")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 space-y-3">
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 sm:p-6 space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary" />
                 <p className="text-sm font-medium text-foreground">{email}</p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">{t("auth.checkEmail")}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed font-medium">{t("auth.checkSpam")}</p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-2">
@@ -142,42 +143,42 @@ function RegisterForm() {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <Card className="w-full max-w-md border-0 shadow-2xl backdrop-blur-sm bg-white/95">
         <CardHeader className="space-y-1 pb-6">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             {t("auth.register")}
           </CardTitle>
-          <CardDescription className="text-base">{t("auth.registerDescription")}</CardDescription>
+          <CardDescription className="text-sm sm:text-base">{t("auth.registerDescription")}</CardDescription>
         </CardHeader>
         <form onSubmit={handleRegister}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6">
             {apiError && !apiError.isValidationError && <ErrorAlert />}
 
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t("auth.accountType")}</Label>
-              <div className="flex items-center gap-4 p-4 rounded-lg border-2 border-muted bg-muted/30 transition-colors">
-                <div className="flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border-2 border-muted bg-muted/30 transition-colors">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1">
                   <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${!isFirm ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                    className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg transition-colors ${!isFirm ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
                   >
-                    <User className="h-5 w-5" />
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <span
-                    className={`text-sm font-medium transition-colors ${!isFirm ? "text-foreground" : "text-muted-foreground"}`}
+                    className={`text-xs sm:text-sm font-medium transition-colors ${!isFirm ? "text-foreground" : "text-muted-foreground"}`}
                   >
                     {t("auth.personalAccount")}
                   </span>
                 </div>
                 <Switch checked={isFirm} onCheckedChange={setIsFirm} disabled={loading} />
-                <div className="flex items-center gap-3 flex-1">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${isFirm ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
-                  >
-                    <Building2 className="h-5 w-5" />
-                  </div>
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-end">
                   <span
-                    className={`text-sm font-medium transition-colors ${isFirm ? "text-foreground" : "text-muted-foreground"}`}
+                    className={`text-xs sm:text-sm font-medium transition-colors ${isFirm ? "text-foreground" : "text-muted-foreground"}`}
                   >
                     {t("auth.firmAccount")}
                   </span>
+                  <div
+                    className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg transition-colors ${isFirm ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}
+                  >
+                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -185,7 +186,7 @@ function RegisterForm() {
             {isFirm && (
               <Alert className="border-primary/20 bg-primary/5">
                 <Info className="h-4 w-4 text-primary" />
-                <AlertDescription className="text-sm text-foreground">{t("auth.firmEmailSuggestion")}</AlertDescription>
+                <AlertDescription className="text-xs sm:text-sm text-foreground">{t("auth.firmEmailSuggestion")}</AlertDescription>
               </Alert>
             )}
 
@@ -208,7 +209,7 @@ function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
-              helperText="Must be at least 8 characters long"
+              helperText={t("auth.passwordMinLength")}
             />
 
             <FormInput
@@ -221,7 +222,7 @@ function RegisterForm() {
               disabled={loading}
             />
 
-            <div className="flex items-start space-x-3 p-4 rounded-lg border border-muted bg-muted/30">
+            <div className="flex items-start space-x-3 p-3 sm:p-4 rounded-lg border border-muted bg-muted/30">
               <Checkbox
                 id="newsletter"
                 checked={newsletter}
@@ -278,7 +279,7 @@ export default function RegisterPage() {
 
   return (
     <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-2">
-      <div className="flex items-center justify-center px-4 py-12 bg-gradient-to-br from-gray-50 to-white">
+      <div className="flex items-center justify-center px-4 py-8 sm:py-12 bg-gradient-to-br from-gray-50 to-white">
         <div className="w-full max-w-md">
           <FormErrorProvider>
             <RegisterForm />
@@ -299,7 +300,7 @@ export default function RegisterPage() {
         >
           <div className="space-y-3">
             <h2 className="text-5xl font-bold tracking-tight">{t("home.cta.title")}</h2>
-            <p className="text-xl opacity-90">{t("home.cta.subtitle")}</p>
+            <p className="text-xl opacity-90">{t("home.hero.subtitle")}</p>
           </div>
           <div className="space-y-6">
             {benefits.map((benefit, index) => (

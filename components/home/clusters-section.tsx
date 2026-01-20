@@ -12,9 +12,11 @@ import { useInView } from "react-intersection-observer"
 import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getTranslation } from "@/lib/utils/translations"
+import { useRouter } from "next/navigation"
 
 export function ClustersSection() {
   const { t, language } = useLanguage()
+  const router = useRouter()
   const [clusters, setClusters] = useState<ClusterDto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -63,6 +65,11 @@ export function ClustersSection() {
       }
       return newSet
     })
+  }
+
+  const handleCategoryClick = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/companies?category=${categoryId}`)
   }
 
   const containerVariants = {
@@ -179,7 +186,7 @@ export function ClustersSection() {
                                 <div key={category.id} className="rounded-lg border bg-card overflow-hidden">
                                   <div
                                     className="flex items-center gap-2 p-3 cursor-pointer transition-colors hover:bg-accent"
-                                    onClick={(e) => toggleCategory(category.id, e)}
+                                    onClick={(e) => handleCategoryClick(category.id, e)}
                                   >
                                     {renderIcon(category.icon, { className: "h-4 w-4 text-primary flex-shrink-0" })}
                                     <div className="flex-1 min-w-0">
@@ -197,7 +204,12 @@ export function ClustersSection() {
                                         </span>
                                       )}
                                       {category.services.length > 0 && (
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 w-6 p-0"
+                                          onClick={(e) => toggleCategory(category.id, e)}
+                                        >
                                           <motion.div
                                             animate={{ rotate: isCategoryExpanded ? 180 : 0 }}
                                             transition={{ duration: 0.3, ease: "easeInOut" }}

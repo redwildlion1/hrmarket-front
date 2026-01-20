@@ -24,14 +24,19 @@ export interface Service {
 }
 
 export interface FirmVerification {
-  id: number
-  firmName: string
+  id: string
+  name: string
   cui: string
-  contactEmail: string
-  status: "pending" | "verified" | "rejected"
-  submittedAt: string
+  ownerEmail: string
+  status: number
+  submittedForReviewAt: string
   verifiedAt?: string
   notes?: string
+  type: string
+  description?: string
+  logoUrl?: string
+  bannerUrl?: string
+  rejectionReasonType?: number | null
 }
 
 export interface CreateClusterRequest {
@@ -52,7 +57,16 @@ export interface CreateServiceRequest {
 }
 
 export interface VerifyFirmRequest {
-  firmId: number
-  status: "verified" | "rejected"
-  notes?: string
+  firmId: string
+  status: "approved" | "rejected"
+  rejectionReason?: string
+  rejectionNote?: string
+}
+
+export enum FirmRejectionReasonType {
+  InappropriateContent = 0,
+  FalseInformation = 1,
+  MissingDocumentation = 2,
+  ViolatesTerms = 3,
+  Other = 4
 }

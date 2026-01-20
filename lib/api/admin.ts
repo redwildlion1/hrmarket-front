@@ -220,18 +220,17 @@ export const adminApi = {
     return apiClient.subscriptions.deletePlan(planId)
   },
 
-  // Firm Verification (placeholder - implement endpoint)
-  getPendingFirms: async () => {
-    // TODO: Implement this endpoint in backend
-    return []
+  getFirmsAwaitingReview: async (page = 1, pageSize = 20) => {
+    const response = await apiClient.admin.getFirmsAwaitingReview(page, pageSize)
+    return response
   },
 
   verifyFirm: async (data: {
-    firmId: number
-    status: "verified" | "rejected"
-    notes: string
+    firmId: string
+    status: "approved" | "rejected"
+    rejectionReason?: string
+    rejectionNote?: string
   }) => {
-    // TODO: Implement this endpoint in backend
-    return Promise.resolve()
+    return apiClient.admin.verifyFirm(data)
   },
 }

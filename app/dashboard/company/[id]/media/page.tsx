@@ -17,7 +17,7 @@ export default function CompanyMediaPage() {
   const companyId = params.id as string
 
   const [logo, setLogo] = useState<File | null>(null)
-  const [cover, setCover] = useState<File | null>(null)
+  const [banner, setBanner] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
 
   const handleSkip = () => {
@@ -25,7 +25,7 @@ export default function CompanyMediaPage() {
   }
 
   const handleSubmit = async () => {
-    if (!logo && !cover) {
+    if (!logo && !banner) {
       handleSkip()
       return
     }
@@ -36,11 +36,11 @@ export default function CompanyMediaPage() {
       const uploadPromises = []
 
       if (logo) {
-        uploadPromises.push(uploadCompanyMedia(companyId, "logo", logo))
+        uploadPromises.push(uploadCompanyMedia("logo", logo))
       }
 
-      if (cover) {
-        uploadPromises.push(uploadCompanyMedia(companyId, "cover", cover))
+      if (banner) {
+        uploadPromises.push(uploadCompanyMedia("banner", banner))
       }
 
       await Promise.all(uploadPromises)
@@ -87,8 +87,8 @@ export default function CompanyMediaPage() {
             label={t("company.media.cover")}
             recommended={t("company.media.recommended").replace("{dimensions}", "1200x400px")}
             aspect={3}
-            onChange={setCover}
-            onRemove={() => setCover(null)}
+            onChange={setBanner}
+            onRemove={() => setBanner(null)}
           />
 
           <div className="flex justify-between pt-4">

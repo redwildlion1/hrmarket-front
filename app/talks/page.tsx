@@ -14,19 +14,19 @@ export default function TalksPage() {
   }, [])
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-12 text-center">
-        <h1 className="mb-4 text-balance text-4xl font-bold md:text-5xl">{t("talks.title")}</h1>
-        <p className="text-pretty text-lg text-muted-foreground">{t("talks.subtitle")}</p>
+    <div className="container mx-auto px-4 py-8 sm:py-12">
+      <div className="mb-8 sm:mb-12 text-center">
+        <h1 className="mb-3 sm:mb-4 text-balance text-3xl sm:text-4xl font-bold md:text-5xl">{t("talks.title")}</h1>
+        <p className="text-pretty text-base sm:text-lg text-muted-foreground">{t("talks.subtitle")}</p>
       </div>
 
       {articles.length === 0 && !loading && (
-        <div className="py-12 text-center">
-          <p className="text-muted-foreground">{t("talks.noResults")}</p>
+        <div className="py-8 sm:py-12 text-center">
+          <p className="text-sm sm:text-base text-muted-foreground">{t("talks.noResults")}</p>
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{/* Articles will be loaded from backend */}</div>
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">{/* Articles will be loaded from backend */}</div>
     </div>
   )
 }

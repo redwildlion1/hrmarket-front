@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode, useMemo, useCallback } from "react"
 import { apiClient } from "@/lib/api/client"
 import { useRouter } from "next/navigation"
 
@@ -11,6 +11,8 @@ interface UserInfo {
   hasFirm: boolean
   firmId: string | null
   firmName: string | null
+  personId: string | null
+  personName: string | null
   roles: string[]
 }
 
@@ -30,11 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const token = localStorage.getItem("accessToken")
       const storedUserInfo = localStorage.getItem("userInfo")
@@ -54,43 +52,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const login = async (email: string, password: string) => {
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  const login = useCallback(async (email: string, password: string) => {
     try {
       const result = await apiClient.auth.login({ email, password })
       setUserInfo(result.userInfo)
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const register = async (email: string, password: string, newsletter = false, isFirm = false) => {
+  const register = useCallback(async (email: string, password: string, newsletter = false, isFirm = false) => {
     try {
       await apiClient.auth.register({ email, password, newsletter, isFirm })
     } catch (error) {
       throw error
     }
-  }
+  }, [])
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
     localStorage.removeItem("userInfo")
     setUserInfo(null)
     router.push("/")
-  }
+  }, [router])
 
-  const updateUserInfo = (updates: Partial<UserInfo>) => {
-    if (!userInfo) return
+  const updateUserInfo = useCallback((updates: Partial<UserInfo>) => {
+    setUserInfo(prevUserInfo => {
+      if (!prevUserInfo) return null
+      const updatedUserInfo = { ...prevUserInfo, ...updates }
+      localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo))
+      return updatedUserInfo
+    })
+  }, [])
 
-    const updatedUserInfo = { ...userInfo, ...updates }
-    setUserInfo(updatedUserInfo)
-    localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo))
-  }
+  const value = useMemo(() => ({
+    userInfo,
+    loading,
+    login,
+    register,
+    logout,
+    updateUserInfo
+  }), [userInfo, loading, login, register, logout, updateUserInfo])
 
   return (
-    <AuthContext.Provider value={{ userInfo, loading, login, register, logout, updateUserInfo }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

@@ -52,27 +52,27 @@ export default function InvestorsPage() {
 
   const team = [
     {
-      name: "Andrei Trandafir",
-      role: "Co-Founder & CEO",
-      bio: "10+ years experience in HR technology and business development. Previously led HR transformation initiatives at Fortune 500 companies.",
-      linkedin: "https://linkedin.com/in/andreitrandafir",
+      name: t("investors.team.member1.name"),
+      role: t("investors.team.member1.role"),
+      bio: t("investors.team.member1.bio"),
+      linkedin: "https://linkedin.com/company/thinkr-science",
     },
     {
-      name: "Serban Redwildlion",
-      role: "Co-Founder & CTO",
-      bio: "Expert in software architecture and scalable platform development. Built and scaled multiple SaaS platforms serving millions of users.",
-      linkedin: "https://linkedin.com/in/serbanredwildlion",
+      name: t("investors.team.member2.name"),
+      role: t("investors.team.member2.role"),
+      bio: t("investors.team.member2.bio"),
+      linkedin: "https://linkedin.com/in/alinahrmarket",
     },
   ]
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/5 py-24 md:py-32 lg:py-40">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/5 py-16 sm:py-24 md:py-32 lg:py-40">
         <div className="absolute inset-0 bg-dot-pattern opacity-30" />
-        <div className="absolute top-20 right-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl animate-pulse-slow" />
+        <div className="absolute top-20 right-10 h-48 w-48 sm:h-96 sm:w-96 rounded-full bg-primary/10 blur-3xl animate-pulse-slow" />
         <div
-          className="absolute bottom-20 left-10 h-96 w-96 rounded-full bg-accent/10 blur-3xl animate-pulse-slow"
+          className="absolute bottom-20 left-10 h-48 w-48 sm:h-96 sm:w-96 rounded-full bg-accent/10 blur-3xl animate-pulse-slow"
           style={{ animationDelay: "2s" }}
         />
 
@@ -86,22 +86,22 @@ export default function InvestorsPage() {
           <div className="mx-auto max-w-4xl text-center">
             <motion.div
               variants={itemVariants}
-              className="mb-8 inline-flex items-center gap-2 rounded-full border-2 border-primary/20 bg-white/80 backdrop-blur-sm px-6 py-3 text-sm font-semibold text-primary shadow-lg shadow-primary/10"
+              className="mb-6 sm:mb-8 inline-flex items-center gap-2 rounded-full border-2 border-primary/20 bg-white/80 backdrop-blur-sm px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-semibold text-primary shadow-lg shadow-primary/10"
             >
-              <Rocket className="h-5 w-5" />
+              <Rocket className="h-4 w-4 sm:h-5 sm:w-5" />
               {t("investors.badge")}
             </motion.div>
 
             <motion.h1
               variants={itemVariants}
-              className="mb-8 text-balance text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl"
+              className="mb-6 sm:mb-8 text-balance text-4xl sm:text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl"
             >
               <span className="gradient-text-red">{t("investors.title")}</span>
             </motion.h1>
 
             <motion.p
               variants={itemVariants}
-              className="mb-12 text-pretty text-xl leading-relaxed text-muted-foreground md:text-2xl lg:text-3xl"
+              className="mb-8 sm:mb-12 text-pretty text-lg sm:text-xl leading-relaxed text-muted-foreground md:text-2xl lg:text-3xl"
             >
               {t("investors.subtitle")}
             </motion.p>
@@ -110,10 +110,10 @@ export default function InvestorsPage() {
               <Button
                 size="lg"
                 asChild
-                className="gap-3 text-lg px-10 py-7 shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all"
+                className="gap-3 text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all w-full sm:w-auto"
               >
                 <a href="mailto:investors@hrmarket.com">
-                  <Mail className="h-6 w-6" />
+                  <Mail className="h-5 w-5 sm:h-6 sm:w-6" />
                   {t("investors.contactButton")}
                 </a>
               </Button>
@@ -123,7 +123,7 @@ export default function InvestorsPage() {
       </section>
 
       {/* Market Metrics Section */}
-      <section className="py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background">
+      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background">
         <motion.div
           ref={metricsRef}
           initial="hidden"
@@ -131,23 +131,23 @@ export default function InvestorsPage() {
           variants={containerVariants}
           className="container mx-auto px-4"
         >
-          <div className="mb-16 text-center">
-            <h2 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.market.title")}</h2>
-            <p className="text-xl text-muted-foreground md:text-2xl">{t("investors.market.subtitle")}</p>
+          <div className="mb-12 sm:mb-16 text-center">
+            <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.market.title")}</h2>
+            <p className="text-lg sm:text-xl text-muted-foreground md:text-2xl">{t("investors.market.subtitle")}</p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-16">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4 mb-12 sm:mb-16">
             <motion.div variants={itemVariants}>
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <DollarSign className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <DollarSign className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <div className="text-4xl font-bold text-primary mb-2">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
                     <AnimatedCounter end={50} prefix="$" suffix="M" />
                   </div>
-                  <CardDescription className="text-base">{t("investors.market.tam")}</CardDescription>
+                  <CardDescription className="text-sm sm:text-base">{t("investors.market.tam")}</CardDescription>
                 </CardHeader>
               </Card>
             </motion.div>
@@ -156,13 +156,13 @@ export default function InvestorsPage() {
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <TrendingUp className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <TrendingUp className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <div className="text-4xl font-bold text-primary mb-2">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
                     <AnimatedCounter end={35} suffix="%" />
                   </div>
-                  <CardDescription className="text-base">{t("investors.market.growth")}</CardDescription>
+                  <CardDescription className="text-sm sm:text-base">{t("investors.market.growth")}</CardDescription>
                 </CardHeader>
               </Card>
             </motion.div>
@@ -171,13 +171,13 @@ export default function InvestorsPage() {
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <Users className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <Users className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <div className="text-4xl font-bold text-primary mb-2">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
                     <AnimatedCounter end={50000} suffix="+" />
                   </div>
-                  <CardDescription className="text-base">{t("investors.market.professionals")}</CardDescription>
+                  <CardDescription className="text-sm sm:text-base">{t("investors.market.professionals")}</CardDescription>
                 </CardHeader>
               </Card>
             </motion.div>
@@ -186,13 +186,13 @@ export default function InvestorsPage() {
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative text-center pb-4">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <BarChart3 className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 mx-auto transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <BarChart3 className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <div className="text-4xl font-bold text-primary mb-2">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
                     <AnimatedCounter end={2000} suffix="+" />
                   </div>
-                  <CardDescription className="text-base">{t("investors.market.companies")}</CardDescription>
+                  <CardDescription className="text-sm sm:text-base">{t("investors.market.companies")}</CardDescription>
                 </CardHeader>
               </Card>
             </motion.div>
@@ -201,51 +201,51 @@ export default function InvestorsPage() {
       </section>
 
       {/* Vision Section */}
-      <section className="py-24 md:py-32">
+      <section className="py-16 sm:py-24 md:py-32">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-16 text-center">
-              <h2 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.vision.title")}</h2>
-              <p className="text-xl text-muted-foreground md:text-2xl">{t("investors.vision.subtitle")}</p>
+            <div className="mb-12 sm:mb-16 text-center">
+              <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.vision.title")}</h2>
+              <p className="text-lg sm:text-xl text-muted-foreground md:text-2xl">{t("investors.vision.subtitle")}</p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3">
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-3">
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <Target className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <Target className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl mb-3">{t("investors.vision.mission")}</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl mb-2 sm:mb-3">{t("investors.vision.mission")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">{t("investors.vision.missionDesc")}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("investors.vision.missionDesc")}</p>
                 </CardContent>
               </Card>
 
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <Globe2 className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <Globe2 className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl mb-3">{t("investors.vision.market")}</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl mb-2 sm:mb-3">{t("investors.vision.market")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">{t("investors.vision.marketDesc")}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("investors.vision.marketDesc")}</p>
                 </CardContent>
               </Card>
 
               <Card className="group relative overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <CardHeader className="relative">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
-                    <Rocket className="h-8 w-8 text-primary transition-colors duration-500 group-hover:text-white" />
+                  <div className="mb-4 sm:mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 transition-all duration-500 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-primary/20">
+                    <Rocket className="h-7 w-7 sm:h-8 sm:w-8 text-primary transition-colors duration-500 group-hover:text-white" />
                   </div>
-                  <CardTitle className="text-2xl mb-3">{t("investors.vision.growth")}</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl mb-2 sm:mb-3">{t("investors.vision.growth")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">{t("investors.vision.growthDesc")}</p>
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("investors.vision.growthDesc")}</p>
                 </CardContent>
               </Card>
             </div>
@@ -254,37 +254,37 @@ export default function InvestorsPage() {
       </section>
 
       {/* Competitive Advantages */}
-      <section className="py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background">
+      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-16 text-center">
-              <h2 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.advantages.title")}</h2>
-              <p className="text-xl text-muted-foreground md:text-2xl">{t("investors.advantages.subtitle")}</p>
+            <div className="mb-12 sm:mb-16 text-center">
+              <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.advantages.title")}</h2>
+              <p className="text-lg sm:text-xl text-muted-foreground md:text-2xl">{t("investors.advantages.subtitle")}</p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              <div className="group text-center p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
-                <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 shadow-lg shadow-primary/20 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6">
-                  <Zap className="h-10 w-10 text-primary transition-colors group-hover:text-white" />
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <div className="group text-center p-6 sm:p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
+                <div className="mb-4 sm:mb-6 inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 shadow-lg shadow-primary/20 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6">
+                  <Zap className="h-8 w-8 sm:h-10 sm:w-10 text-primary transition-colors group-hover:text-white" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold">{t("investors.advantages.firstMover")}</h3>
-                <p className="text-muted-foreground leading-relaxed">{t("investors.advantages.firstMoverDesc")}</p>
+                <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold">{t("investors.advantages.firstMover")}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("investors.advantages.firstMoverDesc")}</p>
               </div>
 
-              <div className="group text-center p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
-                <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 shadow-lg shadow-primary/20 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6">
-                  <Shield className="h-10 w-10 text-primary transition-colors group-hover:text-white" />
+              <div className="group text-center p-6 sm:p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
+                <div className="mb-4 sm:mb-6 inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 shadow-lg shadow-primary/20 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6">
+                  <Shield className="h-8 w-8 sm:h-10 sm:w-10 text-primary transition-colors group-hover:text-white" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold">{t("investors.advantages.network")}</h3>
-                <p className="text-muted-foreground leading-relaxed">{t("investors.advantages.networkDesc")}</p>
+                <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold">{t("investors.advantages.network")}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("investors.advantages.networkDesc")}</p>
               </div>
 
-              <div className="group text-center p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
-                <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 shadow-lg shadow-primary/20 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6">
-                  <Award className="h-10 w-10 text-primary transition-colors group-hover:text-white" />
+              <div className="group text-center p-6 sm:p-8 rounded-2xl border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-300">
+                <div className="mb-4 sm:mb-6 inline-flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-white border-2 border-primary/20 shadow-lg shadow-primary/20 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6">
+                  <Award className="h-8 w-8 sm:h-10 sm:w-10 text-primary transition-colors group-hover:text-white" />
                 </div>
-                <h3 className="mb-4 text-2xl font-bold">{t("investors.advantages.quality")}</h3>
-                <p className="text-muted-foreground leading-relaxed">{t("investors.advantages.qualityDesc")}</p>
+                <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold">{t("investors.advantages.quality")}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{t("investors.advantages.qualityDesc")}</p>
               </div>
             </div>
           </div>
@@ -292,7 +292,7 @@ export default function InvestorsPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-24 md:py-32">
+      <section className="py-16 sm:py-24 md:py-32">
         <motion.div
           ref={teamRef}
           initial="hidden"
@@ -301,25 +301,25 @@ export default function InvestorsPage() {
           className="container mx-auto px-4"
         >
           <div className="mx-auto max-w-5xl">
-            <div className="mb-16 text-center">
-              <h2 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.team.title")}</h2>
-              <p className="text-xl text-muted-foreground md:text-2xl">{t("investors.team.subtitle")}</p>
+            <div className="mb-12 sm:mb-16 text-center">
+              <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl lg:text-6xl">{t("investors.team.title")}</h2>
+              <p className="text-lg sm:text-xl text-muted-foreground md:text-2xl">{t("investors.team.subtitle")}</p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2">
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
               {team.map((member, index) => (
                 <motion.div key={member.name} variants={itemVariants}>
                   <Card className="group relative h-full overflow-hidden border-2 transition-all duration-500 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                     <CardHeader className="relative">
-                      <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-red text-white text-3xl font-bold shadow-lg shadow-primary/20">
+                      <div className="mb-4 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-gradient-red text-white text-2xl sm:text-3xl font-bold shadow-lg shadow-primary/20">
                         {member.name.charAt(0)}
                       </div>
-                      <CardTitle className="text-2xl">{member.name}</CardTitle>
-                      <CardDescription className="text-lg font-semibold text-primary">{member.role}</CardDescription>
+                      <CardTitle className="text-xl sm:text-2xl">{member.name}</CardTitle>
+                      <CardDescription className="text-base sm:text-lg font-semibold text-primary">{member.role}</CardDescription>
                     </CardHeader>
                     <CardContent className="relative space-y-4">
-                      <p className="text-muted-foreground leading-relaxed">{member.bio}</p>
+                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{member.bio}</p>
                       <Button
                         variant="outline"
                         size="sm"
@@ -341,22 +341,22 @@ export default function InvestorsPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background">
+      <section className="py-16 sm:py-24 md:py-32 bg-gradient-to-b from-muted/30 to-background">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl">
-            <div className="relative overflow-hidden rounded-3xl gradient-red p-16 text-center text-white shadow-2xl md:p-20">
+            <div className="relative overflow-hidden rounded-3xl gradient-red p-8 sm:p-16 text-center text-white shadow-2xl md:p-20">
               <div className="absolute inset-0 bg-dot-pattern opacity-20" />
-              <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-              <div className="absolute bottom-10 left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+              <div className="absolute top-10 right-10 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-white/10 blur-3xl" />
+              <div className="absolute bottom-10 left-10 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-white/10 blur-3xl" />
 
               <div className="relative">
-                <div className="mb-8 inline-flex h-24 w-24 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                  <Mail className="h-12 w-12" />
+                <div className="mb-6 sm:mb-8 inline-flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                  <Mail className="h-10 w-10 sm:h-12 sm:w-12" />
                 </div>
-                <h2 className="mb-6 text-4xl font-bold md:text-5xl">{t("investors.contact.title")}</h2>
-                <p className="mb-8 text-xl opacity-95 md:text-2xl">{t("investors.contact.description")}</p>
-                <div className="mb-10 p-6 rounded-2xl bg-white/10 backdrop-blur-sm border-2 border-white/20">
-                  <p className="mb-3 text-sm font-medium opacity-90 uppercase tracking-wider">
+                <h2 className="mb-4 sm:mb-6 text-3xl sm:text-4xl font-bold md:text-5xl">{t("investors.contact.title")}</h2>
+                <p className="mb-6 sm:mb-8 text-lg sm:text-xl opacity-95 md:text-2xl">{t("investors.contact.description")}</p>
+                <div className="mb-8 sm:mb-10 p-4 sm:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border-2 border-white/20">
+                  <p className="mb-2 sm:mb-3 text-xs sm:text-sm font-medium opacity-90 uppercase tracking-wider">
                     {t("investors.contact.emailLabel")}
                   </p>
                   <a
@@ -370,10 +370,10 @@ export default function InvestorsPage() {
                   size="lg"
                   variant="secondary"
                   asChild
-                  className="text-lg px-10 py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                  className="text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto"
                 >
                   <a href="mailto:investors@hrmarket.com">
-                    <Mail className="h-6 w-6 mr-2" />
+                    <Mail className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                     {t("investors.contact.getInTouch")}
                   </a>
                 </Button>
