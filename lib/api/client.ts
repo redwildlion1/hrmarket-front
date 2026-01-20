@@ -1000,8 +1000,49 @@ export const apiClient = {
         })
     },
 
+    create: async (data: any) => {
+        return fetchWithAuth("/jobposts/create", {
+            method: "POST",
+            body: JSON.stringify(data)
+        })
+    },
+
     getForManagement: async (id: string) => {
         return fetchWithAuth<any>(`/jobposts/management/${id}`)
+    },
+
+    delete: async (id: string) => {
+        return fetchWithAuth(`/jobposts/${id}`, {
+            method: "DELETE"
+        })
+    },
+
+    reactivateExpired: async (id: string) => {
+        return fetchWithAuth(`/jobposts/reactivate-expired/${id}`, {
+            method: "POST"
+        })
+    },
+
+    reactivateDeleted: async (id: string) => {
+        return fetchWithAuth(`/jobposts/reactivate-deleted/${id}`, {
+            method: "POST"
+        })
+    },
+
+    getExpiredForManagement: async (params: { page: number; pageSize: number }) => {
+        return fetchWithAuth<any>(`/jobposts/management/expired?page=${params.page}&pageSize=${params.pageSize}`)
+    },
+
+    getDeletedForManagement: async (params: { page: number; pageSize: number }) => {
+        return fetchWithAuth<any>(`/jobposts/management/deleted?page=${params.page}&pageSize=${params.pageSize}`)
+    },
+
+    getAllForManagement: async (params: { page: number; pageSize: number }) => {
+        return fetchWithAuth<any>(`/jobposts/management/all?page=${params.page}&pageSize=${params.pageSize}`)
+    },
+
+    getApplications: async (jobPostId: string) => {
+        return fetchWithAuth<any>(`/jobposts/job-applications/${jobPostId}`)
     }
   },
 
@@ -1533,15 +1574,30 @@ export const apiClient = {
       }>>(`/admin/firms/awaiting-review?page=${page}&pageSize=${pageSize}`)
     },
 
+    getFirmForReview: async (firmId: string) => {
+      return fetchWithAuth<any>(`/admin/firms/${firmId}/for-review`)
+    },
+
     verifyFirm: async (data: {
       firmId: string
       status: "approved" | "rejected"
       rejectionReason?: string
       rejectionNote?: string
     }) => {
-      return fetchWithAuth(`/admin/firms/${data.firmId}/verify`, {
+      const endpoint = data.status === "approved" 
+        ? `/admin/firms/${data.firmId}/approve`
+        : `/admin/firms/${data.firmId}/reject`;
+      
+      const body = data.status === "rejected" 
+        ? JSON.stringify({
+            reasonType: Number(data.rejectionReason),
+            reasonText: data.rejectionNote
+          })
+        : undefined;
+
+      return fetchWithAuth(endpoint, {
         method: "POST",
-        body: JSON.stringify(data),
+        body: body,
       })
     },
 

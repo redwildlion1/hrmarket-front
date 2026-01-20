@@ -48,10 +48,81 @@ export const useUpdateJobPost = () => {
   })
 }
 
+export const useCreateJobPost = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: any) => apiClient.jobs.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] })
+    },
+  })
+}
+
 export const useJobPostForManagement = (id: string) => {
   return useQuery({
     queryKey: ["job", "management", id],
     queryFn: () => apiClient.jobs.getForManagement(id),
     enabled: !!id,
+  })
+}
+
+export const useExpiredJobPostsForManagement = (params: { page: number; pageSize: number }) => {
+  return useQuery({
+    queryKey: ["jobs", "management", "expired", params],
+    queryFn: () => apiClient.jobs.getExpiredForManagement(params),
+  })
+}
+
+export const useDeletedJobPostsForManagement = (params: { page: number; pageSize: number }) => {
+  return useQuery({
+    queryKey: ["jobs", "management", "deleted", params],
+    queryFn: () => apiClient.jobs.getDeletedForManagement(params),
+  })
+}
+
+export const useAllJobPostsForManagement = (params: { page: number; pageSize: number }) => {
+  return useQuery({
+    queryKey: ["jobs", "management", "all", params],
+    queryFn: () => apiClient.jobs.getAllForManagement(params),
+  })
+}
+
+export const useDeleteJobPost = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiClient.jobs.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs", "management"] })
+    },
+  })
+}
+
+export const useReactivateExpiredJobPost = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiClient.jobs.reactivateExpired(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs", "management"] })
+      queryClient.invalidateQueries({ queryKey: ["job", "management"] })
+    },
+  })
+}
+
+export const useReactivateDeletedJobPost = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiClient.jobs.reactivateDeleted(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs", "management"] })
+      queryClient.invalidateQueries({ queryKey: ["job", "management"] })
+    },
+  })
+}
+
+export const useJobApplications = (jobPostId: string) => {
+  return useQuery({
+    queryKey: ["job", "applications", jobPostId],
+    queryFn: () => apiClient.jobs.getApplications(jobPostId),
+    enabled: !!jobPostId,
   })
 }

@@ -87,8 +87,13 @@ export interface FirmDetailsForEditingDto {
   id: string
   cui: string
   name: string
+  type: string
   description?: string
-  status: string
+  logoUrl?: string
+  bannerUrl?: string
+  status: string | number
+  rejectionReasonNote?: string
+  rejectionReasonType?: number
   contact: {
     email: string
     phone?: string
@@ -107,10 +112,6 @@ export interface FirmDetailsForEditingDto {
     cityId: string
     postalCode?: string
   }
-  media: Array<{
-    url: string
-    type: string
-  }>
   forms: Array<{
     categoryId: string
     questionsWithAnswers: Array<{
@@ -118,6 +119,7 @@ export interface FirmDetailsForEditingDto {
         id: string
         type: string
         translations: Array<{ languageCode: string; text: string }>
+        options?: Array<{ id: string; translations: Array<{ languageCode: string; label: string }> }>
       }
       categoryAnswer?: {
         id: string
@@ -132,8 +134,8 @@ export interface FirmDetailsForEditingDto {
     universalQuestion?: {
       id: string
       icon: string
-      translations: Array<{ languageCode: string; name: string }>
-      options: Array<{ id: string; translations: Array<{ languageCode: string; name: string }> }>
+      translations: Array<{ languageCode: string; title: string }>
+      options: Array<{ id: string; translations: Array<{ languageCode: string; label: string }> }>
     }
     selectedOptionId: string
   }>

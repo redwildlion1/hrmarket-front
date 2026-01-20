@@ -32,6 +32,9 @@ import {
   XCircle,
   ShieldCheck,
   Check,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
 } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -69,6 +72,21 @@ import {
 import { FormInput } from "@/components/ui/form-input"
 import Cropper from "react-easy-crop"
 import { Slider } from "@/components/ui/slider"
+import { adminApi, Category, Cluster } from "@/lib/api/admin"
+import { questionsApi, QuestionsByCategory, QuestionType, CategoryFormDto, SubmitAnswerDto } from "@/lib/api/questions"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+    DropdownMenuPortal,
+} from "@/components/ui/dropdown-menu"
+import { renderIcon } from "@/lib/utils/icons"
 
 function FirmManageContent() {
   const { t, language } = useLanguage()
@@ -105,6 +123,15 @@ function FirmManageContent() {
   const [isUniversalAnswersDialogOpen, setIsUniversalAnswersDialogOpen] = useState(false)
   const [isSubmitVerificationDialogOpen, setIsSubmitVerificationDialogOpen] = useState(false)
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false)
+
+  // Add Category States
+  const [isAddCategoryDialogOpen, setIsAddCategoryDialogOpen] = useState(false)
+  const [clusters, setClusters] = useState<Cluster[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+  const [categoryQuestions, setCategoryQuestions] = useState<QuestionsByCategory | null>(null)
+  const [formAnswers, setFormAnswers] = useState<Record<string, any>>({})
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false)
+  const [formStep, setFormStep] = useState<"select" | "form">("select")
 
   // State for form data
   const [locationForm, setLocationForm] = useState({
@@ -211,6 +238,20 @@ function FirmManageContent() {
       setUniversalAnswersForm(answers)
     }
   }, [firm])
+
+  // Fetch clusters when add category dialog opens
+  useEffect(() => {
+    if (isAddCategoryDialogOpen && clusters.length === 0) {
+        adminApi.getClusters().then(setClusters).catch(console.error)
+    }
+  }, [isAddCategoryDialogOpen])
+
+  // Fetch clusters if firm has forms to display category names
+  useEffect(() => {
+    if (firm?.forms?.length && clusters.length === 0) {
+        adminApi.getClusters().then(setClusters).catch(console.error)
+    }
+  }, [firm, clusters.length])
 
   const getLocationNames = () => {
     if (!firm || !firm.location) return { country: "", county: "", city: "" }
@@ -579,6 +620,25 @@ function FirmManageContent() {
     return item ? item[field] : ""
   }
 
+  const getCategoryName = (categoryId: string) => {
+    if (!clusters.length) return null
+    for (const cluster of clusters) {
+        const category = cluster.categories?.find((c: any) => c.id === categoryId)
+        if (category) {
+            return getTranslation(category.translations, "name")
+        }
+    }
+    return null
+  }
+
+  const hasAnswer = (answer: any) => {
+    if (!answer) return false
+    if (answer.translations && answer.translations.length > 0) return true
+    if (answer.selectedOptionIds && answer.selectedOptionIds.length > 0) return true
+    if (answer.value !== null && answer.value !== undefined && answer.value !== "") return true
+    return false
+  }
+
   const getLogoImage = () => {
     return firm?.logoUrl || "/placeholder.svg"
   }
@@ -685,6 +745,194 @@ function FirmManageContent() {
       title: t("common.info"),
       description: message,
     })
+  }
+
+  const handleEditCategory = async (categoryId: string) => {
+    let category: Category | undefined
+    
+    // Try to find in existing clusters
+    for (const cluster of clusters) {
+        const found = cluster.categories?.find(c => c.id === categoryId)
+        if (found) {
+            category = found
+            break
+        }
+    }
+
+    // If not found, fetch clusters
+    if (!category) {
+        try {
+            const fetchedClusters = await adminApi.getClusters()
+            setClusters(fetchedClusters)
+            for (const cluster of fetchedClusters) {
+                const found = cluster.categories?.find(c => c.id === categoryId)
+                if (found) {
+                    category = found
+                    break
+                }
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    if (!category) {
+        toast({ title: t("common.error"), description: "Category not found", variant: "destructive" })
+        return
+    }
+
+    setSelectedCategory(category)
+    
+    try {
+        const questionsData = await questionsApi.getQuestionsByCategory([categoryId])
+        if (questionsData && questionsData.length > 0) {
+            const qbc = questionsData[0]
+            setCategoryQuestions(qbc)
+            
+            const form = firm.forms.find((f: any) => f.categoryId === categoryId)
+            const newAnswers: Record<string, any> = {}
+            
+            if (form) {
+                form.questionsWithAnswers.forEach((qa: any) => {
+                    const q = qa.categoryQuestion
+                    const a = qa.categoryAnswer
+                    if (!a) return
+
+                    let value: any = null
+                    
+                    if (q.type === QuestionType.String || q.type === QuestionType.Text) {
+                        const roText = a.translations?.find((t: any) => t.languageCode === "ro")?.text || ""
+                        const enText = a.translations?.find((t: any) => t.languageCode === "en")?.text || ""
+                        value = { ro: roText, en: enText }
+                    } else if (q.type === QuestionType.Number || q.type === QuestionType.Date) {
+                        value = a.value
+                    } else if (q.type === QuestionType.SingleSelect) {
+                        value = a.selectedOptionIds?.[0] || ""
+                    } else if (q.type === QuestionType.MultiSelect) {
+                        value = a.selectedOptionIds || []
+                    }
+
+                    newAnswers[q.id] = { value, type: q.type }
+                })
+            }
+            
+            setFormAnswers(newAnswers)
+            setFormStep("form")
+            setIsAddCategoryDialogOpen(true)
+        }
+    } catch (error) {
+        console.error("Error fetching questions:", error)
+        toast({
+            title: t("common.error"),
+            description: "Failed to load category questions",
+            variant: "destructive"
+        })
+    }
+  }
+
+  // Add Category Handlers
+  const handleCategorySelect = async (category: Category) => {
+    setSelectedCategory(category)
+    try {
+        const questions = await questionsApi.getQuestionsByCategory([category.id])
+        if (questions && questions.length > 0) {
+            setCategoryQuestions(questions[0])
+            setFormStep("form")
+        } else {
+            // No questions, just submit empty answers
+            await handleSubmitCategoryForm([])
+        }
+    } catch (error) {
+        console.error("Error fetching questions:", error)
+        toast({
+            title: t("common.error"),
+            description: "Failed to load category questions",
+            variant: "destructive"
+        })
+    }
+  }
+
+  const handleFormAnswerChange = (questionId: string, value: any, type: QuestionType) => {
+    setFormAnswers(prev => ({
+        ...prev,
+        [questionId]: { value, type }
+    }))
+  }
+
+  const handleSubmitCategoryForm = async (answersOverride?: SubmitAnswerDto[]) => {
+    if (!selectedCategory) return
+
+    setIsSubmittingForm(true)
+    try {
+        let answers: SubmitAnswerDto[] = []
+
+        if (answersOverride) {
+            answers = answersOverride
+        } else if (categoryQuestions) {
+            answers = categoryQuestions.questions.map(q => {
+                const answer = formAnswers[q.id]
+                if (!answer) return null
+
+                const dto: any = { questionId: q.id }
+
+                if (q.type === QuestionType.String || q.type === QuestionType.Text) {
+                    dto.translations = [
+                        { languageCode: "ro", text: answer.value.ro || "" },
+                        { languageCode: "en", text: answer.value.en || "" }
+                    ]
+                    dto.value = null
+                    dto.selectedOptionIds = null
+                } else if (q.type === QuestionType.Number || q.type === QuestionType.Date) {
+                    dto.value = answer.value
+                    dto.translations = null
+                    dto.selectedOptionIds = null
+                } else if (q.type === QuestionType.SingleSelect) {
+                    dto.selectedOptionIds = [answer.value]
+                    dto.value = null
+                    dto.translations = null
+                } else if (q.type === QuestionType.MultiSelect) {
+                    dto.selectedOptionIds = answer.value
+                    dto.value = null
+                    dto.translations = null
+                }
+
+                return dto as SubmitAnswerDto
+            }).filter(Boolean) as SubmitAnswerDto[]
+        }
+
+        const formDto: CategoryFormDto = {
+            categoryId: selectedCategory.id,
+            answers
+        }
+
+        await questionsApi.submitCategoryForm(formDto)
+        
+        toast({
+            title: t("common.success"),
+            description: "Category added successfully"
+        })
+        setIsAddCategoryDialogOpen(false)
+        setFormStep("select")
+        setSelectedCategory(null)
+        setCategoryQuestions(null)
+        setFormAnswers({})
+        // Refresh firm data
+        window.location.reload()
+    } catch (error) {
+        console.error("Error submitting form:", error)
+        toast({
+            title: t("common.error"),
+            description: "Failed to submit category form",
+            variant: "destructive"
+        })
+    } finally {
+        setIsSubmittingForm(false)
+    }
+  }
+
+  const getSelectedCategoryLabel = () => {
+    if (!selectedCategory) return t("firm.addCategory")
+    return getTranslation(selectedCategory.translations || [], "name") || selectedCategory.name
   }
 
   if (authLoading || (firmLoading && !firm)) {
@@ -827,7 +1075,7 @@ function FirmManageContent() {
                 </Dialog>
             </div>
             
-            <div className="pt-2 flex items-center gap-2 justify-center md:justify-start">
+            <div className="pt-2 flex items-center gap-2 justify-center md:justify-start flex-wrap">
               {isDraft ? (
                 <Button 
                   onClick={() => setIsSubmitVerificationDialogOpen(true)} 
@@ -849,56 +1097,83 @@ function FirmManageContent() {
               ) : (
                 getStatusBadge(firm.status)
               )}
+              {firm.status === 3 && firm.rejectionReasonNote && (
+                  <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-md border border-red-100 flex items-center">
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                      {firm.rejectionReasonNote}
+                  </div>
+              )}
             </div>
           </motion.div>
         </div>
         
-        <div className="flex items-start gap-2 mt-4 md:mt-16">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="relative group bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary"
-            onClick={() => handleActionClick(() => {
-                // Logic for posting a job
-                console.log("Post a job clicked")
-            })}
-          >
-            <Briefcase className="h-4 w-4 mr-2" />
-            {t("firm.postJob")}
-            <Badge className="absolute -top-2 -right-2 scale-90 group-hover:scale-100 transition-transform">
-              {firm.availableResources.totalAvailableJobPosts}
-            </Badge>
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="relative group bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary"
-            onClick={() => handleActionClick(() => {
-                // Logic for adding a category
-                console.log("Add category clicked")
-            })}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t("firm.addCategory")}
-            <Badge className="absolute -top-2 -right-2 scale-90 group-hover:scale-100 transition-transform">
-              {firm.availableResources.totalAvailableCategories}
-            </Badge>
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="relative group bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary"
-            onClick={() => handleActionClick(() => {
-                // Logic for posting an event
-                console.log("Post event clicked")
-            })}
-          >
-            <CalendarPlus className="h-4 w-4 mr-2" />
-            {t("firm.postEvent")}
-            <Badge className="absolute -top-2 -right-2 scale-90 group-hover:scale-100 transition-transform">
-              {firm.availableResources.totalAvailableEvents}
-            </Badge>
-          </Button>
+        <div className="flex flex-col items-center md:items-end gap-3 mt-4 md:mt-16">
+          <div className="flex items-center gap-2">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="relative group bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary"
+              onClick={() => handleActionClick(() => {
+                  if (firm.availableResources && firm.availableResources.totalAvailableJobPosts > 0) {
+                      router.push("/firm/manage/jobs/create")
+                  } else {
+                      router.push("/partner")
+                  }
+              })}
+            >
+              <Briefcase className="h-4 w-4 mr-2" />
+              {t("firm.postJob")}
+              <Badge className="absolute -top-2 -right-2 scale-90 group-hover:scale-100 transition-transform">
+                {firm.availableResources.totalAvailableJobPosts}
+              </Badge>
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="relative group bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary"
+              onClick={() => setIsAddCategoryDialogOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t("firm.addCategory")}
+              <Badge className="absolute -top-2 -right-2 scale-90 group-hover:scale-100 transition-transform">
+                {firm.availableResources.totalAvailableCategories}
+              </Badge>
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="relative group bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary"
+              onClick={() => handleActionClick(() => {
+                  // Logic for posting an event
+                  console.log("Post event clicked")
+              })}
+            >
+              <CalendarPlus className="h-4 w-4 mr-2" />
+              {t("firm.postEvent")}
+              <Badge className="absolute -top-2 -right-2 scale-90 group-hover:scale-100 transition-transform">
+                {firm.availableResources.totalAvailableEvents}
+              </Badge>
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-center gap-2 w-full">
+            <Button 
+                size="sm" 
+                className="bg-red-600 text-white hover:bg-white hover:text-red-600 border border-red-600 transition-colors"
+                onClick={() => router.push("/firm/manage/jobs")}
+            >
+                <Briefcase className="h-4 w-4 mr-2" />
+                {t("firm.manageJobs") || "Manage Jobs"}
+            </Button>
+            <Button 
+                size="sm" 
+                className="bg-red-600 text-white hover:bg-white hover:text-red-600 border border-red-600 transition-colors"
+                onClick={() => router.push("/firm/manage/events")}
+            >
+                <CalendarPlus className="h-4 w-4 mr-2" />
+                {t("firm.manageEvents") || "Manage Events"}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1516,30 +1791,70 @@ function FirmManageContent() {
               <CardDescription>{t("firm.categoryAnswers")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {firm.forms.map((form) => (
-                <div key={form.categoryId} className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">{form.categoryId}</h3>
-                  <div className="space-y-4">
-                    {form.questionsWithAnswers
-                      .filter((qa) => qa.categoryAnswer) // Only show answered questions
-                      .map((qa) => {
+              {firm.forms.map((form: any) => {
+                const categoryName = getCategoryName(form.categoryId)
+                const answeredQuestions = form.questionsWithAnswers.filter((qa: any) => hasAnswer(qa.categoryAnswer))
+                
+                if (answeredQuestions.length === 0) return null
+
+                return (
+                <div key={form.categoryId} className="space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-base">
+                            {categoryName || t("firm.category")}
+                        </h3>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleEditCategory(form.categoryId)}>
+                            <Pencil className="h-3 w-3" />
+                        </Button>
+                    </div>
+                    {form.updatedAt && (
+                        <span className="text-xs text-muted-foreground">
+                            {new Date(form.updatedAt).toLocaleDateString()}
+                        </span>
+                    )}
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {answeredQuestions.map((qa: any) => {
                         const question = qa.categoryQuestion
-                        const questionText = getTranslation(question.translations, "text")
+                        const questionText = getTranslation(question.translations, "title")
                         const answer = qa.categoryAnswer
-                        const answerText = answer ? getTranslation(answer.translations, "text") : null
+                        const isText = question.type === QuestionType.Text || question.type === QuestionType.String
+                        
+                        let answerContent = null
+                        if (answer.translations && answer.translations.length > 0) {
+                            answerContent = <span className="whitespace-pre-wrap">{getTranslation(answer.translations, "text")}</span>
+                        } else if (answer.selectedOptionIds && answer.selectedOptionIds.length > 0) {
+                            const selectedOptions = question.options?.filter((opt: any) => 
+                                answer.selectedOptionIds.includes(opt.id)
+                            ) || []
+                            answerContent = (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {selectedOptions.map((opt: any) => (
+                                        <Badge key={opt.id} variant="secondary" className="bg-background/60 hover:bg-background/80 border-0 font-normal text-xs px-2 py-0.5 h-auto">
+                                            {getTranslation(opt.translations, "label")}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )
+                        } else if (answer.value !== null && answer.value !== undefined) {
+                            answerContent = <span>{String(answer.value)}</span>
+                        }
 
                         return (
-                          <div key={question.id} className="space-y-1">
-                            <p className="text-sm font-medium">{questionText}</p>
-                            {answerText && (
-                              <p className="text-sm text-muted-foreground bg-muted p-2 rounded">{answerText}</p>
+                          <div key={question.id} className={`space-y-1 ${isText ? "md:col-span-2" : ""}`}>
+                            <p className="text-xs font-medium text-muted-foreground">{questionText}</p>
+                            {answerContent && (
+                              <div className="text-sm p-2 bg-muted/40 rounded-md break-words border border-border/50">
+                                {answerContent}
+                              </div>
                             )}
                           </div>
                         )
                       })}
                   </div>
                 </div>
-              ))}
+              )})}
             </CardContent>
           </Card>
         </motion.div>
@@ -1663,6 +1978,216 @@ function FirmManageContent() {
               </AnimatePresence>
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Category Dialog */}
+      <Dialog open={isAddCategoryDialogOpen} onOpenChange={(open) => {
+        setIsAddCategoryDialogOpen(open)
+        if (!open) {
+            setFormStep("select")
+            setSelectedCategory(null)
+            setCategoryQuestions(null)
+            setFormAnswers({})
+        }
+      }}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+                <DialogTitle>{t("firm.addCategory")}</DialogTitle>
+                <DialogDescription>
+                    {formStep === "select" ? "Select a category to add to your firm" : "Complete the category form"}
+                </DialogDescription>
+            </DialogHeader>
+
+            <AnimatePresence mode="wait">
+                {formStep === "select" ? (
+                    <motion.div
+                        key="select"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        className="grid gap-6 py-4"
+                    >
+                        <div className="space-y-2">
+                            <Label>{t("home.clusters.categories")}</Label>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className="w-full justify-between font-normal">
+                                        <span className="truncate">{getSelectedCategoryLabel()}</span>
+                                        <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]" align="start">
+                                    {clusters.map((cluster: any) => (
+                                        <DropdownMenuSub key={cluster.id}>
+                                            <DropdownMenuSubTrigger className="flex items-center gap-2">
+                                                {renderIcon(cluster.icon, { className: "h-4 w-4 shrink-0" })}
+                                                <span className="truncate">{getTranslation(cluster.translations, "name")}</span>
+                                            </DropdownMenuSubTrigger>
+                                            <DropdownMenuPortal>
+                                                <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
+                                                    {cluster.categories?.map((category: any) => (
+                                                        <DropdownMenuItem 
+                                                            key={category.id}
+                                                            onSelect={() => handleCategorySelect(category)}
+                                                            className="flex items-center justify-between"
+                                                        >
+                                                            <span className="truncate">{getTranslation(category.translations, "name")}</span>
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuSubContent>
+                                            </DropdownMenuPortal>
+                                        </DropdownMenuSub>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="form"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6 py-4"
+                    >
+                        <Button variant="ghost" size="sm" onClick={() => setFormStep("select")} className="mb-2">
+                            <ChevronLeft className="mr-2 h-4 w-4" />
+                            Back to selection
+                        </Button>
+
+                        <div className="space-y-6">
+                            {categoryQuestions?.questions.map((question) => {
+                                const translation = question.translations.find(t => t.languageCode === language) || question.translations[0]
+                                
+                                return (
+                                    <div key={question.id} className="space-y-2">
+                                        <Label>
+                                            {translation.title}
+                                            {question.isRequired && <span className="text-red-500 ml-1">*</span>}
+                                        </Label>
+                                        <p className="text-sm text-muted-foreground mb-2">{translation.description}</p>
+
+                                        {/* Render input based on type */}
+                                        {(question.type === QuestionType.String || question.type === QuestionType.Text) && (
+                                            <div className="space-y-4 border p-4 rounded-md bg-muted/20">
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs text-muted-foreground">Romanian</Label>
+                                                    {question.type === QuestionType.Text ? (
+                                                        <Textarea 
+                                                            value={formAnswers[question.id]?.value?.ro || ""}
+                                                            onChange={(e) => handleFormAnswerChange(question.id, { ...formAnswers[question.id]?.value, ro: e.target.value }, question.type)}
+                                                            placeholder="Răspuns în română..."
+                                                        />
+                                                    ) : (
+                                                        <Input 
+                                                            value={formAnswers[question.id]?.value?.ro || ""}
+                                                            onChange={(e) => handleFormAnswerChange(question.id, { ...formAnswers[question.id]?.value, ro: e.target.value }, question.type)}
+                                                            placeholder="Răspuns în română..."
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs text-muted-foreground">English</Label>
+                                                    {question.type === QuestionType.Text ? (
+                                                        <Textarea 
+                                                            value={formAnswers[question.id]?.value?.en || ""}
+                                                            onChange={(e) => handleFormAnswerChange(question.id, { ...formAnswers[question.id]?.value, en: e.target.value }, question.type)}
+                                                            placeholder="Answer in English..."
+                                                        />
+                                                    ) : (
+                                                        <Input 
+                                                            value={formAnswers[question.id]?.value?.en || ""}
+                                                            onChange={(e) => handleFormAnswerChange(question.id, { ...formAnswers[question.id]?.value, en: e.target.value }, question.type)}
+                                                            placeholder="Answer in English..."
+                                                        />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(question.type === QuestionType.Number) && (
+                                            <Input 
+                                                type="number"
+                                                value={formAnswers[question.id]?.value || ""}
+                                                onChange={(e) => handleFormAnswerChange(question.id, e.target.value, question.type)}
+                                            />
+                                        )}
+
+                                        {(question.type === QuestionType.Date) && (
+                                            <Input 
+                                                type="date"
+                                                value={formAnswers[question.id]?.value || ""}
+                                                onChange={(e) => handleFormAnswerChange(question.id, e.target.value, question.type)}
+                                            />
+                                        )}
+
+                                        {(question.type === QuestionType.SingleSelect) && (
+                                            <Select 
+                                                value={formAnswers[question.id]?.value || ""} 
+                                                onValueChange={(val) => handleFormAnswerChange(question.id, val, question.type)}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={t("firm.selectOption")} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {question.options.map(option => {
+                                                        const optTrans = option.translations.find(t => t.languageCode === language) || option.translations[0]
+                                                        return (
+                                                            <SelectItem key={option.id} value={option.id}>
+                                                                {optTrans.label}
+                                                            </SelectItem>
+                                                        )
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+
+                                        {(question.type === QuestionType.MultiSelect) && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border p-4 rounded-md">
+                                                {question.options.map(option => {
+                                                    const optTrans = option.translations.find(t => t.languageCode === language) || option.translations[0]
+                                                    const currentValues = formAnswers[question.id]?.value || []
+                                                    const isChecked = currentValues.includes(option.id)
+                                                    
+                                                    return (
+                                                        <div key={option.id} className="flex items-center space-x-2">
+                                                            <Checkbox 
+                                                                id={`opt-${option.id}`} 
+                                                                checked={isChecked}
+                                                                onCheckedChange={(checked) => {
+                                                                    const newValues = checked 
+                                                                        ? [...currentValues, option.id]
+                                                                        : currentValues.filter((id: string) => id !== option.id)
+                                                                    handleFormAnswerChange(question.id, newValues, question.type)
+                                                                }}
+                                                            />
+                                                            <Label htmlFor={`opt-${option.id}`} className="cursor-pointer font-normal">
+                                                                {optTrans.label}
+                                                            </Label>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddCategoryDialogOpen(false)}>
+                    {t("common.cancel")}
+                </Button>
+                {formStep === "form" && (
+                    <Button onClick={() => handleSubmitCategoryForm()} disabled={isSubmittingForm}>
+                        {isSubmittingForm ? t("common.processing") : t("common.submit")}
+                    </Button>
+                )}
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

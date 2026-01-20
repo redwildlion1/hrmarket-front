@@ -1,4 +1,5 @@
 import { apiClient } from "./client"
+import { FirmDetailsForEditingDto } from "./firms"
 
 export interface Cluster {
   id: string
@@ -233,4 +234,8 @@ export const adminApi = {
   }) => {
     return apiClient.admin.verifyFirm(data)
   },
+
+  getFirmForReview: async (firmId: string): Promise<FirmDetailsForEditingDto> => {
+    return apiClient.admin.getFirmForReview(firmId)
+  }
 }

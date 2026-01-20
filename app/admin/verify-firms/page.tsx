@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/i18n/language-context"
-import { useAdminCheck } from "@/lib/hooks/use-admin-check"
 import { adminApi } from "@/lib/api/admin"
 import type { FirmVerification } from "@/lib/types/admin"
 import { FirmRejectionReasonType } from "@/lib/types/admin"
@@ -21,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CheckCircle, XCircle, ArrowLeft, Building, Mail, Calendar, FileText, Info } from "lucide-react"
+import { CheckCircle, XCircle, ArrowLeft, Building, Mail, Calendar, FileText, Info, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
@@ -37,8 +36,6 @@ export default function VerifyFirmsPage() {
   const [verificationStatus, setVerificationStatus] = useState<"approved" | "rejected">("approved")
   const [rejectionReason, setRejectionReason] = useState<string | undefined>(undefined)
   const [rejectionNote, setRejectionNote] = useState("")
-
-  useAdminCheck(30000)
 
   useEffect(() => {
     loadFirms()
@@ -72,8 +69,7 @@ export default function VerifyFirmsPage() {
   }
 
   const handleMoreDetails = (firm: FirmVerification) => {
-    // Logic for more details will be implemented later
-    console.log("More details for firm:", firm.id)
+    router.push(`/admin/verify-firms/${firm.id}`)
   }
 
   const handleSubmitVerification = async () => {
@@ -118,6 +114,16 @@ export default function VerifyFirmsPage() {
       Trusted: "default",
     }
     return <Badge variant={variants[statusKey] || "default"}>{t(`firm.status.${statusKey.toLowerCase()}` as any) || statusKey}</Badge>
+  }
+
+  const isSevereRejection = (reason: string | undefined) => {
+    if (!reason) return false
+    const reasonType = Number(reason)
+    return (
+      reasonType === FirmRejectionReasonType.InappropriateContent ||
+      reasonType === FirmRejectionReasonType.FalseInformation ||
+      reasonType === FirmRejectionReasonType.ViolatesTerms
+    )
   }
 
   if (loading) {
@@ -264,12 +270,23 @@ export default function VerifyFirmsPage() {
                       .filter(([key]) => isNaN(Number(key)))
                       .map(([key, value]) => (
                         <SelectItem key={value} value={String(value)}>
+                          {isSevereRejection(String(value)) && (
+                            <span className="mr-2 text-red-500 font-bold">!</span>
+                          )}
                           {t(`enums.firmRejectionReasonType.${key}` as any)}
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
               </div>
+              
+              {isSevereRejection(rejectionReason) && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-800 text-sm">
+                  <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                  <p>{t("firm.rejectionWarning")}</p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="rejectionNote">{t("contact.message")}</Label>
                 <Textarea
