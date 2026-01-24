@@ -95,7 +95,7 @@ function CreateFirmForm() {
   const { data: cities = [] } = useCities(formData.locationCountyId)
   const createFirm = useCreateFirm()
 
-  const universalQuestions = universalQuestionsData?.questions ? universalQuestionsData.questions.sort((a: any, b: any) => a.order - b.order) : []
+  const universalQuestions = universalQuestionsData || []
 
   const fieldNameMap: Record<string, string> = {
     cui: "cui",
@@ -169,13 +169,6 @@ function CreateFirmForm() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
     }
   }, [formData, step, questionAnswers, isLoaded])
-
-  useEffect(() => {
-    // Only pre-fill email if not already set (either from saved data or user input)
-    if (userInfo?.email && !formData.contactEmail) {
-      setFormData(prev => ({ ...prev, contactEmail: userInfo.email }))
-    }
-  }, [userInfo, formData.contactEmail])
 
   const handleCountryChange = (value: string) => {
     setFormData({
@@ -285,9 +278,12 @@ function CreateFirmForm() {
                   } else {
                      const parts = normalizedField.split('.')
                      if (parts.length > 1) {
-                        if (parts[0] === 'contact' && parts[1] === 'email') frontendField = 'contactEmail'
-                        else if (parts[0] === 'contact' && parts[1] === 'phone') frontendField = 'contactPhone'
-                        else if (parts[0] === 'links' && parts[1] === 'website') frontendField = 'linksWebsite'
+                        const p0 = parts[0].toLowerCase();
+                        const p1 = parts[1].toLowerCase();
+                        
+                        if (p0 === 'contact' && p1 === 'email') frontendField = 'contactEmail'
+                        else if (p0 === 'contact' && p1 === 'phone') frontendField = 'contactPhone'
+                        else if (p0 === 'links' && p1 === 'website') frontendField = 'linksWebsite'
                      }
                   }
         
@@ -308,9 +304,10 @@ function CreateFirmForm() {
                   setStep(firstErrorStep)
                 }
         
+                const firstErrorMessage = Object.values(newValidationErrors)[0]
                 toast({
                   title: t("firm.validationErrors"),
-                  description: t("firm.validationErrorDesc"),
+                  description: firstErrorMessage || t("firm.validationErrorDesc"),
                   variant: "destructive",
                 })
             } else if (error.detail) {
@@ -371,12 +368,45 @@ function CreateFirmForm() {
 
   const validateUrl = (url: string): string => {
     if (!url) return ""
+    // Allow URLs without protocol, add https:// if missing for validation
+    let urlToValidate = url
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        urlToValidate = "https://" + url
+    }
+    
+    // Check if it looks like a domain (at least one dot)
+    if (!urlToValidate.includes(".")) {
+        return t("firm.validation.invalidUrl")
+    }
+
     try {
-      new URL(url)
+      new URL(urlToValidate)
       return ""
     } catch {
       return t("firm.validation.invalidUrl")
     }
+  }
+
+  const capitalizeFirstLetter = (string: string) => {
+    if (!string) return string
+    return string.charAt(0).toUpperCase() + string.slice(1)
+  }
+
+  const handleNameChange = (value: string) => {
+    const capitalizedValue = capitalizeFirstLetter(value)
+    setFormData({ ...formData, name: capitalizedValue })
+    setValidationErrors((prev) => ({ ...prev, name: "" }))
+  }
+
+  const handleDescriptionChange = (value: string) => {
+    const capitalizedValue = capitalizeFirstLetter(value)
+    setFormData({ ...formData, description: capitalizedValue })
+    setValidationErrors((prev) => ({ ...prev, description: "" }))
+  }
+
+  const handleAddressChange = (value: string) => {
+    const capitalizedValue = capitalizeFirstLetter(value)
+    setFormData({ ...formData, locationAddress: capitalizedValue })
   }
 
   const handleEmailChange = (value: string) => {
@@ -585,22 +615,22 @@ function CreateFirmForm() {
                     }}
                     placeholder={t("firm.cuiPlaceholder")}
                     required
-                    // error={validationErrors.cui} // FormInput handles errors via context now
+                    error={validationErrors.cui}
                   />
                   <FormInput
                     id="name"
                     label={t("firm.name")}
                     value={formData.name}
-                    onChange={(e) => {
-                      setFormData({ ...formData, name: e.target.value })
-                      setValidationErrors((prev) => ({ ...prev, name: "" }))
-                    }}
+                    onChange={(e) => handleNameChange(e.target.value)}
                     placeholder={t("firm.namePlaceholder")}
                     required
-                    // error={validationErrors.name}
+                    error={validationErrors.name}
                   />
                   <div className="space-y-2">
-                    <Label htmlFor="type">{t("firm.type")}</Label>
+                    <Label htmlFor="type">
+                        {t("firm.type")}
+                        <span className="text-destructive ml-1">*</span>
+                    </Label>
                     <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder={t("firm.selectType")} />
@@ -620,12 +650,9 @@ function CreateFirmForm() {
                       id="description"
                       placeholder={t("firm.descriptionPlaceholder")}
                       value={formData.description}
-                      onChange={(e) => {
-                        setFormData({ ...formData, description: e.target.value })
-                        setValidationErrors((prev) => ({ ...prev, description: "" }))
-                      }}
+                      onChange={(e) => handleDescriptionChange(e.target.value)}
                       rows={4}
-                      // error={validationErrors.description}
+                      error={validationErrors.description}
                     />
                   </div>
                 </motion.div>
@@ -658,7 +685,7 @@ function CreateFirmForm() {
                     onChange={(e) => handleEmailChange(e.target.value)}
                     required
                     disabled={createFirm.isPending}
-                    // error={validationErrors.contactEmail}
+                    error={validationErrors.contactEmail}
                   />
 
                   <FormInput
@@ -669,41 +696,41 @@ function CreateFirmForm() {
                     value={formData.contactPhone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     disabled={createFirm.isPending}
-                    // error={validationErrors.contactPhone}
+                    error={validationErrors.contactPhone}
                   />
 
                   <FormInput
                     id="linksWebsite"
                     label={t("firm.website")}
-                    type="url"
-                    placeholder="https://company.com"
+                    type="text"
+                    placeholder="company.com"
                     value={formData.linksWebsite}
                     onChange={(e) => handleWebsiteChange(e.target.value)}
                     disabled={createFirm.isPending}
-                    // error={validationErrors.linksWebsite}
+                    error={validationErrors.linksWebsite}
                   />
 
                   <div className="grid grid-cols-2 gap-4">
                     <FormInput
                       id="linksLinkedIn"
                       label="LinkedIn"
-                      type="url"
-                      placeholder="https://linkedin.com/company/..."
+                      type="text"
+                      placeholder="linkedin.com/company/..."
                       value={formData.linksLinkedIn}
                       onChange={(e) => handleLinkedInChange(e.target.value)}
                       disabled={createFirm.isPending}
-                      // error={validationErrors.linksLinkedIn}
+                      error={validationErrors.linksLinkedIn}
                     />
 
                     <FormInput
                       id="linksFacebook"
                       label="Facebook"
-                      type="url"
-                      placeholder="https://facebook.com/..."
+                      type="text"
+                      placeholder="facebook.com/..."
                       value={formData.linksFacebook}
                       onChange={(e) => handleFacebookChange(e.target.value)}
                       disabled={createFirm.isPending}
-                      // error={validationErrors.linksFacebook}
+                      error={validationErrors.linksFacebook}
                     />
                   </div>
 
@@ -711,23 +738,23 @@ function CreateFirmForm() {
                     <FormInput
                       id="linksTwitter"
                       label="Twitter"
-                      type="url"
-                      placeholder="https://twitter.com/..."
+                      type="text"
+                      placeholder="twitter.com/..."
                       value={formData.linksTwitter}
                       onChange={(e) => handleTwitterChange(e.target.value)}
                       disabled={createFirm.isPending}
-                      // error={validationErrors.linksTwitter}
+                      error={validationErrors.linksTwitter}
                     />
 
                     <FormInput
                       id="linksInstagram"
                       label="Instagram"
-                      type="url"
-                      placeholder="https://instagram.com/..."
+                      type="text"
+                      placeholder="instagram.com/..."
                       value={formData.linksInstagram}
                       onChange={(e) => handleInstagramChange(e.target.value)}
                       disabled={createFirm.isPending}
-                      // error={validationErrors.linksInstagram}
+                      error={validationErrors.linksInstagram}
                     />
                   </div>
                 </motion.div>
@@ -753,7 +780,10 @@ function CreateFirmForm() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="country">{t("firm.country")}</Label>
+                      <Label htmlFor="country">
+                        {t("firm.country")}
+                        <span className="text-destructive ml-1">*</span>
+                      </Label>
                       <Select
                         value={formData.locationCountryId}
                         onValueChange={(value) => handleCountryChange(value)}
@@ -772,7 +802,10 @@ function CreateFirmForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="county">{t("firm.county")}</Label>
+                      <Label htmlFor="county">
+                        {t("firm.county")}
+                        <span className="text-destructive ml-1">*</span>
+                      </Label>
                       <Select
                         value={formData.locationCountyId}
                         onValueChange={(value) => handleCountyChange(value)}
@@ -796,7 +829,10 @@ function CreateFirmForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="city">{t("firm.city")}</Label>
+                      <Label htmlFor="city">
+                        {t("firm.city")}
+                        <span className="text-destructive ml-1">*</span>
+                      </Label>
                       <Select
                         value={formData.locationCityId}
                         onValueChange={(value) => setFormData({ ...formData, locationCityId: value })}
@@ -823,9 +859,9 @@ function CreateFirmForm() {
                     label={t("firm.address")}
                     placeholder={t("firm.addressPlaceholder")}
                     value={formData.locationAddress}
-                    onChange={(e) => setFormData({ ...formData, locationAddress: e.target.value })}
+                    onChange={(e) => handleAddressChange(e.target.value)}
                     disabled={createFirm.isPending}
-                    // error={validationErrors.locationAddress}
+                    error={validationErrors.locationAddress}
                   />
 
                   <FormInput
@@ -835,7 +871,7 @@ function CreateFirmForm() {
                     value={formData.locationPostalCode}
                     onChange={(e) => setFormData({ ...formData, locationPostalCode: e.target.value })}
                     disabled={createFirm.isPending}
-                    // error={validationErrors.locationPostalCode}
+                    error={validationErrors.locationPostalCode}
                   />
                 </motion.div>
               )}
@@ -864,15 +900,15 @@ function CreateFirmForm() {
                       <AlertDescription>{t("firm.noQuestions")}</AlertDescription>
                     </Alert>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
                       {universalQuestions.map((question: any) => {
                         const translation = getQuestionTranslation(question)
                         const hasOptions = question.options.length > 0
 
                         return (
-                          <div key={question.id} className="space-y-2">
+                          <div key={question.id} className="space-y-2 w-full">
                             <Label htmlFor={`question-${question.id}`}>
-                              {translation.display}
+                              {translation.title}
                               {question.isRequired && <span className="text-destructive ml-1">*</span>}
                             </Label>
                             {translation.description && (
@@ -896,7 +932,7 @@ function CreateFirmForm() {
                                       const optionTranslation = getOptionTranslation(option)
                                       return (
                                         <SelectItem key={option.id} value={option.id}>
-                                          {optionTranslation.display}
+                                          {optionTranslation.label}
                                         </SelectItem>
                                       )
                                     })}
@@ -1016,12 +1052,12 @@ function CreateFirmForm() {
 
                               if (selectedOption) {
                                 const optionTranslation = getOptionTranslation(selectedOption)
-                                displayAnswer = optionTranslation.display
+                                displayAnswer = optionTranslation.label
                               }
 
                               return (
                                 <p key={question.id}>
-                                  <span className="font-medium">{translation.display}:</span> {displayAnswer}
+                                  <span className="font-medium">{translation.title}:</span> {displayAnswer}
                                 </p>
                               )
                             })}

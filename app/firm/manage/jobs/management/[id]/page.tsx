@@ -174,7 +174,85 @@ export default function JobPostManagementPage() {
     )
   }
 
+  const capitalizeFirstLetter = (string: string) => {
+    if (!string) return string;
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   const handleSave = () => {
+    // Validation
+    if (!formData.title || formData.title.length < 5) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.titleLength"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (!formData.richDescription || formData.richDescription.length < 15) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.descriptionLength"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (formData.specialization === undefined || formData.specialization === null) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.specializationRequired"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (formData.seniority === undefined || formData.seniority === null) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.seniorityRequired"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (formData.employmentType === undefined || formData.employmentType === null) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.employmentTypeRequired"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (formData.location.workLocationType === undefined || formData.location.workLocationType === null) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.workLocationTypeRequired"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (!formData.location.countryId || !formData.location.countyId || !formData.location.cityId) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.locationRequired"),
+            variant: "destructive",
+        })
+        return
+    }
+
+    if (formData.compensation.maximumSalary < formData.compensation.minimumSalary) {
+        toast({
+            title: t("common.error"),
+            description: t("jobs.manage.validation.salaryRange"),
+            variant: "destructive",
+        })
+        return
+    }
+
     updateJobPost(formData, {
         onSuccess: () => {
             toast({
@@ -197,13 +275,13 @@ export default function JobPostManagementPage() {
         onSuccess: () => {
             toast({
                 title: t("common.success"),
-                description: "Job post renewed successfully",
+                description: t("jobs.manage.renewSuccess"),
             })
         },
         onError: (error: any) => {
             toast({
                 title: t("common.error"),
-                description: "Failed to renew job post",
+                description: t("jobs.manage.renewError"),
                 variant: "destructive",
             })
         }
@@ -211,10 +289,16 @@ export default function JobPostManagementPage() {
   }
 
   const updateField = (field: string, value: any) => {
+    if (typeof value === 'string' && value.length > 0) {
+        value = capitalizeFirstLetter(value)
+    }
     setFormData((prev: any) => ({ ...prev, [field]: value }))
   }
 
   const updateLocation = (field: string, value: any) => {
+    if (typeof value === 'string' && value.length > 0 && field === 'address') {
+        value = capitalizeFirstLetter(value)
+    }
     setFormData((prev: any) => ({
         ...prev,
         location: { ...prev.location, [field]: value }
@@ -231,10 +315,11 @@ export default function JobPostManagementPage() {
   // Helper for list fields
   const addToList = (field: string, value: string, setInput: (val: string) => void) => {
       if (!value.trim()) return
-      if (!formData[field].includes(value.trim())) {
+      const capitalizedValue = capitalizeFirstLetter(value.trim())
+      if (!formData[field].includes(capitalizedValue)) {
           setFormData((prev: any) => ({
               ...prev,
-              [field]: [...(prev[field] || []), value.trim()]
+              [field]: [...(prev[field] || []), capitalizedValue]
           }))
       }
       setInput("")
@@ -258,7 +343,7 @@ export default function JobPostManagementPage() {
             {jobPost.canRenew && (
                 <Button onClick={handleRenew} disabled={isRenewing} variant="outline" className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700">
                     {isRenewing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                    Renew Job
+                    {t("jobs.manage.renewJob")}
                 </Button>
             )}
             <Button onClick={handleSave} disabled={isUpdating}>
@@ -273,7 +358,7 @@ export default function JobPostManagementPage() {
             <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground">Views</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t("jobs.views")}</p>
                         <h3 className="text-2xl font-bold">{jobPost.views}</h3>
                     </div>
                     <Eye className="h-8 w-8 text-muted-foreground opacity-20" />
@@ -284,7 +369,7 @@ export default function JobPostManagementPage() {
             <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground">Applications</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t("jobs.applications")}</p>
                         <h3 className="text-2xl font-bold">{jobPost.applicationsCount}</h3>
                     </div>
                     <Users className="h-8 w-8 text-primary opacity-20" />
@@ -295,20 +380,20 @@ export default function JobPostManagementPage() {
             <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-muted-foreground">Status</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t("firm.status")}</p>
                         <div className="flex gap-2 mt-1">
                             {jobPost.isDeleted ? (
-                                <Badge variant="destructive">Deleted</Badge>
+                                <Badge variant="destructive">{t("jobs.manage.status.deleted")}</Badge>
                             ) : jobPost.isExpired ? (
-                                <Badge variant="secondary">Expired</Badge>
+                                <Badge variant="secondary">{t("jobs.manage.status.expired")}</Badge>
                             ) : (
-                                <Badge className="bg-green-500">Active</Badge>
+                                <Badge className="bg-green-500">{t("jobs.manage.status.active")}</Badge>
                             )}
                         </div>
                     </div>
                     <div className="text-right text-xs text-muted-foreground">
-                        <p>Posted: {new Date(jobPost.postedDate).toLocaleDateString()}</p>
-                        <p>Expires: {new Date(jobPost.expirationDate).toLocaleDateString()}</p>
+                        <p>{t("jobs.manage.postedDate")}{new Date(jobPost.postedDate).toLocaleDateString()}</p>
+                        <p>{t("jobs.manage.expirationDate")}{new Date(jobPost.expirationDate).toLocaleDateString()}</p>
                     </div>
                 </div>
             </CardContent>
@@ -322,13 +407,13 @@ export default function JobPostManagementPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    <Label>{t("jobs.manage.title")}</Label>
+                    <Label>{t("jobs.manage.title")} <span className="text-red-500">*</span></Label>
                     <Input value={formData.title} onChange={(e) => updateField("title", e.target.value)} />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.specialization")}</Label>
+                        <Label>{t("jobs.manage.specialization")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.specialization.toString()} 
                             onValueChange={(val) => updateField("specialization", parseInt(val))}
@@ -346,7 +431,7 @@ export default function JobPostManagementPage() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.seniority")}</Label>
+                        <Label>{t("jobs.manage.seniority")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.seniority.toString()} 
                             onValueChange={(val) => updateField("seniority", parseInt(val))}
@@ -367,7 +452,7 @@ export default function JobPostManagementPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.employmentType")}</Label>
+                        <Label>{t("jobs.manage.employmentType")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.employmentType.toString()} 
                             onValueChange={(val) => updateField("employmentType", parseInt(val))}
@@ -385,7 +470,7 @@ export default function JobPostManagementPage() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.workLocationType")}</Label>
+                        <Label>{t("jobs.manage.workLocationType")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.location.workLocationType.toString()} 
                             onValueChange={(val) => updateLocation("workLocationType", parseInt(val))}
@@ -413,7 +498,7 @@ export default function JobPostManagementPage() {
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.country")}</Label>
+                        <Label>{t("jobs.manage.country")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.location.countryId || ""} 
                             onValueChange={(val) => {
@@ -433,7 +518,7 @@ export default function JobPostManagementPage() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.county")}</Label>
+                        <Label>{t("jobs.manage.county")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.location.countyId || ""} 
                             onValueChange={(val) => {
@@ -453,7 +538,7 @@ export default function JobPostManagementPage() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>{t("jobs.manage.city")}</Label>
+                        <Label>{t("jobs.manage.city")} <span className="text-red-500">*</span></Label>
                         <Select 
                             value={formData.location.cityId || ""} 
                             onValueChange={(val) => updateLocation("cityId", val)}
@@ -525,7 +610,7 @@ export default function JobPostManagementPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    <Label>{t("jobs.manage.richDescription")}</Label>
+                    <Label>{t("jobs.manage.richDescription")} <span className="text-red-500">*</span></Label>
                     <RichTextEditor 
                         value={formData.richDescription} 
                         onChange={(value) => updateField("richDescription", value)} 
@@ -552,7 +637,7 @@ export default function JobPostManagementPage() {
                         <Input 
                             placeholder={t("jobs.manage.placeholder.techStack")}
                             value={techStackInput}
-                            onChange={(e) => setTechStackInput(e.target.value)}
+                            onChange={(e) => setTechStackInput(capitalizeFirstLetter(e.target.value))}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault()
@@ -600,7 +685,7 @@ export default function JobPostManagementPage() {
                         <Input 
                             placeholder={t("jobs.manage.placeholder.softSkills")}
                             value={softSkillInput}
-                            onChange={(e) => setSoftSkillInput(e.target.value)}
+                            onChange={(e) => setSoftSkillInput(capitalizeFirstLetter(e.target.value))}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault()
@@ -648,7 +733,7 @@ export default function JobPostManagementPage() {
                         <Input 
                             placeholder={t("jobs.manage.placeholder.certifications")}
                             value={certificationInput}
-                            onChange={(e) => setCertificationInput(e.target.value)}
+                            onChange={(e) => setCertificationInput(capitalizeFirstLetter(e.target.value))}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault()
@@ -696,9 +781,9 @@ export default function JobPostManagementPage() {
       <Dialog open={isApplicationsOpen} onOpenChange={setIsApplicationsOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>Job Applications ({jobPost.applicationsCount})</DialogTitle>
+                <DialogTitle>{t("jobs.manage.applications.title")} ({jobPost.applicationsCount})</DialogTitle>
                 <DialogDescription>
-                    Review candidates who applied for this position.
+                    {t("jobs.manage.applications.description")}
                 </DialogDescription>
             </DialogHeader>
             
@@ -728,7 +813,7 @@ export default function JobPostManagementPage() {
                                 </div>
                                 {app.personResumeUrl && (
                                     <Button variant="link" className="h-auto p-0 mt-2 text-sm" onClick={() => window.open(app.personResumeUrl, '_blank')}>
-                                        View Resume
+                                        {t("jobs.manage.applications.viewResume")}
                                     </Button>
                                 )}
                             </div>
@@ -737,7 +822,7 @@ export default function JobPostManagementPage() {
                 </div>
             ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                    No applications yet.
+                    {t("jobs.manage.applications.noApplications")}
                 </div>
             )}
         </DialogContent>

@@ -40,10 +40,10 @@ export const useUpdateJobPost = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: any) => apiClient.jobs.update(data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["job", data.id] })
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["job", variables.id] })
       queryClient.invalidateQueries({ queryKey: ["jobs"] })
-      queryClient.invalidateQueries({ queryKey: ["job", "management", data.id] })
+      queryClient.invalidateQueries({ queryKey: ["job", "management", variables.id] })
     },
   })
 }

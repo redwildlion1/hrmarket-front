@@ -55,7 +55,21 @@ function RegisterForm() {
       return
     }
 
+    const passwordErrors = []
     if (password.length < 8) {
+        passwordErrors.push(t("auth.passwordTooShort"))
+    }
+    if (!/[0-9]/.test(password)) {
+        passwordErrors.push(t("auth.passwordRequiresDigit"))
+    }
+    if (!/[a-z]/.test(password)) {
+        passwordErrors.push(t("auth.passwordRequiresLowercase"))
+    }
+    if (!/[A-Z]/.test(password)) {
+        passwordErrors.push(t("auth.passwordRequiresUppercase"))
+    }
+
+    if (passwordErrors.length > 0) {
       setError({
         response: {
           data: {
@@ -63,7 +77,7 @@ function RegisterForm() {
             status: 400,
             timestamp: new Date().toISOString(),
             validationErrors: {
-              password: [t("auth.passwordMinLength")],
+              password: passwordErrors,
             },
           },
         },

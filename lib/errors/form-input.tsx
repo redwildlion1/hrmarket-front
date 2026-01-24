@@ -11,6 +11,7 @@ import { Eye, EyeOff } from "lucide-react"
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string
   helperText?: string
+  error?: string // Allow passing error directly
 }
 
 /**
@@ -30,6 +31,7 @@ export const FormInput: React.FC<FormInputProps> = ({
   id,
   onChange,
   type,
+  error,
   ...inputProps
 }) => {
   const { getFieldErrors, clearFieldError } = useFormErrors()
@@ -39,7 +41,9 @@ export const FormInput: React.FC<FormInputProps> = ({
     throw new Error("FormInput requires an id prop to match backend validation errors")
   }
 
-  const errors = getFieldErrors(id)
+  // Get errors from context OR use the passed error prop
+  const contextErrors = getFieldErrors(id)
+  const errors = error ? [error] : contextErrors
   const hasError = errors.length > 0
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

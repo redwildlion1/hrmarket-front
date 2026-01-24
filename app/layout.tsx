@@ -13,7 +13,10 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "HRMarket - Be HRMARKable!",
   description: "The premier marketplace for HR professionals and companies",
-  generator: "v0.app",
+  generator: "",
+  icons: {
+    icon: "/logo.svg",
+  },
 }
 
 export default function RootLayout({
@@ -22,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="ro">
       <body>
         <ReactQueryProvider>
           <AuthProvider>

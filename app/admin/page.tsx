@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useAuth } from "@/lib/auth/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FolderTree, CheckCircle, CreditCard, HelpCircle, FileText } from "lucide-react"
+import { FolderTree, CheckCircle, CreditCard, HelpCircle, FileText, Mail } from "lucide-react"
 
 export default function AdminPage() {
   const { t } = useLanguage()
@@ -61,6 +61,12 @@ export default function AdminPage() {
       description: t("admin.verifyFirmsDesc"),
       icon: CheckCircle,
       href: "/admin/verify-firms",
+    },
+    {
+      title: "Contact Forms",
+      description: "Manage contact form submissions",
+      icon: Mail,
+      href: "/admin/contact-forms",
     },
   ]
 

@@ -17,6 +17,9 @@ export const ErrorAlert: React.FC<ErrorAlertProps> = ({ showValidationErrors = f
   const { apiError, clearError } = useFormErrors()
 
   if (!apiError) return null
+  
+  // Don't show 403 errors in the generic alert as they are handled specifically (e.g. email not confirmed)
+  if (apiError.problemDetails.status === 403) return null
 
   const { problemDetails, isServerError } = apiError
   const generalErrors = getGeneralErrors(apiError)

@@ -119,7 +119,8 @@ function LoginForm() {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4 sm:space-y-6">
-            {apiError && !apiError.isValidationError && !showResend && <ErrorAlert />}
+            {/* Only show ErrorAlert if it's not a 403 error (email not confirmed) */}
+            {apiError && !apiError.isValidationError && !showResend && apiError.status !== 403 && <ErrorAlert />}
             
             <AnimatePresence>
                 {showResend && (

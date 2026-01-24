@@ -98,6 +98,11 @@ interface Certification {
   credentialUrl: string
 }
 
+const capitalizeFirstLetter = (string: string) => {
+  if (!string) return string
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 function ProfileContent() {
   const { t } = useLanguage()
   const router = useRouter()
@@ -260,11 +265,107 @@ function ProfileContent() {
       }
   }, [profileError, t, toast])
 
+  // --- Validation Functions ---
+  const validateEmail = (email: string): string => {
+    if (!email) return ""
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email) ? "" : t("firm.validation.invalidEmail")
+  }
+
+  const validatePhone = (phone: string): string => {
+    if (!phone) return ""
+    const phoneRegex = /^[\d\s+\-$$$$]+$/
+    if (!phoneRegex.test(phone)) {
+      return t("firm.validation.invalidPhone")
+    }
+    const digits = phone.replace(/\D/g, "")
+    return digits.length >= 9 ? "" : t("firm.validation.invalidPhone")
+  }
+
+  const validateUrl = (url: string): string => {
+    if (!url) return ""
+    let urlToValidate = url
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        urlToValidate = "https://" + url
+    }
+    
+    if (!urlToValidate.includes(".")) {
+        return t("firm.validation.invalidUrl")
+    }
+
+    try {
+      new URL(urlToValidate)
+      return ""
+    } catch {
+      return t("firm.validation.invalidUrl")
+    }
+  }
+
   // --- Update Handlers ---
 
   const handleUpdateBasicInfo = () => {
     clearError()
-    updateBasicInfo.mutate(basicInfoForm, {
+    
+    // Validation
+    if (!basicInfoForm.firstName) {
+        setError({ validationErrors: { firstName: [t("firm.validation.fieldRequired")] } })
+        return
+    }
+    if (!basicInfoForm.lastName) {
+        setError({ validationErrors: { lastName: [t("firm.validation.fieldRequired")] } })
+        return
+    }
+    if (!basicInfoForm.headline) {
+        setError({ validationErrors: { headline: [t("firm.validation.fieldRequired")] } })
+        return
+    }
+    if (!basicInfoForm.contactEmail) {
+        setError({ validationErrors: { contactEmail: [t("firm.validation.fieldRequired")] } })
+        return
+    } else {
+        const emailError = validateEmail(basicInfoForm.contactEmail)
+        if (emailError) {
+            setError({ validationErrors: { contactEmail: [emailError] } })
+            return
+        }
+    }
+    
+    if (basicInfoForm.phoneNumber) {
+        const phoneError = validatePhone(basicInfoForm.phoneNumber)
+        if (phoneError) {
+            setError({ validationErrors: { phoneNumber: [phoneError] } })
+            return
+        }
+    }
+
+    if (basicInfoForm.portfolioUrl) {
+        const urlError = validateUrl(basicInfoForm.portfolioUrl)
+        if (urlError) {
+            setError({ validationErrors: { portfolioUrl: [urlError] } })
+            return
+        }
+    }
+
+    if (basicInfoForm.linkedInUrl) {
+        const urlError = validateUrl(basicInfoForm.linkedInUrl)
+        if (urlError) {
+            setError({ validationErrors: { linkedInUrl: [urlError] } })
+            return
+        } else if (!basicInfoForm.linkedInUrl.toLowerCase().includes("linkedin.com")) {
+             setError({ validationErrors: { linkedInUrl: [t("firm.validation.invalidUrl")] } })
+             return
+        }
+    }
+
+    // Capitalize
+    const dataToSubmit = {
+        ...basicInfoForm,
+        firstName: capitalizeFirstLetter(basicInfoForm.firstName),
+        lastName: capitalizeFirstLetter(basicInfoForm.lastName),
+        headline: capitalizeFirstLetter(basicInfoForm.headline)
+    }
+
+    updateBasicInfo.mutate(dataToSubmit, {
         onSuccess: () => {
             setIsEditingBasicInfo(false)
             toast({ title: t("common.success"), description: t("profile.updateSuccess") })
@@ -282,6 +383,16 @@ function ProfileContent() {
 
   const handleUpdateLocation = () => {
     clearError()
+    
+    if (!locationForm.countryId || !locationForm.countyId || !locationForm.cityId) {
+        toast({
+            title: t("firm.validationErrors"),
+            description: t("firm.validation.fieldRequired"),
+            variant: "destructive",
+        })
+        return
+    }
+
     updateLocation.mutate(locationForm, {
         onSuccess: () => {
             setIsEditingLocation(false)
@@ -300,7 +411,7 @@ function ProfileContent() {
 
   const handleUpdateSummary = () => {
     clearError()
-    updateSummary.mutate({ summary: summaryForm }, {
+    updateSummary.mutate({ summary: capitalizeFirstLetter(summaryForm) }, {
         onSuccess: () => {
             setIsEditingSummary(false)
             toast({ title: t("common.success"), description: t("profile.updateSuccess") })
@@ -377,8 +488,26 @@ function ProfileContent() {
     if (!currentWorkExperience) return
     clearError()
 
+    // Validation
+    if (currentWorkExperience.startDate && currentWorkExperience.endDate && new Date(currentWorkExperience.endDate) < new Date(currentWorkExperience.startDate)) {
+        toast({
+          title: t("firm.validationErrors"),
+          description: "End date cannot be before start date.",
+          variant: "destructive",
+        })
+        return
+    }
+
+    const dataToSubmit = {
+        ...currentWorkExperience,
+        jobTitle: capitalizeFirstLetter(currentWorkExperience.jobTitle),
+        companyName: capitalizeFirstLetter(currentWorkExperience.companyName),
+        description: capitalizeFirstLetter(currentWorkExperience.description),
+        endDate: currentWorkExperience.isCurrentRole ? null : currentWorkExperience.endDate
+    }
+
     if (currentWorkExperience.id) {
-        updateWorkExperience.mutate(currentWorkExperience, {
+        updateWorkExperience.mutate(dataToSubmit, {
             onSuccess: () => {
                 setWorkExperienceDialogOpen(false)
                 setCurrentWorkExperience(null)
@@ -394,7 +523,7 @@ function ProfileContent() {
             }
         })
     } else {
-        addWorkExperience.mutate(currentWorkExperience, {
+        addWorkExperience.mutate(dataToSubmit, {
             onSuccess: () => {
                 setWorkExperienceDialogOpen(false)
                 setCurrentWorkExperience(null)
@@ -430,8 +559,25 @@ function ProfileContent() {
     if (!currentEducation) return
     clearError()
 
+    // Validation
+    if (currentEducation.startDate && currentEducation.graduationDate && new Date(currentEducation.graduationDate) < new Date(currentEducation.startDate)) {
+        toast({
+          title: t("firm.validationErrors"),
+          description: "Graduation date cannot be before start date.",
+          variant: "destructive",
+        })
+        return
+    }
+
+    const dataToSubmit = {
+        ...currentEducation,
+        institution: capitalizeFirstLetter(currentEducation.institution),
+        degree: capitalizeFirstLetter(currentEducation.degree),
+        description: capitalizeFirstLetter(currentEducation.description)
+    }
+
     if (currentEducation.id) {
-        updateEducation.mutate(currentEducation, {
+        updateEducation.mutate(dataToSubmit, {
             onSuccess: () => {
                 setEducationDialogOpen(false)
                 setCurrentEducation(null)
@@ -447,7 +593,7 @@ function ProfileContent() {
             }
         })
     } else {
-        addEducation.mutate(currentEducation, {
+        addEducation.mutate(dataToSubmit, {
             onSuccess: () => {
                 setEducationDialogOpen(false)
                 setCurrentEducation(null)
@@ -483,8 +629,24 @@ function ProfileContent() {
     if (!currentCertification) return
     clearError()
 
+    // Validation
+    if (currentCertification.issueDate && currentCertification.expirationDate && new Date(currentCertification.expirationDate) < new Date(currentCertification.issueDate)) {
+        toast({
+          title: t("firm.validationErrors"),
+          description: "Expiration date cannot be before issue date.",
+          variant: "destructive",
+        })
+        return
+    }
+
+    const dataToSubmit = {
+        ...currentCertification,
+        name: capitalizeFirstLetter(currentCertification.name),
+        issuingOrganization: capitalizeFirstLetter(currentCertification.issuingOrganization)
+    }
+
     if (currentCertification.id) {
-        updateCertification.mutate(currentCertification, {
+        updateCertification.mutate(dataToSubmit, {
             onSuccess: () => {
                 setCertificationDialogOpen(false)
                 setCurrentCertification(null)
@@ -500,7 +662,7 @@ function ProfileContent() {
             }
         })
     } else {
-        addCertification.mutate(currentCertification, {
+        addCertification.mutate(dataToSubmit, {
             onSuccess: () => {
                 setCertificationDialogOpen(false)
                 setCurrentCertification(null)
@@ -1552,6 +1714,7 @@ function ProfileContent() {
                   label={t("profile.startDate")}
                   type="date"
                   value={currentWorkExperience.startDate}
+                  max={currentWorkExperience.endDate || undefined}
                   onChange={(e) => setCurrentWorkExperience({ ...currentWorkExperience, startDate: e.target.value })}
                   required
                 />
@@ -1561,6 +1724,7 @@ function ProfileContent() {
                     label={t("profile.endDate")}
                     type="date"
                     value={currentWorkExperience.endDate || ""}
+                    min={currentWorkExperience.startDate}
                     onChange={(e) => setCurrentWorkExperience({ ...currentWorkExperience, endDate: e.target.value })}
                     disabled={currentWorkExperience.isCurrentRole}
                   />
@@ -1627,6 +1791,7 @@ function ProfileContent() {
                   label={t("profile.startDate")}
                   type="date"
                   value={currentEducation.startDate}
+                  max={currentEducation.graduationDate || undefined}
                   onChange={(e) => setCurrentEducation({ ...currentEducation, startDate: e.target.value })}
                   required
                 />
@@ -1635,6 +1800,7 @@ function ProfileContent() {
                   label={t("profile.graduationDate")}
                   type="date"
                   value={currentEducation.graduationDate || ""}
+                  min={currentEducation.startDate}
                   onChange={(e) => setCurrentEducation({ ...currentEducation, graduationDate: e.target.value })}
                 />
               </div>
@@ -1689,6 +1855,7 @@ function ProfileContent() {
                   label={t("profile.issueDate")}
                   type="date"
                   value={currentCertification.issueDate}
+                  max={currentCertification.expirationDate || undefined}
                   onChange={(e) => setCurrentCertification({ ...currentCertification, issueDate: e.target.value })}
                   required
                 />
@@ -1697,6 +1864,7 @@ function ProfileContent() {
                   label={t("profile.expirationDate")}
                   type="date"
                   value={currentCertification.expirationDate || ""}
+                  min={currentCertification.issueDate}
                   onChange={(e) => setCurrentCertification({ ...currentCertification, expirationDate: e.target.value })}
                 />
               </div>

@@ -5,16 +5,23 @@ import Link from "next/link"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
-import { useState } from "react"
-import { Mail, MapPin, Phone, Sparkles, Send, CheckCircle2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Mail, MapPin, Phone, Sparkles, Send, CheckCircle2, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { TranslationKey } from "@/lib/i18n/translations"
 
 export function Footer() {
   const { t } = useLanguage()
   const [email, setEmail] = useState("")
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [subscriptionMessage, setSubscriptionMessage] = useState<TranslationKey>("footer.subscribed")
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const currentYear = new Date().getFullYear()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,6 +37,7 @@ export function Footer() {
       })
 
       if (response.ok) {
+        setSubscriptionMessage("footer.subscribed")
         setIsSubscribed(true)
         setEmail("")
         // Reset success state after 3 seconds
@@ -37,14 +45,37 @@ export function Footer() {
           setIsSubscribed(false)
         }, 3000)
       } else {
-        // Handle error (optional: show error message)
-        console.error("Newsletter subscription failed with status:", response.status)
+        try {
+            const data = await response.json()
+            if (data.validationErrors?.email?.includes("Validation.Newsletter.EmailAlreadySubscribed")) {
+                setSubscriptionMessage("footer.alreadySubscribed")
+                setIsSubscribed(true)
+                setEmail("")
+                setTimeout(() => {
+                  setIsSubscribed(false)
+                }, 3000)
+            } else {
+                console.error("Newsletter subscription failed with status:", response.status)
+            }
+        } catch (e) {
+            console.error("Failed to parse error response", e)
+        }
       }
     } catch (error) {
       console.error("Newsletter subscription failed:", error)
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (!mounted) {
+    return (
+      <footer className="border-t border-border bg-gradient-to-b from-muted/30 to-muted/50">
+        <div className="container mx-auto px-4 py-16 md:py-20 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </footer>
+    )
   }
 
   return (
@@ -132,12 +163,6 @@ export function Footer() {
                 {t("footer.terms")}
               </Link>
               <Link
-                href="/investors"
-                className="text-muted-foreground font-medium transition-all hover:text-primary hover:translate-x-1"
-              >
-                {t("footer.investors")}
-              </Link>
-              <Link
                 href="/partner"
                 className="text-muted-foreground font-medium transition-all hover:text-primary hover:translate-x-1"
               >
@@ -180,7 +205,7 @@ export function Footer() {
                       className="flex items-center gap-2"
                     >
                       <CheckCircle2 className="h-5 w-5" />
-                      <span>{t("footer.subscribed")}</span>
+                      <span>{t(subscriptionMessage)}</span>
                     </motion.div>
                   ) : (
                     <motion.div

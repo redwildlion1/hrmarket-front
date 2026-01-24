@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useEffect, useState } from "react"
+import React, { useRef, useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/lib/i18n/language-context"
@@ -49,6 +49,7 @@ import {
   useFirmTypes,
   useSubmitFirmForVerification,
   useUpdateUniversalAnswers,
+  useUniversalQuestions,
 } from "@/lib/hooks/use-firms"
 import { useCountries, useCounties, useCities } from "@/lib/hooks/use-location"
 import {
@@ -87,6 +88,8 @@ import {
     DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import { renderIcon } from "@/lib/utils/icons"
+import { useQuery } from "@tanstack/react-query"
+import { locationCache } from "@/lib/utils/location-cache"
 
 function FirmManageContent() {
   const { t, language } = useLanguage()
@@ -96,7 +99,56 @@ function FirmManageContent() {
   const logoInputRef = useRef<HTMLInputElement>(null)
   const bannerInputRef = useRef<HTMLInputElement>(null)
 
-  const { data: firm, isLoading: firmLoading, error: firmError } = useMyFirm()
+  const { data: firmData, isLoading: isFirmLoading, error: firmError } = useMyFirm()
+  const { data: universalQuestions, isLoading: isUniversalLoading } = useUniversalQuestions()
+
+  const categoryIds = useMemo(() => firmData?.forms?.map((f: any) => f.categoryId) || [], [firmData])
+
+  const { data: categoryQuestionsData, isLoading: isCategoryLoading } = useQuery({
+    queryKey: ["category-questions", categoryIds],
+    queryFn: () => questionsApi.getQuestionsByCategory(categoryIds),
+    enabled: categoryIds.length > 0
+  })
+
+  const firm = useMemo(() => {
+    if (!firmData) return null
+
+    // Combine Universal Answers
+    const combinedUniversalAnswers = firmData.universalAnswers?.map((answer: any) => {
+        const question = universalQuestions?.find((q: any) => q.id === answer.universalQuestionId)
+        return {
+            ...answer,
+            universalQuestion: question
+        }
+    }) || []
+
+    // Combine Forms
+    const combinedForms = firmData.forms?.map((form: any) => {
+        const categoryQData = categoryQuestionsData?.find((cq: any) => cq.categoryId === form.categoryId)
+        
+        const questionsWithAnswers = categoryQData?.questions.map((question: any) => {
+            const answer = form.answers?.find((a: any) => a.categoryQuestionId === question.id)
+            return {
+                categoryQuestion: question,
+                categoryAnswer: answer
+            }
+        }) || []
+        
+        return {
+            ...form,
+            questionsWithAnswers
+        }
+    }) || []
+
+    return {
+        ...firmData,
+        universalAnswers: combinedUniversalAnswers,
+        forms: combinedForms
+    }
+  }, [firmData, universalQuestions, categoryQuestionsData])
+
+  const firmLoading = isFirmLoading || isUniversalLoading || (categoryIds.length > 0 && isCategoryLoading)
+
   const { mutate: updateMedia, isPending: isUploading } = useUpdateFirmMedia()
   const { mutate: updateLocation, isPending: isUpdatingLocation } = useUpdateFirmLocation()
   const { mutate: updateContact, isPending: isUpdatingContact } = useUpdateFirmContact()
@@ -160,6 +212,9 @@ function FirmManageContent() {
   })
   const [universalAnswersForm, setUniversalAnswersForm] = useState<Record<string, string>>({})
 
+  // Validation errors state
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+
   // Image Upload States
   const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const [imageSrc, setImageSrc] = useState<string | null>(null)
@@ -202,42 +257,42 @@ function FirmManageContent() {
 
   // Initialize forms when firm data is loaded
   useEffect(() => {
-    if (firm) {
+    if (firmData) {
       setLocationForm({
-        address: firm.location?.address || "",
-        countryId: firm.location?.countryId || "",
-        countyId: firm.location?.countyId || "",
-        cityId: firm.location?.cityId || "",
-        postalCode: firm.location?.postalCode || "",
+        address: firmData.location?.address || "",
+        countryId: firmData.location?.countryId || "",
+        countyId: firmData.location?.countyId || "",
+        cityId: firmData.location?.cityId || "",
+        postalCode: firmData.location?.postalCode || "",
       })
       setContactForm({
-        phone: firm.contact?.phone || "",
-        email: firm.contact?.email || "",
+        phone: firmData.contact?.phone || "",
+        email: firmData.contact?.email || "",
       })
       setLinksForm({
-        website: firm.links?.website || "",
-        linkedIn: firm.links?.linkedIn || "",
-        facebook: firm.links?.facebook || "",
-        twitter: firm.links?.twitter || "",
-        instagram: firm.links?.instagram || "",
+        website: firmData.links?.website || "",
+        linkedIn: firmData.links?.linkedIn || "",
+        facebook: firmData.links?.facebook || "",
+        twitter: firmData.links?.twitter || "",
+        instagram: firmData.links?.instagram || "",
       })
       setBasicInfoForm({
-        type: firm.type || "",
+        type: firmData.type || "",
       })
       setDescriptionForm({
-        description: firm.description || "",
+        description: firmData.description || "",
       })
       
       // Initialize universal answers form
       const answers: Record<string, string> = {}
-      firm.universalAnswers?.forEach((answer: any) => {
-        if (answer.universalQuestion?.id && answer.selectedOptionId) {
-          answers[answer.universalQuestion.id] = answer.selectedOptionId
+      firmData.universalAnswers?.forEach((answer: any) => {
+        if (answer.universalQuestionId && answer.selectedOptionId) {
+          answers[answer.universalQuestionId] = answer.selectedOptionId
         }
       })
       setUniversalAnswersForm(answers)
     }
-  }, [firm])
+  }, [firmData])
 
   // Fetch clusters when add category dialog opens
   useEffect(() => {
@@ -248,22 +303,42 @@ function FirmManageContent() {
 
   // Fetch clusters if firm has forms to display category names
   useEffect(() => {
-    if (firm?.forms?.length && clusters.length === 0) {
+    if (firmData?.forms?.length && clusters.length === 0) {
         adminApi.getClusters().then(setClusters).catch(console.error)
     }
-  }, [firm, clusters.length])
+  }, [firmData, clusters.length])
 
   const getLocationNames = () => {
     if (!firm || !firm.location) return { country: "", county: "", city: "" }
 
-    const country = countries.find((c: any) => c.id === firm.location.countryId)
-    const county = counties.find((c: any) => c.id === firm.location.countyId)
-    const city = cities.find((c: any) => c.id === firm.location.cityId)
+    const cachedNames = locationCache.getLocationNames(
+        firm.location.countryId,
+        firm.location.countyId,
+        firm.location.cityId
+    )
+
+    // Fallback to fetched data if not found in cache
+    let countryName = cachedNames.country
+    let countyName = cachedNames.county
+    let cityName = cachedNames.city
+
+    if (!countryName) {
+        const country = countries.find((c: any) => c.id === firm.location.countryId)
+        countryName = country?.name || ""
+    }
+    if (!countyName) {
+        const county = counties.find((c: any) => c.id === firm.location.countyId)
+        countyName = county?.name || ""
+    }
+    if (!cityName) {
+        const city = cities.find((c: any) => c.id === firm.location.cityId)
+        cityName = city?.name || ""
+    }
 
     return {
-      country: country?.name || "",
-      county: county?.name || "",
-      city: city?.name || "",
+      country: countryName,
+      county: countyName,
+      city: cityName,
     }
   }
 
@@ -340,14 +415,14 @@ function FirmManageContent() {
             setImageSrc(null)
             toast({
               title: t("common.success"),
-              description: `${imageType === "logo" ? "Logo" : "Banner"} uploaded successfully.`,
+              description: imageType === "logo" ? t("firm.logoUploaded") : t("firm.bannerUploaded"),
             })
           },
           onError: (error: any) => {
             console.error(`Error uploading ${imageType}:`, error)
             toast({
               title: t("common.error"),
-              description: `Failed to upload ${imageType}.`,
+              description: imageType === "logo" ? t("firm.logoUploadError") : t("firm.bannerUploadError"),
               variant: "destructive",
             })
           },
@@ -357,26 +432,162 @@ function FirmManageContent() {
       console.error(error)
       toast({
         title: t("common.error"),
-        description: `Failed to process ${imageType}.`,
+        description: imageType === "logo" ? t("firm.logoProcessError") : t("firm.bannerProcessError"),
         variant: "destructive",
       })
     }
   }
 
+  // Validation functions
+  const validateEmail = (email: string): string => {
+    if (!email) return ""
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email) ? "" : t("firm.validation.invalidEmail")
+  }
+
+  const validatePhone = (phone: string): string => {
+    if (!phone) return ""
+    const phoneRegex = /^[\d\s+\-$$$$]+$/
+    if (!phoneRegex.test(phone)) {
+      return t("firm.validation.invalidPhone")
+    }
+    const digits = phone.replace(/\D/g, "")
+    return digits.length >= 9 ? "" : t("firm.validation.invalidPhone")
+  }
+
+  const validateUrl = (url: string): string => {
+    if (!url) return ""
+    let urlToValidate = url
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        urlToValidate = "https://" + url
+    }
+    
+    if (!urlToValidate.includes(".")) {
+        return t("firm.validation.invalidUrl")
+    }
+
+    try {
+      new URL(urlToValidate)
+      return ""
+    } catch {
+      return t("firm.validation.invalidUrl")
+    }
+  }
+
+  const fixUrl = (url: string): string => {
+    if (!url) return ""
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        return "https://" + url
+    }
+    return url
+  }
+
+  const resetLocationForm = () => {
+    if (firm) {
+        setLocationForm({
+            address: firm.location?.address || "",
+            countryId: firm.location?.countryId || "",
+            countyId: firm.location?.countyId || "",
+            cityId: firm.location?.cityId || "",
+            postalCode: firm.location?.postalCode || "",
+        })
+    }
+    setValidationErrors({})
+  }
+
+  const resetContactForm = () => {
+    if (firm) {
+        setContactForm({
+            phone: firm.contact?.phone || "",
+            email: firm.contact?.email || "",
+        })
+    }
+    setValidationErrors({})
+  }
+
+  const resetLinksForm = () => {
+    if (firm) {
+        setLinksForm({
+            website: firm.links?.website || "",
+            linkedIn: firm.links?.linkedIn || "",
+            facebook: firm.links?.facebook || "",
+            twitter: firm.links?.twitter || "",
+            instagram: firm.links?.instagram || "",
+        })
+    }
+    setValidationErrors({})
+  }
+
+  const resetBasicInfoForm = () => {
+    if (firm) {
+      setBasicInfoForm({
+        type: firm.type || "",
+      })
+    }
+  }
+
+  const resetDescriptionForm = () => {
+    if (firm) {
+      setDescriptionForm({
+        description: firm.description || "",
+      })
+    }
+  }
+
+  const resetUniversalAnswersForm = () => {
+    if (firm) {
+      const answers: Record<string, string> = {}
+      firm.universalAnswers?.forEach((answer: any) => {
+        if (answer.universalQuestion?.id && answer.selectedOptionId) {
+          answers[answer.universalQuestion.id] = answer.selectedOptionId
+        }
+      })
+      setUniversalAnswersForm(answers)
+    }
+  }
+
   const handleUpdateLocation = () => {
     clearError()
+    setValidationErrors({})
+    
+    const errors: Record<string, string> = {}
+    if (!locationForm.countryId) errors.countryId = t("firm.validationError")
+    if (!locationForm.countyId) errors.countyId = t("firm.validationError")
+    if (!locationForm.cityId) errors.cityId = t("firm.validationError")
+    
+    if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors)
+        return
+    }
+
     updateLocation(locationForm, {
       onSuccess: () => {
         setIsLocationDialogOpen(false)
         toast({
           title: t("common.success"),
-          description: "Location updated successfully.",
+          description: t("firm.locationUpdated"),
         })
       },
       onError: (error: any) => {
         console.error("Error updating location:", error)
         setError(error)
-        if (error.detail) {
+        if (error.validationErrors) {
+            const newValidationErrors: Record<string, string> = {}
+            Object.entries(error.validationErrors).forEach(([field, messages]) => {
+                const message = Array.isArray(messages) ? messages[0] : (messages as string)
+                const fieldName = field.split('.').pop() || field
+                const frontendField = fieldName.charAt(0).toLowerCase() + fieldName.slice(1)
+                newValidationErrors[frontendField] = message
+            })
+            setValidationErrors(newValidationErrors)
+            
+            const firstErrorMessage = Object.values(newValidationErrors)[0]
+            toast({
+                title: t("firm.validationErrors"),
+                description: firstErrorMessage || t("firm.validationErrorDesc"),
+                variant: "destructive",
+            })
+        } else if (error.detail) {
             toast({
                 title: t("common.error"),
                 description: error.detail,
@@ -385,7 +596,7 @@ function FirmManageContent() {
         } else {
             toast({
                 title: t("common.error"),
-                description: "Failed to update location.",
+                description: t("firm.locationUpdateError"),
                 variant: "destructive",
             })
         }
@@ -395,18 +606,53 @@ function FirmManageContent() {
 
   const handleUpdateContact = () => {
     clearError()
+    setValidationErrors({})
+    
+    const errors: Record<string, string> = {}
+    if (!contactForm.email) {
+        errors.email = t("firm.validationError")
+    } else {
+        const emailError = validateEmail(contactForm.email)
+        if (emailError) errors.email = emailError
+    }
+    
+    if (contactForm.phone) {
+        const phoneError = validatePhone(contactForm.phone)
+        if (phoneError) errors.phone = phoneError
+    }
+
+    if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors)
+        return
+    }
+
     updateContact(contactForm, {
       onSuccess: () => {
         setIsContactDialogOpen(false)
         toast({
           title: t("common.success"),
-          description: "Contact updated successfully.",
+          description: t("firm.contactUpdated"),
         })
       },
       onError: (error: any) => {
         console.error("Error updating contact:", error)
         setError(error)
-        if (error.detail) {
+        if (error.validationErrors) {
+            const newValidationErrors: Record<string, string> = {}
+            Object.entries(error.validationErrors).forEach(([field, messages]) => {
+                const message = Array.isArray(messages) ? messages[0] : (messages as string)
+                const fieldName = field.toLowerCase()
+                newValidationErrors[fieldName] = message
+            })
+            setValidationErrors(newValidationErrors)
+            
+            const firstErrorMessage = Object.values(newValidationErrors)[0]
+            toast({
+                title: t("firm.validationErrors"),
+                description: firstErrorMessage || t("firm.validationErrorDesc"),
+                variant: "destructive",
+            })
+        } else if (error.detail) {
             toast({
                 title: t("common.error"),
                 description: error.detail,
@@ -415,7 +661,7 @@ function FirmManageContent() {
         } else {
             toast({
                 title: t("common.error"),
-                description: "Failed to update contact.",
+                description: t("firm.contactUpdateError"),
                 variant: "destructive",
             })
         }
@@ -425,18 +671,70 @@ function FirmManageContent() {
 
   const handleUpdateLinks = () => {
     clearError()
-    updateLinks(linksForm, {
+    setValidationErrors({})
+    
+    const errors: Record<string, string> = {}
+    const fixedLinks = { ...linksForm }
+
+    if (linksForm.website) {
+        const err = validateUrl(linksForm.website)
+        if (err) errors.website = err
+        else fixedLinks.website = fixUrl(linksForm.website)
+    }
+    if (linksForm.linkedIn) {
+        const err = validateUrl(linksForm.linkedIn)
+        if (err) errors.linkedIn = err
+        else fixedLinks.linkedIn = fixUrl(linksForm.linkedIn)
+    }
+    if (linksForm.facebook) {
+        const err = validateUrl(linksForm.facebook)
+        if (err) errors.facebook = err
+        else fixedLinks.facebook = fixUrl(linksForm.facebook)
+    }
+    if (linksForm.twitter) {
+        const err = validateUrl(linksForm.twitter)
+        if (err) errors.twitter = err
+        else fixedLinks.twitter = fixUrl(linksForm.twitter)
+    }
+    if (linksForm.instagram) {
+        const err = validateUrl(linksForm.instagram)
+        if (err) errors.instagram = err
+        else fixedLinks.instagram = fixUrl(linksForm.instagram)
+    }
+
+    if (Object.keys(errors).length > 0) {
+        setValidationErrors(errors)
+        return
+    }
+
+    updateLinks(fixedLinks, {
       onSuccess: () => {
         setIsLinksDialogOpen(false)
         toast({
           title: t("common.success"),
-          description: "Links updated successfully.",
+          description: t("firm.linksUpdated"),
         })
       },
       onError: (error: any) => {
         console.error("Error updating links:", error)
         setError(error)
-        if (error.detail) {
+        if (error.validationErrors) {
+            const newValidationErrors: Record<string, string> = {}
+            Object.entries(error.validationErrors).forEach(([field, messages]) => {
+                const message = Array.isArray(messages) ? messages[0] : (messages as string)
+                // Map backend field names like 'links.Website' to 'website'
+                const fieldName = field.split('.').pop()?.toLowerCase() || field.toLowerCase()
+                newValidationErrors[fieldName] = message
+            })
+            setValidationErrors(newValidationErrors)
+            
+            const firstErrorMessage = Object.values(newValidationErrors)[0]
+            toast({
+                title: t("firm.validationErrors"),
+                description: firstErrorMessage || t("firm.validationErrorDesc"),
+                variant: "destructive",
+            })
+        } else if (error.detail) {
             toast({
                 title: t("common.error"),
                 description: error.detail,
@@ -445,7 +743,7 @@ function FirmManageContent() {
         } else {
             toast({
                 title: t("common.error"),
-                description: "Failed to update links.",
+                description: t("firm.linksUpdateError"),
                 variant: "destructive",
             })
         }
@@ -463,7 +761,7 @@ function FirmManageContent() {
             setIsBasicInfoDialogOpen(false)
             toast({
               title: t("common.success"),
-              description: "Type updated successfully.",
+              description: t("firm.typeUpdated"),
             })
           },
           onError: (error: any) => {
@@ -478,7 +776,7 @@ function FirmManageContent() {
             } else {
                 toast({
                     title: t("common.error"),
-                    description: "Failed to update type.",
+                    description: t("firm.typeUpdateError"),
                     variant: "destructive",
                 })
             }
@@ -500,7 +798,7 @@ function FirmManageContent() {
             setIsDescriptionDialogOpen(false)
             toast({
               title: t("common.success"),
-              description: "Description updated successfully.",
+              description: t("firm.descriptionUpdated"),
             })
           },
           onError: (error: any) => {
@@ -515,7 +813,7 @@ function FirmManageContent() {
             } else {
                 toast({
                     title: t("common.error"),
-                    description: "Failed to update description.",
+                    description: t("firm.descriptionUpdateError"),
                     variant: "destructive",
                 })
             }
@@ -543,7 +841,7 @@ function FirmManageContent() {
     if (unansweredQuestions.length > 0) {
         toast({
             title: t("common.validationError"),
-            description: "Please answer all questions before saving.",
+            description: t("firm.answerAllQuestions"),
             variant: "destructive",
         })
         return
@@ -561,7 +859,7 @@ function FirmManageContent() {
                 setIsUniversalAnswersDialogOpen(false)
                 toast({
                     title: t("common.success"),
-                    description: "Company profile updated successfully.",
+                    description: t("firm.universalAnswersUpdated"),
                 })
             },
             onError: (error: any) => {
@@ -576,7 +874,7 @@ function FirmManageContent() {
                 } else {
                     toast({
                         title: t("common.error"),
-                        description: "Failed to update company profile.",
+                        description: t("firm.universalAnswersUpdateError"),
                         variant: "destructive",
                     })
                 }
@@ -777,7 +1075,7 @@ function FirmManageContent() {
     }
 
     if (!category) {
-        toast({ title: t("common.error"), description: "Category not found", variant: "destructive" })
+        toast({ title: t("common.error"), description: t("firm.categoryNotFound"), variant: "destructive" })
         return
     }
 
@@ -793,27 +1091,49 @@ function FirmManageContent() {
             const newAnswers: Record<string, any> = {}
             
             if (form) {
-                form.questionsWithAnswers.forEach((qa: any) => {
-                    const q = qa.categoryQuestion
-                    const a = qa.categoryAnswer
-                    if (!a) return
+                // Handle both old structure (questionsWithAnswers) and new structure (answers)
+                if (form.answers) {
+                    form.answers.forEach((a: any) => {
+                        const q = qbc.questions.find(q => q.id === a.categoryQuestionId)
+                        if (!q) return
 
-                    let value: any = null
-                    
-                    if (q.type === QuestionType.String || q.type === QuestionType.Text) {
-                        const roText = a.translations?.find((t: any) => t.languageCode === "ro")?.text || ""
-                        const enText = a.translations?.find((t: any) => t.languageCode === "en")?.text || ""
-                        value = { ro: roText, en: enText }
-                    } else if (q.type === QuestionType.Number || q.type === QuestionType.Date) {
-                        value = a.value
-                    } else if (q.type === QuestionType.SingleSelect) {
-                        value = a.selectedOptionIds?.[0] || ""
-                    } else if (q.type === QuestionType.MultiSelect) {
-                        value = a.selectedOptionIds || []
-                    }
+                        let value: any = null
+                        if (q.type === QuestionType.String || q.type === QuestionType.Text) {
+                            const roText = a.translations?.find((t: any) => t.languageCode === "ro")?.text || ""
+                            const enText = a.translations?.find((t: any) => t.languageCode === "en")?.text || ""
+                            value = { ro: roText, en: enText }
+                        } else if (q.type === QuestionType.Number || q.type === QuestionType.Date) {
+                            value = a.value
+                        } else if (q.type === QuestionType.SingleSelect) {
+                            value = a.selectedOptionIds?.[0] || ""
+                        } else if (q.type === QuestionType.MultiSelect) {
+                            value = a.selectedOptionIds || []
+                        }
+                        newAnswers[q.id] = { value, type: q.type }
+                    })
+                } else if (form.questionsWithAnswers) {
+                    form.questionsWithAnswers.forEach((qa: any) => {
+                        const q = qa.categoryQuestion
+                        const a = qa.categoryAnswer
+                        if (!a) return
 
-                    newAnswers[q.id] = { value, type: q.type }
-                })
+                        let value: any = null
+                        
+                        if (q.type === QuestionType.String || q.type === QuestionType.Text) {
+                            const roText = a.translations?.find((t: any) => t.languageCode === "ro")?.text || ""
+                            const enText = a.translations?.find((t: any) => t.languageCode === "en")?.text || ""
+                            value = { ro: roText, en: enText }
+                        } else if (q.type === QuestionType.Number || q.type === QuestionType.Date) {
+                            value = a.value
+                        } else if (q.type === QuestionType.SingleSelect) {
+                            value = a.selectedOptionIds?.[0] || ""
+                        } else if (q.type === QuestionType.MultiSelect) {
+                            value = a.selectedOptionIds || []
+                        }
+
+                        newAnswers[q.id] = { value, type: q.type }
+                    })
+                }
             }
             
             setFormAnswers(newAnswers)
@@ -824,7 +1144,7 @@ function FirmManageContent() {
         console.error("Error fetching questions:", error)
         toast({
             title: t("common.error"),
-            description: "Failed to load category questions",
+            description: t("firm.categoryQuestionsLoadError"),
             variant: "destructive"
         })
     }
@@ -846,7 +1166,7 @@ function FirmManageContent() {
         console.error("Error fetching questions:", error)
         toast({
             title: t("common.error"),
-            description: "Failed to load category questions",
+            description: t("firm.categoryQuestionsLoadError"),
             variant: "destructive"
         })
     }
@@ -909,7 +1229,7 @@ function FirmManageContent() {
         
         toast({
             title: t("common.success"),
-            description: "Category added successfully"
+            description: t("firm.categoryAdded")
         })
         setIsAddCategoryDialogOpen(false)
         setFormStep("select")
@@ -922,7 +1242,7 @@ function FirmManageContent() {
         console.error("Error submitting form:", error)
         toast({
             title: t("common.error"),
-            description: "Failed to submit category form",
+            description: t("firm.categoryFormSubmitError"),
             variant: "destructive"
         })
     } finally {
@@ -1041,7 +1361,10 @@ function FirmManageContent() {
             
             <div className="flex items-center gap-2 justify-center md:justify-start">
                 <p className="text-muted-foreground text-lg">{firm.description || t("firm.manageSubtitle")}</p>
-                <Dialog open={isDescriptionDialogOpen} onOpenChange={setIsDescriptionDialogOpen}>
+                <Dialog open={isDescriptionDialogOpen} onOpenChange={(open) => {
+                    if (!open) resetDescriptionForm()
+                    setIsDescriptionDialogOpen(open)
+                }}>
                     <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-6 w-6">
                             <Pencil className="h-3 w-3" />
@@ -1064,7 +1387,10 @@ function FirmManageContent() {
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDescriptionDialogOpen(false)}>
+                            <Button variant="outline" onClick={() => {
+                                resetDescriptionForm()
+                                setIsDescriptionDialogOpen(false)
+                            }}>
                                 {t("common.cancel")}
                             </Button>
                             <Button onClick={handleUpdateDescription} disabled={isUpdatingDescription}>
@@ -1254,7 +1580,10 @@ function FirmManageContent() {
                 <Building2 className="h-5 w-5 text-primary" />
                 {t("firm.basicInfo")}
               </CardTitle>
-              <Dialog open={isBasicInfoDialogOpen} onOpenChange={setIsBasicInfoDialogOpen}>
+              <Dialog open={isBasicInfoDialogOpen} onOpenChange={(open) => {
+                  if (!open) resetBasicInfoForm()
+                  setIsBasicInfoDialogOpen(open)
+              }}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Pencil className="h-4 w-4" />
@@ -1286,7 +1615,10 @@ function FirmManageContent() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsBasicInfoDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => {
+                        resetBasicInfoForm()
+                        setIsBasicInfoDialogOpen(false)
+                    }}>
                       {t("common.cancel")}
                     </Button>
                     <Button onClick={handleUpdateBasicInfo} disabled={isUpdatingType}>
@@ -1324,7 +1656,10 @@ function FirmManageContent() {
                 <Mail className="h-5 w-5 text-primary" />
                 {t("nav.contact")}
               </CardTitle>
-              <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
+              <Dialog open={isContactDialogOpen} onOpenChange={(open) => {
+                  if (!open) resetContactForm()
+                  setIsContactDialogOpen(open)
+              }}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Pencil className="h-4 w-4" />
@@ -1342,6 +1677,7 @@ function FirmManageContent() {
                         id="email"
                         value={contactForm.email}
                         onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                        error={validationErrors.email}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -1350,11 +1686,15 @@ function FirmManageContent() {
                         id="phone"
                         value={contactForm.phone}
                         onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                        error={validationErrors.phone}
                       />
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsContactDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => {
+                      resetContactForm()
+                      setIsContactDialogOpen(false)
+                    }}>
                       {t("common.cancel")}
                     </Button>
                     <Button onClick={handleUpdateContact} disabled={isUpdatingContact}>
@@ -1402,7 +1742,10 @@ function FirmManageContent() {
                 <MapPin className="h-5 w-5 text-primary" />
                 {t("firm.location")}
               </CardTitle>
-              <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
+              <Dialog open={isLocationDialogOpen} onOpenChange={(open) => {
+                  if (!open) resetLocationForm()
+                  setIsLocationDialogOpen(open)
+              }}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Pencil className="h-4 w-4" />
@@ -1414,65 +1757,76 @@ function FirmManageContent() {
                     <DialogDescription>{t("firm.editLocationDesc")}</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="country">{t("firm.country")}</Label>
-                      <Select
-                        value={locationForm.countryId}
-                        onValueChange={(value) => {
-                          setLocationForm({ ...locationForm, countryId: value, countyId: "", cityId: "" })
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("firm.selectCountry")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countries.map((country: any) => (
-                            <SelectItem key={country.id} value={country.id}>
-                              {country.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="county">{t("firm.county")}</Label>
-                      <Select
-                        value={locationForm.countyId}
-                        onValueChange={(value) => {
-                          setLocationForm({ ...locationForm, countyId: value, cityId: "" })
-                        }}
-                        disabled={!locationForm.countryId}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("firm.selectCounty")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {editCounties.map((county: any) => (
-                            <SelectItem key={county.id} value={county.id}>
-                              {county.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="city">{t("firm.city")}</Label>
-                      <Select
-                        value={locationForm.cityId}
-                        onValueChange={(value) => setLocationForm({ ...locationForm, cityId: value })}
-                        disabled={!locationForm.countyId}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={t("firm.selectCity")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {editCities.map((city: any) => (
-                            <SelectItem key={city.id} value={city.id}>
-                              {city.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="country">{t("firm.country")}</Label>
+                        <Select
+                          value={locationForm.countryId}
+                          onValueChange={(value) => {
+                            setLocationForm({ ...locationForm, countryId: value, countyId: "", cityId: "" })
+                          }}
+                        >
+                          <SelectTrigger error={validationErrors.countryId}>
+                            <SelectValue placeholder={t("firm.selectCountry")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countries.map((country: any) => (
+                              <SelectItem key={country.id} value={country.id}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {validationErrors.countryId && (
+                            <p className="text-sm text-destructive">{validationErrors.countryId}</p>
+                        )}
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="county">{t("firm.county")}</Label>
+                        <Select
+                          value={locationForm.countyId}
+                          onValueChange={(value) => {
+                            setLocationForm({ ...locationForm, countyId: value, cityId: "" })
+                          }}
+                          disabled={!locationForm.countryId}
+                        >
+                          <SelectTrigger error={validationErrors.countyId}>
+                            <SelectValue placeholder={t("firm.selectCounty")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {editCounties.map((county: any) => (
+                              <SelectItem key={county.id} value={county.id}>
+                                {county.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {validationErrors.countyId && (
+                            <p className="text-sm text-destructive">{validationErrors.countyId}</p>
+                        )}
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="city">{t("firm.city")}</Label>
+                        <Select
+                          value={locationForm.cityId}
+                          onValueChange={(value) => setLocationForm({ ...locationForm, cityId: value })}
+                          disabled={!locationForm.countyId}
+                        >
+                          <SelectTrigger error={validationErrors.cityId}>
+                            <SelectValue placeholder={t("firm.selectCity")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {editCities.map((city: any) => (
+                              <SelectItem key={city.id} value={city.id}>
+                                {city.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {validationErrors.cityId && (
+                            <p className="text-sm text-destructive">{validationErrors.cityId}</p>
+                        )}
+                      </div>
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="address">{t("firm.address")}</Label>
@@ -1480,6 +1834,7 @@ function FirmManageContent() {
                         id="address"
                         value={locationForm.address}
                         onChange={(e) => setLocationForm({ ...locationForm, address: e.target.value })}
+                        error={validationErrors.address}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -1488,11 +1843,15 @@ function FirmManageContent() {
                         id="postalCode"
                         value={locationForm.postalCode}
                         onChange={(e) => setLocationForm({ ...locationForm, postalCode: e.target.value })}
+                        error={validationErrors.postalCode}
                       />
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsLocationDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => {
+                      resetLocationForm()
+                      setIsLocationDialogOpen(false)
+                    }}>
                       {t("common.cancel")}
                     </Button>
                     <Button onClick={handleUpdateLocation} disabled={isUpdatingLocation}>
@@ -1525,7 +1884,10 @@ function FirmManageContent() {
               <Globe className="h-5 w-5 text-primary" />
               {t("firm.socialLinks")}
             </CardTitle>
-            <Dialog open={isLinksDialogOpen} onOpenChange={setIsLinksDialogOpen}>
+            <Dialog open={isLinksDialogOpen} onOpenChange={(open) => {
+                if (!open) resetLinksForm()
+                setIsLinksDialogOpen(open)
+            }}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <Pencil className="h-4 w-4" />
@@ -1544,6 +1906,7 @@ function FirmManageContent() {
                       value={linksForm.website}
                       onChange={(e) => setLinksForm({ ...linksForm, website: e.target.value })}
                       placeholder="https://..."
+                      error={validationErrors.website}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -1553,6 +1916,7 @@ function FirmManageContent() {
                       value={linksForm.linkedIn}
                       onChange={(e) => setLinksForm({ ...linksForm, linkedIn: e.target.value })}
                       placeholder="https://linkedin.com/..."
+                      error={validationErrors.linkedIn}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -1562,6 +1926,7 @@ function FirmManageContent() {
                       value={linksForm.facebook}
                       onChange={(e) => setLinksForm({ ...linksForm, facebook: e.target.value })}
                       placeholder="https://facebook.com/..."
+                      error={validationErrors.facebook}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -1571,6 +1936,7 @@ function FirmManageContent() {
                       value={linksForm.twitter}
                       onChange={(e) => setLinksForm({ ...linksForm, twitter: e.target.value })}
                       placeholder="https://twitter.com/..."
+                      error={validationErrors.twitter}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -1580,11 +1946,15 @@ function FirmManageContent() {
                       value={linksForm.instagram}
                       onChange={(e) => setLinksForm({ ...linksForm, instagram: e.target.value })}
                       placeholder="https://instagram.com/..."
+                      error={validationErrors.instagram}
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsLinksDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => {
+                    resetLinksForm()
+                    setIsLinksDialogOpen(false)
+                  }}>
                     {t("common.cancel")}
                   </Button>
                   <Button onClick={handleUpdateLinks} disabled={isUpdatingLinks}>
@@ -1677,7 +2047,10 @@ function FirmManageContent() {
                 </CardTitle>
                 <CardDescription>{t("firm.universalAnswers")}</CardDescription>
               </div>
-              <Dialog open={isUniversalAnswersDialogOpen} onOpenChange={setIsUniversalAnswersDialogOpen}>
+              <Dialog open={isUniversalAnswersDialogOpen} onOpenChange={(open) => {
+                  if (!open) resetUniversalAnswersForm()
+                  setIsUniversalAnswersDialogOpen(open)
+              }}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Pencil className="h-4 w-4" />
@@ -1690,8 +2063,8 @@ function FirmManageContent() {
                   </DialogHeader>
                   <div className="grid gap-6 py-4">
                     {firm.universalAnswers
-                      .sort((a, b) => a.order - b.order)
-                      .map((answer) => {
+                      .sort((a: any, b: any) => (a.universalQuestion?.order || 0) - (b.universalQuestion?.order || 0))
+                      .map((answer: any) => {
                         const question = answer.universalQuestion
                         if (!question) return null
                         
@@ -1710,7 +2083,7 @@ function FirmManageContent() {
                                 <SelectValue placeholder={t("firm.selectOption")} />
                               </SelectTrigger>
                               <SelectContent>
-                                {question.options?.map((option) => (
+                                {question.options?.map((option: any) => (
                                   <SelectItem key={option.id} value={option.id}>
                                     {getTranslation(option.translations || [], "label")}
                                   </SelectItem>
@@ -1722,7 +2095,10 @@ function FirmManageContent() {
                       })}
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsUniversalAnswersDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => {
+                        resetUniversalAnswersForm()
+                        setIsUniversalAnswersDialogOpen(false)
+                    }}>
                       {t("common.cancel")}
                     </Button>
                     <Button onClick={handleUpdateUniversalAnswers} disabled={isUpdatingUniversalAnswers}>
@@ -1735,11 +2111,11 @@ function FirmManageContent() {
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {firm.universalAnswers
-                  .sort((a, b) => a.order - b.order)
-                  .map((answer) => {
+                  .sort((a: any, b: any) => (a.universalQuestion?.order || 0) - (b.universalQuestion?.order || 0))
+                  .map((answer: any) => {
                     const question = answer.universalQuestion
                     const questionText = getTranslation(question?.translations || [], "title")
-                    const selectedOption = question?.options?.find((opt) => opt.id === answer.selectedOptionId)
+                    const selectedOption = question?.options?.find((opt: any) => opt.id === answer.selectedOptionId)
                     const answerText = getTranslation(selectedOption?.translations || [], "label")
 
                     let IconComponent: any = HelpCircle
@@ -1995,7 +2371,7 @@ function FirmManageContent() {
             <DialogHeader>
                 <DialogTitle>{t("firm.addCategory")}</DialogTitle>
                 <DialogDescription>
-                    {formStep === "select" ? "Select a category to add to your firm" : "Complete the category form"}
+                    {formStep === "select" ? t("firm.selectCategoryDesc") : t("firm.completeCategoryForm")}
                 </DialogDescription>
             </DialogHeader>
 
@@ -2018,7 +2394,13 @@ function FirmManageContent() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]" align="start">
-                                    {clusters.map((cluster: any) => (
+                                    {clusters.map((cluster: any) => {
+                                        const existingCategoryIds = firmData?.forms?.map((f: any) => f.categoryId) || []
+                                        const availableCategories = cluster.categories?.filter((c: any) => !existingCategoryIds.includes(c.id)) || []
+
+                                        if (availableCategories.length === 0) return null
+
+                                        return (
                                         <DropdownMenuSub key={cluster.id}>
                                             <DropdownMenuSubTrigger className="flex items-center gap-2">
                                                 {renderIcon(cluster.icon, { className: "h-4 w-4 shrink-0" })}
@@ -2026,7 +2408,7 @@ function FirmManageContent() {
                                             </DropdownMenuSubTrigger>
                                             <DropdownMenuPortal>
                                                 <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
-                                                    {cluster.categories?.map((category: any) => (
+                                                    {availableCategories.map((category: any) => (
                                                         <DropdownMenuItem 
                                                             key={category.id}
                                                             onSelect={() => handleCategorySelect(category)}
@@ -2038,7 +2420,7 @@ function FirmManageContent() {
                                                 </DropdownMenuSubContent>
                                             </DropdownMenuPortal>
                                         </DropdownMenuSub>
-                                    ))}
+                                    )})}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -2053,7 +2435,7 @@ function FirmManageContent() {
                     >
                         <Button variant="ghost" size="sm" onClick={() => setFormStep("select")} className="mb-2">
                             <ChevronLeft className="mr-2 h-4 w-4" />
-                            Back to selection
+                            {t("firm.backToSelection")}
                         </Button>
 
                         <div className="space-y-6">
@@ -2179,7 +2561,13 @@ function FirmManageContent() {
             </AnimatePresence>
 
             <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddCategoryDialogOpen(false)}>
+                <Button variant="outline" onClick={() => {
+                    setFormStep("select")
+                    setSelectedCategory(null)
+                    setCategoryQuestions(null)
+                    setFormAnswers({})
+                    setIsAddCategoryDialogOpen(false)
+                }}>
                     {t("common.cancel")}
                 </Button>
                 {formStep === "form" && (

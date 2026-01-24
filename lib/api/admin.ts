@@ -59,6 +59,18 @@ export interface SubscriptionPlan {
   }>
 }
 
+export interface ContactForm {
+    id: string
+    name: string
+    email: string
+    message: string
+    personId?: string
+    companyId?: string
+    accountEmail?: string
+    submittedAt: string
+    deleted: boolean
+}
+
 export const adminApi = {
   // Clusters
   getClusters: async (): Promise<Cluster[]> => {
@@ -237,5 +249,14 @@ export const adminApi = {
 
   getFirmForReview: async (firmId: string): Promise<FirmDetailsForEditingDto> => {
     return apiClient.admin.getFirmForReview(firmId)
+  },
+
+  // Contact Forms
+  getContactForms: async (page = 1, pageSize = 20): Promise<ContactForm[]> => {
+    return apiClient.admin.getContactForms(page, pageSize)
+  },
+
+  deleteContactForm: async (id: string) => {
+    return apiClient.admin.deleteContactForm(id)
   }
 }

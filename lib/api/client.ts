@@ -448,7 +448,7 @@ export const apiClient = {
         jobTitle: string
         companyName: string
         startDate: string
-        endDate?: string
+        endDate?: string | null
         isCurrentRole: boolean
         description: string
       }>
@@ -474,9 +474,38 @@ export const apiClient = {
       isOpenToRemote: boolean
       availabilityTimeSpanInDays: number
     }) => {
+      // Map frontend fields to backend DTO
+      const payload = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        contactEmail: data.contactEmail,
+        phoneNumber: data.contactPhone, // Map contactPhone to phoneNumber
+        headline: data.headline,
+        location: data.location,
+        summary: data.summary,
+        workHistory: data.workHistory.map(w => ({
+            ...w,
+            endDate: w.endDate || null
+        })),
+        educationHistory: data.educationHistory.map(e => ({
+            ...e,
+            graduationDate: e.graduationDate || null
+        })),
+        certifications: data.certifications.map(c => ({
+            ...c,
+            expirationDate: c.expirationDate || null
+        })),
+        skills: data.skills,
+        languages: data.languages,
+        portfolioUrl: data.portfolioUrl,
+        linkedInUrl: data.linkedInUrl,
+        isOpenToRemote: data.isOpenToRemote,
+        availabilityTimeSpanInDays: data.availabilityTimeSpanInDays
+      };
+
       return fetchWithAuth<{ personId: string; message: string }>("/person/create", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
     },
 
@@ -1856,6 +1885,27 @@ export const apiClient = {
         return result
       },
     },
+
+    // Contact Forms
+    getContactForms: async (page = 1, pageSize = 20) => {
+        return fetchWithAuth<Array<{
+            id: string
+            name: string
+            email: string
+            message: string
+            personId?: string
+            companyId?: string
+            accountEmail?: string
+            submittedAt: string
+            deleted: boolean
+        }>>(`/Newsletter/contact-forms?page=${page}&pageSize=${pageSize}`)
+    },
+
+    deleteContactForm: async (id: string) => {
+        return fetchWithAuth(`/Newsletter/contact-forms/${id}`, {
+            method: "DELETE"
+        })
+    }
   },
 }
 

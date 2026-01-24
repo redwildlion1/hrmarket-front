@@ -14,11 +14,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Check, User, MapPin, Briefcase, GraduationCap, Award, Settings } from "lucide-react"
+import { Loader2, Plus, Trash2, ChevronRight, ChevronLeft, Check, User, MapPin, Briefcase, GraduationCap, Award, Settings, AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useCountries, useCounties, useCities } from "@/lib/hooks/use-location"
 import { FormInput } from "@/components/ui/form-input"
 import { FormErrorProvider, useFormErrors } from "@/lib/errors/form-error-context"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Types matching the DTO
 interface WorkExperience {
@@ -103,6 +104,11 @@ type ErrorState = {
   }
 }
 
+const capitalizeFirstLetter = (string: string) => {
+  if (!string) return string
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 // Helper components moved outside
 const WorkHistoryForm = ({ 
   workHistory, 
@@ -136,9 +142,19 @@ const WorkHistoryForm = ({
   const updateWork = (index: number, field: keyof WorkExperience, value: any) => {
     setFormData(prev => ({
       ...prev,
-      workHistory: prev.workHistory.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      workHistory: prev.workHistory.map((item, i) => {
+        if (i !== index) return item;
+        
+        let newValue = value;
+        if (typeof value === 'string' && (field === "jobTitle" || field === "companyName" || field === "description")) {
+            newValue = capitalizeFirstLetter(value);
+        }
+
+        if (field === "isCurrentRole" && value === true) {
+            return { ...item, [field]: value, endDate: "" }
+        }
+        return { ...item, [field]: newValue }
+      })
     }))
   }
 
@@ -177,17 +193,25 @@ const WorkHistoryForm = ({
                 <Input 
                   type="date" 
                   value={work.startDate} 
+                  max={work.endDate || undefined}
                   onChange={(e) => updateWork(index, "startDate", e.target.value)} 
                 />
+                {work.startDate && work.endDate && new Date(work.startDate) > new Date(work.endDate) && (
+                    <p className="text-sm text-destructive">Start date cannot be after end date</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>{t("person.endDate")}</Label>
                 <Input 
                   type="date" 
                   value={work.endDate || ""} 
+                  min={work.startDate}
                   onChange={(e) => updateWork(index, "endDate", e.target.value)} 
                   disabled={work.isCurrentRole}
                 />
+                {work.startDate && work.endDate && new Date(work.endDate) < new Date(work.startDate) && (
+                    <p className="text-sm text-destructive">End date cannot be before start date</p>
+                )}
               </div>
             </div>
             
@@ -261,9 +285,16 @@ const EducationForm = ({
   const updateEducation = (index: number, field: keyof Education, value: any) => {
     setFormData(prev => ({
       ...prev,
-      educationHistory: prev.educationHistory.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      educationHistory: prev.educationHistory.map((item, i) => {
+        if (i !== index) return item;
+
+        let newValue = value;
+        if (typeof value === 'string' && (field === "institution" || field === "degree" || field === "description")) {
+            newValue = capitalizeFirstLetter(value);
+        }
+
+        return { ...item, [field]: newValue }
+      })
     }))
   }
 
@@ -302,16 +333,24 @@ const EducationForm = ({
                 <Input 
                   type="date" 
                   value={edu.startDate} 
+                  max={edu.graduationDate || undefined}
                   onChange={(e) => updateEducation(index, "startDate", e.target.value)} 
                 />
+                {edu.startDate && edu.graduationDate && new Date(edu.startDate) > new Date(edu.graduationDate) && (
+                    <p className="text-sm text-destructive">Start date cannot be after graduation date</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>{t("person.graduationDate")}</Label>
                 <Input 
                   type="date" 
                   value={edu.graduationDate || ""} 
+                  min={edu.startDate}
                   onChange={(e) => updateEducation(index, "graduationDate", e.target.value)} 
                 />
+                {edu.startDate && edu.graduationDate && new Date(edu.graduationDate) < new Date(edu.startDate) && (
+                    <p className="text-sm text-destructive">Graduation date cannot be before start date</p>
+                )}
               </div>
             </div>
             <div className="space-y-2">
@@ -365,9 +404,16 @@ const CertificationsForm = ({
   const updateCertification = (index: number, field: keyof Certification, value: any) => {
     setFormData(prev => ({
       ...prev,
-      certifications: prev.certifications.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      certifications: prev.certifications.map((item, i) => {
+        if (i !== index) return item;
+
+        let newValue = value;
+        if (typeof value === 'string' && (field === "name" || field === "issuingOrganization")) {
+            newValue = capitalizeFirstLetter(value);
+        }
+
+        return { ...item, [field]: newValue }
+      })
     }))
   }
 
@@ -479,16 +525,24 @@ const CertificationsForm = ({
                   <Input 
                     type="date" 
                     value={cert.issueDate} 
+                    max={cert.expirationDate || undefined}
                     onChange={(e) => updateCertification(index, "issueDate", e.target.value)} 
                   />
+                  {cert.issueDate && cert.expirationDate && new Date(cert.issueDate) > new Date(cert.expirationDate) && (
+                    <p className="text-sm text-destructive">Issue date cannot be after expiration date</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>{t("person.expirationDate")}</Label>
                   <Input 
                     type="date" 
                     value={cert.expirationDate || ""} 
+                    min={cert.issueDate}
                     onChange={(e) => updateCertification(index, "expirationDate", e.target.value)} 
                   />
+                  {cert.issueDate && cert.expirationDate && new Date(cert.expirationDate) < new Date(cert.issueDate) && (
+                    <p className="text-sm text-destructive">Expiration date cannot be before issue date</p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -531,12 +585,35 @@ function CreatePersonForm() {
   const [formData, setFormData] = useState<PersonFormData>(initialFormData)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<ErrorState>({})
+  const [stepErrors, setStepErrors] = useState<Record<number, boolean>>({})
   const [isLoaded, setIsLoaded] = useState(false)
   
   // Location state
   const { data: countries = [] } = useCountries()
   const { data: counties = [] } = useCounties(formData.location.countryId)
   const { data: cities = [] } = useCities(formData.location.countyId)
+
+  // Map fields to steps
+  const fieldStepMap: Record<string, number> = {
+    firstName: 1,
+    lastName: 1,
+    contactEmail: 1,
+    contactPhone: 1,
+    headline: 1,
+    "location.countryId": 1,
+    "location.countyId": 1,
+    "location.cityId": 1,
+    summary: 1,
+    portfolioUrl: 1,
+    linkedInUrl: 1,
+    workHistory: 2,
+    educationHistory: 3,
+    certifications: 4,
+    skills: 4,
+    languages: 4,
+    isOpenToRemote: 5,
+    availabilityTimeSpanInDays: 5
+  }
 
   // Load saved data
   useEffect(() => {
@@ -604,8 +681,47 @@ function CreatePersonForm() {
   }
 
   const updateFormData = (field: keyof PersonFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    let newValue = value;
+    if (field === "firstName" || field === "lastName" || field === "headline" || field === "summary") {
+        newValue = capitalizeFirstLetter(value);
+    }
+    setFormData(prev => ({ ...prev, [field]: newValue }))
     setErrors(prev => ({ ...prev, [field]: undefined }))
+  }
+
+  const validateEmail = (email: string): string => {
+    if (!email) return ""
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email) ? "" : t("firm.validation.invalidEmail")
+  }
+
+  const validatePhone = (phone: string): string => {
+    if (!phone) return ""
+    const phoneRegex = /^[\d\s+\-$$$$]+$/
+    if (!phoneRegex.test(phone)) {
+      return t("firm.validation.invalidPhone")
+    }
+    const digits = phone.replace(/\D/g, "")
+    return digits.length >= 9 ? "" : t("firm.validation.invalidPhone")
+  }
+
+  const validateUrl = (url: string): string => {
+    if (!url) return ""
+    let urlToValidate = url
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        urlToValidate = "https://" + url
+    }
+    
+    if (!urlToValidate.includes(".")) {
+        return t("firm.validation.invalidUrl")
+    }
+
+    try {
+      new URL(urlToValidate)
+      return ""
+    } catch {
+      return t("firm.validation.invalidUrl")
+    }
   }
 
   const validateStep = (step: number): boolean => {
@@ -628,10 +744,22 @@ function CreatePersonForm() {
       if (!formData.contactEmail) {
         newErrors.contactEmail = t("firm.validation.fieldRequired")
         isValid = false
-      } else if (!/\S+@\S+\.\S+/.test(formData.contactEmail)) {
-        newErrors.contactEmail = t("firm.validation.invalidEmail")
-        isValid = false
+      } else {
+        const emailError = validateEmail(formData.contactEmail)
+        if (emailError) {
+            newErrors.contactEmail = emailError
+            isValid = false
+        }
       }
+      
+      if (formData.contactPhone) {
+        const phoneError = validatePhone(formData.contactPhone)
+        if (phoneError) {
+            newErrors.contactPhone = phoneError
+            isValid = false
+        }
+      }
+
       if (!formData.location.countryId) {
         newErrors.location = { ...newErrors.location, countryId: t("firm.validation.fieldRequired") }
         isValid = false
@@ -642,6 +770,67 @@ function CreatePersonForm() {
       }
       if (!formData.location.cityId) {
         newErrors.location = { ...newErrors.location, cityId: t("firm.validation.fieldRequired") }
+        isValid = false
+      }
+
+      if (formData.portfolioUrl) {
+        const urlError = validateUrl(formData.portfolioUrl)
+        if (urlError) {
+            newErrors.portfolioUrl = urlError
+            isValid = false
+        }
+      }
+
+      if (formData.linkedInUrl) {
+        const urlError = validateUrl(formData.linkedInUrl)
+        if (urlError) {
+            newErrors.linkedInUrl = urlError
+            isValid = false
+        } else if (!formData.linkedInUrl.toLowerCase().includes("linkedin.com")) {
+             newErrors.linkedInUrl = t("firm.validation.invalidUrl")
+             isValid = false
+        }
+      }
+    }
+
+    if (step === 2) {
+      const invalidWork = formData.workHistory.some(work => 
+        work.startDate && work.endDate && new Date(work.endDate) < new Date(work.startDate)
+      )
+      if (invalidWork) {
+        toast({
+          title: t("firm.validationErrors"),
+          description: "End date cannot be before start date in work history.",
+          variant: "destructive",
+        })
+        isValid = false
+      }
+    }
+
+    if (step === 3) {
+      const invalidEdu = formData.educationHistory.some(edu => 
+        edu.startDate && edu.graduationDate && new Date(edu.graduationDate) < new Date(edu.startDate)
+      )
+      if (invalidEdu) {
+        toast({
+          title: t("firm.validationErrors"),
+          description: "Graduation date cannot be before start date in education.",
+          variant: "destructive",
+        })
+        isValid = false
+      }
+    }
+
+    if (step === 4) {
+      const invalidCert = formData.certifications.some(cert => 
+        cert.issueDate && cert.expirationDate && new Date(cert.expirationDate) < new Date(cert.issueDate)
+      )
+      if (invalidCert) {
+        toast({
+          title: t("firm.validationErrors"),
+          description: "Expiration date cannot be before issue date in certifications.",
+          variant: "destructive",
+        })
         isValid = false
       }
     }
@@ -663,6 +852,9 @@ function CreatePersonForm() {
   const handleSubmit = async () => {
     setLoading(true)
     clearError()
+    setStepErrors({})
+    setErrors({})
+
     try {
       const response: any = await apiClient.person.create(formData)
       
@@ -681,7 +873,42 @@ function CreatePersonForm() {
     } catch (error: any) {
       console.error("Failed to create person profile", error)
       setError(error)
-      if (error.detail) {
+      if (error.validationErrors) {
+        const newValidationErrors: ErrorState = {}
+        const newStepErrors: Record<number, boolean> = {}
+
+        Object.entries(error.validationErrors).forEach(([field, messages]) => {
+            const message = Array.isArray(messages) ? messages[0] : (messages as string)
+            const normalizedField = field.charAt(0).toLowerCase() + field.slice(1)
+            
+            if (normalizedField.startsWith("location.")) {
+                const locationField = normalizedField.split(".")[1]
+                newValidationErrors.location = { ...newValidationErrors.location, [locationField]: message }
+            } else {
+                (newValidationErrors as any)[normalizedField] = message
+            }
+
+            const stepNumber = fieldStepMap[normalizedField] || fieldStepMap[normalizedField.split('.')[0]]
+            if (stepNumber) {
+                newStepErrors[stepNumber] = true
+            }
+        })
+
+        setErrors(newValidationErrors)
+        setStepErrors(newStepErrors)
+
+        const firstErrorStep = Object.keys(newStepErrors).map(Number).sort((a, b) => a - b)[0]
+        if (firstErrorStep) {
+            setCurrentStep(firstErrorStep)
+        }
+
+        const firstErrorMessage = Object.values(newValidationErrors)[0]
+        toast({
+            title: t("firm.validationErrors"),
+            description: typeof firstErrorMessage === 'string' ? firstErrorMessage : t("firm.validationErrorDesc"),
+            variant: "destructive",
+        })
+      } else if (error.detail) {
           toast({
               title: t("common.error"),
               description: error.detail,
@@ -710,6 +937,14 @@ function CreatePersonForm() {
   const ErrorMessage = ({ field }: { field?: string }) => 
     field ? <p className="text-sm text-destructive mt-1">{field}</p> : null
 
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 py-6">
       <div className="container max-w-6xl">
@@ -731,16 +966,16 @@ function CreatePersonForm() {
                       : step.number < currentStep
                       ? "text-muted-foreground"
                       : "text-muted-foreground/50"
-                  }`}
+                  } ${stepErrors[step.number] ? "bg-destructive/10 text-destructive" : ""}`}
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${
                       step.number <= currentStep
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-current"
-                    }`}
+                    } ${stepErrors[step.number] ? "border-destructive bg-destructive text-destructive-foreground" : ""}`}
                   >
-                    {step.number < currentStep ? <Check className="h-4 w-4" /> : step.number}
+                    {stepErrors[step.number] ? <AlertCircle className="h-4 w-4" /> : (step.number < currentStep ? <Check className="h-4 w-4" /> : step.number)}
                   </div>
                   <div className="font-medium">{step.title}</div>
                 </div>
@@ -763,6 +998,14 @@ function CreatePersonForm() {
                 </div>
               </CardHeader>
               <CardContent className="min-h-[400px]">
+                {Object.keys(stepErrors).length > 0 && (
+                  <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      {t("firm.validationErrorDesc")}
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
@@ -780,8 +1023,8 @@ function CreatePersonForm() {
                               id="firstName"
                               value={formData.firstName} 
                               onChange={(e) => updateFormData("firstName", e.target.value)} 
+                              error={errors.firstName}
                             />
-                            <ErrorMessage field={errors.firstName} />
                           </div>
                           <div className="space-y-2">
                             <Label>{t("person.lastName")} <span className="text-destructive">*</span></Label>
@@ -789,8 +1032,8 @@ function CreatePersonForm() {
                               id="lastName"
                               value={formData.lastName} 
                               onChange={(e) => updateFormData("lastName", e.target.value)} 
+                              error={errors.lastName}
                             />
-                            <ErrorMessage field={errors.lastName} />
                           </div>
                         </div>
                         
@@ -801,8 +1044,8 @@ function CreatePersonForm() {
                             placeholder={t("person.headlinePlaceholder")}
                             value={formData.headline} 
                             onChange={(e) => updateFormData("headline", e.target.value)} 
+                            error={errors.headline}
                           />
-                          <ErrorMessage field={errors.headline} />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -813,8 +1056,8 @@ function CreatePersonForm() {
                               type="email"
                               value={formData.contactEmail} 
                               onChange={(e) => updateFormData("contactEmail", e.target.value)} 
+                              error={errors.contactEmail}
                             />
-                            <ErrorMessage field={errors.contactEmail} />
                           </div>
                           <div className="space-y-2">
                             <Label>{t("person.contactPhone")}</Label>
@@ -823,6 +1066,7 @@ function CreatePersonForm() {
                               type="tel"
                               value={formData.contactPhone} 
                               onChange={(e) => updateFormData("contactPhone", e.target.value)} 
+                              error={errors.contactPhone}
                             />
                           </div>
                         </div>
@@ -831,7 +1075,7 @@ function CreatePersonForm() {
                           <div className="space-y-2">
                             <Label>{t("firm.country")} <span className="text-destructive">*</span></Label>
                             <Select value={formData.location.countryId} onValueChange={handleCountryChange}>
-                              <SelectTrigger>
+                              <SelectTrigger className={errors.location?.countryId ? "border-destructive" : ""}>
                                 <SelectValue placeholder={t("firm.selectCountry")} />
                               </SelectTrigger>
                               <SelectContent>
@@ -851,7 +1095,7 @@ function CreatePersonForm() {
                               onValueChange={handleCountyChange}
                               disabled={!formData.location.countryId}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className={errors.location?.countyId ? "border-destructive" : ""}>
                                 <SelectValue placeholder={t("firm.selectCounty")} />
                               </SelectTrigger>
                               <SelectContent>
@@ -871,7 +1115,7 @@ function CreatePersonForm() {
                               onValueChange={handleCityChange}
                               disabled={!formData.location.countyId}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className={errors.location?.cityId ? "border-destructive" : ""}>
                                 <SelectValue placeholder={t("firm.selectCity")} />
                               </SelectTrigger>
                               <SelectContent>
@@ -894,6 +1138,7 @@ function CreatePersonForm() {
                             onChange={(e) => updateFormData("summary", e.target.value)} 
                             className="h-32"
                           />
+                          <ErrorMessage field={errors.summary} />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -903,6 +1148,7 @@ function CreatePersonForm() {
                               id="portfolioUrl"
                               value={formData.portfolioUrl} 
                               onChange={(e) => updateFormData("portfolioUrl", e.target.value)} 
+                              error={errors.portfolioUrl}
                             />
                           </div>
                           <div className="space-y-2">
@@ -911,6 +1157,7 @@ function CreatePersonForm() {
                               id="linkedInUrl"
                               value={formData.linkedInUrl} 
                               onChange={(e) => updateFormData("linkedInUrl", e.target.value)} 
+                              error={errors.linkedInUrl}
                             />
                           </div>
                         </div>
@@ -954,7 +1201,7 @@ function CreatePersonForm() {
                           <div className="space-y-1">
                             <Label htmlFor="remote">{t("person.isOpenToRemote")}</Label>
                             <p className="text-sm text-muted-foreground">
-                              Check this if you are interested in remote work opportunities
+                              {t("person.remoteWorkDesc")}
                             </p>
                           </div>
                         </div>
@@ -964,11 +1211,20 @@ function CreatePersonForm() {
                             id="availabilityTimeSpanInDays"
                             type="number"
                             min="0"
-                            value={formData.availabilityTimeSpanInDays}
-                            onChange={(e) => updateFormData("availabilityTimeSpanInDays", parseInt(e.target.value))}
+                            max="60"
+                            value={formData.availabilityTimeSpanInDays.toString()}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                // Remove leading zeros unless it is just "0"
+                                const cleanVal = val.replace(/^0+(?=\d)/, '');
+                                let numVal = parseInt(cleanVal) || 0;
+                                if (numVal > 60) numVal = 60;
+                                updateFormData("availabilityTimeSpanInDays", numVal)
+                            }}
+                            error={errors.availabilityTimeSpanInDays}
                           />
                           <p className="text-sm text-muted-foreground">
-                            Days until you can start a new role
+                            {t("person.availabilityDesc")}
                           </p>
                         </div>
                       </div>
