@@ -76,9 +76,6 @@ function SortableCategoryItem({
           <h3 className="font-semibold">{translation.name}</h3>
         </div>
         {translation.description && <p className="text-sm text-muted-foreground">{translation.description}</p>}
-        <p className="text-xs text-muted-foreground">
-          {category.services?.length || 0} {t("admin.services")}
-        </p>
       </div>
       <div className="flex gap-2">
         {onRestore ? (
@@ -133,20 +130,26 @@ export function CategoryManager() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [clustersData, unassignedData, deletedData] = await Promise.all([
+      const [clustersData, allCategoriesData] = await Promise.all([
         categoriesManagementApi.getClusters(),
-        categoriesManagementApi.getUnassignedCategories(),
-        categoriesManagementApi.getSoftDeletedCategories(),
+        categoriesManagementApi.getAllCategories(),
       ])
 
-      // Extract all categories from clusters
-      const allCategories = clustersData.flatMap((c) => c.categories)
+      // Filter categories based on their status/assignment
+      const deleted = allCategoriesData.filter(c => c.isDeleted)
+      const active = allCategoriesData.filter(c => !c.isDeleted)
+      
+      // Unassigned categories are active categories that are not in any cluster
+      // We can check clusterId directly from the category DTO
+      const unassigned = active.filter(c => !c.clusterId)
 
       setClusters(clustersData)
-      setCategories(allCategories)
-      setUnassignedCategories(unassignedData)
-      setDeletedCategories(deletedData)
+      setCategories(active)
+      setUnassignedCategories(unassigned)
+      setDeletedCategories(deleted)
+
     } catch (error) {
+      console.error(error)
       toast({
         title: t("common.error"),
         description: "Error loading categories",
@@ -216,10 +219,13 @@ export function CategoryManager() {
 
         // If cluster changed, reassign
         if (formData.clusterId !== editingCategory.clusterId) {
-          await categoriesManagementApi.reassignCategory({
-            categoryId: editingCategory.id,
-            newClusterId: formData.clusterId || undefined,
-          })
+          // If moving to unassigned (null)
+          if (!formData.clusterId) {
+             await categoriesManagementApi.removeCategoryFromCluster(editingCategory.id)
+          } else {
+             // If moving to a cluster (from null or another cluster)
+             await categoriesManagementApi.addCategoryToCluster(editingCategory.id, formData.clusterId)
+          }
         }
 
         toast({
@@ -443,11 +449,14 @@ export function CategoryManager() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Unassigned</SelectItem>
-                  {clusters.map((cluster) => (
-                    <SelectItem key={cluster.id} value={cluster.id}>
-                      {cluster.name}
-                    </SelectItem>
-                  ))}
+                  {clusters.map((cluster) => {
+                    const clusterTranslation = getTranslation(cluster.translations, language)
+                    return (
+                      <SelectItem key={cluster.id} value={cluster.id}>
+                        {clusterTranslation.name}
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>

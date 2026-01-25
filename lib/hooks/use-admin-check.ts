@@ -6,6 +6,8 @@ import { apiClient } from "@/lib/api/client"
 import { useAuth } from "@/lib/auth/client"
 
 export function useAdminCheck(intervalMs = 30000) {
+  // This hook is now disabled as requested
+  /*
   const router = useRouter()
   const { userInfo, logout } = useAuth()
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -40,4 +42,5 @@ export function useAdminCheck(intervalMs = 30000) {
       }
     }
   }, [userInfo, intervalMs, router, logout])
+  */
 }
