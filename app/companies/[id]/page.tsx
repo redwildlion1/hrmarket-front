@@ -253,16 +253,16 @@ export default function FirmDetailsPage() {
   const handleReviewSubmit = async () => {
       if (reviewRating === 0) {
           toast({
-              title: "Error",
-              description: "Please select a rating",
+              title: t("common.error"),
+              description: t("firm.reviews.validation.rating"),
               variant: "destructive"
           })
           return
       }
       if (!reviewComment.trim()) {
           toast({
-              title: "Error",
-              description: "Please enter a comment",
+              title: t("common.error"),
+              description: t("firm.reviews.validation.comment"),
               variant: "destructive"
           })
           return
@@ -275,8 +275,8 @@ export default function FirmDetailsPage() {
                   data: { rating: reviewRating, comment: reviewComment }
               })
               toast({
-                  title: "Success",
-                  description: "Review updated successfully"
+                  title: t("common.success"),
+                  description: t("firm.reviews.successUpdate")
               })
           } else {
               await createReviewMutation.mutateAsync({
@@ -284,8 +284,8 @@ export default function FirmDetailsPage() {
                   data: { rating: reviewRating, comment: reviewComment }
               })
               toast({
-                  title: "Success",
-                  description: "Review posted successfully"
+                  title: t("common.success"),
+                  description: t("firm.reviews.successPost")
               })
           }
           setIsReviewDialogOpen(false)
@@ -295,26 +295,26 @@ export default function FirmDetailsPage() {
           refetchReviews()
       } catch (error) {
           toast({
-              title: "Error",
-              description: "Failed to submit review",
+              title: t("common.error"),
+              description: t("firm.reviews.errorPost"),
               variant: "destructive"
           })
       }
   }
 
   const handleDeleteReview = async () => {
-      if (confirm("Are you sure you want to delete your review?")) {
+      if (confirm(t("firm.reviews.deleteConfirm"))) {
           try {
               await deleteReviewMutation.mutateAsync({ firmId: id as string })
               toast({
-                  title: "Success",
-                  description: "Review deleted successfully"
+                  title: t("common.success"),
+                  description: t("firm.reviews.successDelete")
               })
               refetchReviews()
           } catch (error) {
               toast({
-                  title: "Error",
-                  description: "Failed to delete review",
+                  title: t("common.error"),
+                  description: t("firm.reviews.errorDelete"),
                   variant: "destructive"
               })
           }
@@ -537,10 +537,10 @@ export default function FirmDetailsPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
-            <Tabs defaultValue="about" className="w-full">
+      <Tabs defaultValue="about" className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
                 <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
                     <TabsTrigger value="about" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3">
                         {t("firm.details.about")}
@@ -600,206 +600,6 @@ export default function FirmDetailsPage() {
                             </Accordion>
                         )
                     })}
-
-                    {/* Reviews Section */}
-                    <div className="mt-12">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                            <h2 className="text-2xl font-bold flex items-center gap-2">
-                                <MessageSquare className="h-6 w-6 text-primary" />
-                                {t("firm.reviews.title")}
-                                <span className="text-muted-foreground text-lg font-normal ml-1">({totalReviews})</span>
-                            </h2>
-                            <div className="flex items-center gap-4">
-                                <Select 
-                                    value={sortingOption.toString()} 
-                                    onValueChange={(value) => setSortingOption(parseInt(value) as ReviewSortingOption)}
-                                >
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder={t("jobs.filters.sortBy")} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={ReviewSortingOption.MostRecent.toString()}>{t("firm.reviews.sort.mostRecent")}</SelectItem>
-                                        <SelectItem value={ReviewSortingOption.LeastRecent.toString()}>{t("firm.reviews.sort.leastRecent")}</SelectItem>
-                                        <SelectItem value={ReviewSortingOption.HighestRating.toString()}>{t("firm.reviews.sort.highestRating")}</SelectItem>
-                                        <SelectItem value={ReviewSortingOption.LowestRating.toString()}>{t("firm.reviews.sort.lowestRating")}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                {totalReviews > 10 && (
-                                    <Button 
-                                        variant="outline" 
-                                        size="icon" 
-                                        onClick={() => setIsReviewsExpanded(!isReviewsExpanded)}
-                                        title={isReviewsExpanded ? "Collapse" : "Expand"}
-                                    >
-                                        {isReviewsExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                                    </Button>
-                                )}
-
-                                {!hasUserReview && !isFirmAccount && (
-                                    <Button onClick={() => openReviewDialog()}>
-                                        <Star className="h-4 w-4 mr-2" />
-                                        {t("firm.reviews.write")}
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-
-                        {reviews.length === 0 ? (
-                            <div className="text-center py-12 border-2 border-dashed rounded-xl bg-muted/30">
-                                <Star className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                                <h3 className="text-lg font-medium text-muted-foreground">{t("firm.reviews.noReviews")}</h3>
-                                <p className="text-sm text-muted-foreground/70 mt-1">{t("firm.reviews.beFirst")}</p>
-                            </div>
-                        ) : (
-                            <div className="relative group">
-                                {!isReviewsExpanded && (
-                                    <>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className={cn(
-                                                "absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background -ml-4 hidden md:flex",
-                                                !canScrollLeft && "opacity-50 cursor-not-allowed"
-                                            )}
-                                            onClick={() => scrollReviews('left')}
-                                            disabled={!canScrollLeft}
-                                        >
-                                            <ChevronLeft className="h-6 w-6" />
-                                        </Button>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className={cn(
-                                                "absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background -mr-4 hidden md:flex",
-                                                !canScrollRight && "opacity-50 cursor-not-allowed"
-                                            )}
-                                            onClick={() => scrollReviews('right')}
-                                            disabled={!canScrollRight}
-                                        >
-                                            <ChevronRight className="h-6 w-6" />
-                                        </Button>
-                                    </>
-                                )}
-                                
-                                <div 
-                                    ref={reviewsScrollRef}
-                                    className={`${isReviewsExpanded 
-                                        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-                                        : "flex overflow-x-auto pb-6 gap-6 snap-x snap-mandatory scrollbar-hide"}`}
-                                >
-                                    <AnimatePresence>
-                                        {reviews.map((review: any) => (
-                                            <motion.div
-                                                key={review.personId}
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -20 }}
-                                                className={`p-6 rounded-xl border flex-shrink-0 w-full md:w-[350px] snap-center flex flex-col ${isReviewsExpanded ? 'w-auto' : ''} ${review.isCurrentPersonReview ? 'bg-primary/5 border-primary/20 shadow-sm' : 'bg-card'}`}
-                                            >
-                                                <div className="flex items-start justify-between mb-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                                                            <AvatarImage src={review.personAvatarUrl} />
-                                                            <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <div className="flex items-center gap-2">
-                                                                <h4 className="font-semibold text-sm line-clamp-1">{review.personFullName || "Anonymous"}</h4>
-                                                                {review.isCurrentPersonReview && (
-                                                                    <Badge variant="secondary" className="text-[10px] px-1 h-5">You</Badge>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                                <div className="flex">
-                                                                    {[...Array(5)].map((_, i) => (
-                                                                        <Star 
-                                                                            key={i} 
-                                                                            className={`h-3 w-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'}`} 
-                                                                        />
-                                                                    ))}
-                                                                </div>
-                                                                <span>•</span>
-                                                                <span>{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "N/A"}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    {review.isCurrentPersonReview && (
-                                                        <div className="flex gap-1">
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openReviewDialog(review)}>
-                                                                <Edit className="h-3.5 w-3.5" />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={handleDeleteReview}>
-                                                                <Trash2 className="h-3.5 w-3.5" />
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4 flex-1">
-                                                    {review.comment}
-                                                </p>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-                                </div>
-                                
-                                {isReviewsExpanded && totalPages > 1 && (
-                                    <div className="mt-8">
-                                        <Pagination>
-                                            <PaginationContent>
-                                                <PaginationItem>
-                                                    <PaginationPrevious 
-                                                        onClick={() => setReviewPage(p => Math.max(1, p - 1))}
-                                                        className={reviewPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                                    />
-                                                </PaginationItem>
-                                                
-                                                {/* Simple pagination logic for now */}
-                                                {[...Array(totalPages)].map((_, i) => {
-                                                    const page = i + 1;
-                                                    // Show first, last, current, and adjacent pages
-                                                    if (
-                                                        page === 1 || 
-                                                        page === totalPages || 
-                                                        (page >= reviewPage - 1 && page <= reviewPage + 1)
-                                                    ) {
-                                                        return (
-                                                            <PaginationItem key={page}>
-                                                                <PaginationLink 
-                                                                    isActive={reviewPage === page}
-                                                                    onClick={() => setReviewPage(page)}
-                                                                    className="cursor-pointer"
-                                                                >
-                                                                    {page}
-                                                                </PaginationLink>
-                                                            </PaginationItem>
-                                                        );
-                                                    } else if (
-                                                        page === reviewPage - 2 || 
-                                                        page === reviewPage + 2
-                                                    ) {
-                                                        return (
-                                                            <PaginationItem key={page}>
-                                                                <PaginationEllipsis />
-                                                            </PaginationItem>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })}
-
-                                                <PaginationItem>
-                                                    <PaginationNext 
-                                                        onClick={() => setReviewPage(p => Math.min(totalPages, p + 1))}
-                                                        className={reviewPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                                    />
-                                                </PaginationItem>
-                                            </PaginationContent>
-                                        </Pagination>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
                 </TabsContent>
 
                 <TabsContent value="jobs" className="mt-6">
@@ -892,63 +692,271 @@ export default function FirmDetailsPage() {
                         <p className="text-muted-foreground">{t("events.noResults")}</p>
                     </div>
                 </TabsContent>
-            </Tabs>
-        </div>
+            </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-            {firm.universalAnswers && firm.universalAnswers.length > 0 && (
+            {/* Sidebar */}
+            <div className="space-y-6">
+                {firm.universalAnswers && firm.universalAnswers.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{t("firm.generalInfo")}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-wrap gap-2">
+                            {firm.universalAnswers.map((ua: any, idx: number) => {
+                                const question = universalQuestions.find((q: any) => q.id === ua.universalQuestionId)
+                                if (!question) return null
+
+                                const option = question.options.find((o: any) => o.id === ua.selectedOptionId)
+                                if (!option) return null
+                                
+                                return (
+                                    <Badge key={idx} variant="secondary" className="font-normal gap-1 text-sm py-1 px-3">
+                                        {question.icon && renderIcon(question.icon, { className: "h-3.5 w-3.5" })}
+                                        {getTranslation(option.translations, "label")}
+                                    </Badge>
+                                )
+                            })}
+                        </CardContent>
+                    </Card>
+                )}
                 <Card>
                     <CardHeader>
-                        <CardTitle>{t("firm.generalInfo")}</CardTitle>
+                        <CardTitle>{t("contact.info")}</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-wrap gap-2">
-                        {firm.universalAnswers.map((ua: any, idx: number) => {
-                            const question = universalQuestions.find((q: any) => q.id === ua.universalQuestionId)
-                            if (!question) return null
-
-                            const option = question.options.find((o: any) => o.id === ua.selectedOptionId)
-                            if (!option) return null
-                            
-                            return (
-                                <Badge key={idx} variant="secondary" className="font-normal gap-1 text-sm py-1 px-3">
-                                    {question.icon && renderIcon(question.icon, { className: "h-3.5 w-3.5" })}
-                                    {getTranslation(option.translations, "label")}
-                                </Badge>
-                            )
-                        })}
+                    <CardContent className="space-y-4">
+                        {firm.contact.email && (
+                            <div className="flex items-center gap-3">
+                                <Mail className="h-4 w-4 text-muted-foreground" />
+                                <a href={`mailto:${firm.contact.email}`} className="text-sm hover:underline">{firm.contact.email}</a>
+                            </div>
+                        )}
+                        {firm.contact.phone && (
+                            <div className="flex items-center gap-3">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <a href={`tel:${firm.contact.phone}`} className="text-sm hover:underline">{firm.contact.phone}</a>
+                            </div>
+                        )}
+                        {firm.location && (
+                            <div className="flex items-start gap-3">
+                                <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                                <div className="text-sm">
+                                    {locationString || <p>{firm.location.address}</p>}
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
-            )}
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t("contact.info")}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {firm.contact.email && (
-                        <div className="flex items-center gap-3">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
-                            <a href={`mailto:${firm.contact.email}`} className="text-sm hover:underline">{firm.contact.email}</a>
-                        </div>
-                    )}
-                    {firm.contact.phone && (
-                        <div className="flex items-center gap-3">
-                            <Phone className="h-4 w-4 text-muted-foreground" />
-                            <a href={`tel:${firm.contact.phone}`} className="text-sm hover:underline">{firm.contact.phone}</a>
-                        </div>
-                    )}
-                    {firm.location && (
-                        <div className="flex items-start gap-3">
-                            <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
-                            <div className="text-sm">
-                                {locationString || <p>{firm.location.address}</p>}
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            </div>
         </div>
-      </div>
+
+        {/* Reviews Section */}
+        <TabsContent value="about" className="mt-12">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <MessageSquare className="h-6 w-6 text-primary" />
+                    {t("firm.reviews.title")}
+                    <span className="text-muted-foreground text-lg font-normal ml-1">({totalReviews})</span>
+                </h2>
+                <div className="flex items-center gap-4">
+                    <Select
+                        value={sortingOption.toString()}
+                        onValueChange={(value) => setSortingOption(parseInt(value) as ReviewSortingOption)}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder={t("jobs.filters.sortBy")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={ReviewSortingOption.MostRecent.toString()}>{t("firm.reviews.sort.mostRecent")}</SelectItem>
+                            <SelectItem value={ReviewSortingOption.LeastRecent.toString()}>{t("firm.reviews.sort.leastRecent")}</SelectItem>
+                            <SelectItem value={ReviewSortingOption.HighestRating.toString()}>{t("firm.reviews.sort.highestRating")}</SelectItem>
+                            <SelectItem value={ReviewSortingOption.LowestRating.toString()}>{t("firm.reviews.sort.lowestRating")}</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    {totalReviews > 10 && (
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setIsReviewsExpanded(!isReviewsExpanded)}
+                            title={isReviewsExpanded ? "Collapse" : "Expand"}
+                        >
+                            {isReviewsExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                        </Button>
+                    )}
+
+                    {!hasUserReview && !isFirmAccount && (
+                        <Button onClick={() => openReviewDialog()}>
+                            <Star className="h-4 w-4 mr-2" />
+                            {t("firm.reviews.write")}
+                        </Button>
+                    )}
+                </div>
+            </div>
+
+            {reviews.length === 0 ? (
+                <div className="text-center py-12 border-2 border-dashed rounded-xl bg-muted/30">
+                    <Star className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
+                    <h3 className="text-lg font-medium text-muted-foreground">{t("firm.reviews.noReviews")}</h3>
+                    <p className="text-sm text-muted-foreground/70 mt-1">{t("firm.reviews.beFirst")}</p>
+                </div>
+            ) : (
+                <div className="relative group">
+                    {!isReviewsExpanded && (
+                        <>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className={cn(
+                                    "absolute left-0 top-1/2 -translate-y-1/2 z-10 -ml-4 hidden md:flex rounded-full shadow-md border-none",
+                                    // Default state: White background, Dark text
+                                    "bg-background text-foreground",
+                                    // Hover state: Red background, White text
+                                    "hover:bg-red-600 hover:text-white",
+                                    !canScrollLeft && "opacity-50 cursor-not-allowed"
+                                )}
+                                onClick={() => scrollReviews('left')}
+                                disabled={!canScrollLeft}
+                            >
+                                <ChevronLeft className="h-6 w-6" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className={cn(
+                                    "absolute right-0 top-1/2 -translate-y-1/2 z-10 -mr-4 hidden md:flex rounded-full shadow-md border-none",
+                                    // Default state: White background, Dark text
+                                    "bg-background text-foreground",
+                                    // Hover state: Red background, White text
+                                    "hover:bg-red-600 hover:text-white",
+                                    !canScrollRight && "opacity-50 cursor-not-allowed"
+                                )}
+                                onClick={() => scrollReviews('right')}
+                                disabled={!canScrollRight}
+                            >
+                                <ChevronRight className="h-6 w-6" />
+                            </Button>
+                        </>
+                    )}
+
+                    <div
+                        ref={reviewsScrollRef}
+                        className={`${isReviewsExpanded 
+                            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+                            : "flex overflow-x-auto pb-6 gap-6 snap-x snap-mandatory scrollbar-hide"}`}
+                    >
+                        <AnimatePresence>
+                            {reviews.map((review: any) => (
+                                <motion.div
+                                    key={review.personId}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className={`p-6 rounded-xl border flex-shrink-0 w-full md:w-[350px] snap-center flex flex-col ${isReviewsExpanded ? 'w-auto' : ''} ${review.isCurrentPersonReview ? 'bg-primary/5 border-primary/20 shadow-sm' : 'bg-card'}`}
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                                                <AvatarImage src={review.personAvatarUrl} />
+                                                <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-semibold text-sm line-clamp-1">{review.personFullName || "Anonymous"}</h4>
+                                                    {review.isCurrentPersonReview && (
+                                                        <Badge variant="secondary" className="text-[10px] px-1 h-5">{t("firm.reviews.you")}</Badge>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                    <div className="flex">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star
+                                                                key={i}
+                                                                className={`h-3 w-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'}`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <span>•</span>
+                                                    <span>{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "N/A"}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {review.isCurrentPersonReview && (
+                                            <div className="flex gap-1">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openReviewDialog(review)}>
+                                                    <Edit className="h-3.5 w-3.5" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={handleDeleteReview}>
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4 flex-1">
+                                        {review.comment}
+                                    </p>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+
+                    {isReviewsExpanded && totalPages > 1 && (
+                        <div className="mt-8">
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            onClick={() => setReviewPage(p => Math.max(1, p - 1))}
+                                            className={reviewPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                        />
+                                    </PaginationItem>
+
+                                    {/* Simple pagination logic for now */}
+                                    {[...Array(totalPages)].map((_, i) => {
+                                        const page = i + 1;
+                                        // Show first, last, current, and adjacent pages
+                                        if (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            (page >= reviewPage - 1 && page <= reviewPage + 1)
+                                        ) {
+                                            return (
+                                                <PaginationItem key={page}>
+                                                    <PaginationLink
+                                                        isActive={reviewPage === page}
+                                                        onClick={() => setReviewPage(page)}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        {page}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            );
+                                        } else if (
+                                            page === reviewPage - 2 ||
+                                            page === reviewPage + 2
+                                        ) {
+                                            return (
+                                                <PaginationItem key={page}>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                            );
+                                        }
+                                        return null;
+                                    })}
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={() => setReviewPage(p => Math.min(totalPages, p + 1))}
+                                            className={reviewPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        </div>
+                    )}
+                </div>
+            )}
+        </TabsContent>
+      </Tabs>
 
       {/* Review Dialog */}
       <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
@@ -956,7 +964,7 @@ export default function FirmDetailsPage() {
             <DialogHeader>
                 <DialogTitle>{editingReview ? t("firm.reviews.edit") : t("firm.reviews.write")}</DialogTitle>
                 <DialogDescription>
-                    Share your experience with {firm.name}. Your feedback helps others make better decisions.
+                    {t("firm.reviews.shareExperience")} {firm.name}. {t("firm.reviews.feedbackHelp")}
                 </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
